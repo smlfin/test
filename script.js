@@ -1,14 +1,13 @@
 document.addEventListener('DOMContentLoaded', () => {
-    // IMPORTANT: Replace with the actual public URL of your canvassing_data.json file from Google Drive
-    const DATA_URL = "https://drive.google.com/uc?id=1mKgU6hdDKP8UauGRC6VM7DTR2nM9sOzX&export=download"; // Your verified DATA_URL
+    // NEW DATA URL: This will be the PUBLISHED CSV link from Google Sheets
+    // Replace with the URL you copied from File > Share > Publish to web (as .csv)
+    const DATA_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTO7LujC4VSa2wGkJ2YEYSN7UeXR221ny3THaVegYfNfRm2JQGg7QR9Bxxh9SadXtK8Pi6-psl2tGsb/pub?gid=696550092&single=true&output=csv"; // **IMPORTANT: Update this!**
 
     const reportsContainer = document.getElementById('reportsContainer');
     if (!reportsContainer) {
         console.error("Error: Element with ID 'reportsContainer' not found in index.html. Cannot display reports.");
-        // If the container is missing, we can't do anything, so we stop.
         return;
     }
-    // Set initial loading message
     reportsContainer.innerHTML = "<p>Loading canvassing data...</p>";
 
     fetch(DATA_URL)
@@ -16,76 +15,105 @@ document.addEventListener('DOMContentLoaded', () => {
             if (!response.ok) {
                 throw new Error(`HTTP error! status: ${response.status}`);
             }
-            return response.json();
+            // Fetch the response as text, because it's CSV, not JSON
+            return response.text();
         })
-        .then(data => {
-            console.log("Fetched raw data:", data); // Log fetched data for debugging
+        .then(csvText => {
+            console.log("Fetched raw CSV data:", csvText); // Log raw CSV for debugging
+
+            // --- Parse CSV to JSON (Array of Objects) ---
+            // This is a simple CSV parser. For complex CSVs, consider a library.
+            const lines = csvText.trim().split('\n'); // Split by line, remove empty last line
+            if (lines.length <= 1) {
+                // Only headers or no data
+                reportsContainer.innerHTML = "<p>No canvassing data available.</p>";
+                return;
+            }
+
+            const headers = lines[0].split(',').map(header => header.trim()); // Get headers from first line
+            const data = [];
+
+            for (let i = 1; i < lines.length; i++) {
+                const values = lines[i].split(',').map(value => value.trim()); // Split values by comma
+                let entry = {};
+                headers.forEach((header, index) => {
+                    entry[header] = values[index];
+                });
+                data.push(entry);
+            }
+
+            console.log("Parsed data (from CSV):", data); // Log parsed data for debugging
 
             if (!data || data.length === 0) {
                 reportsContainer.innerHTML = "<p>No canvassing data available.</p>";
                 return;
             }
 
+            // --- Display total submissions count ---
+            const totalSubmissions = data.length;
+            // Assuming you still have 'totalSubmissions' span in index.html, otherwise remove this
+            // You might want to add back a summary section in index.html
+            // For now, let's just make sure the detailed report renders
+            const totalSubmissionsSpan = document.getElementById('totalSubmissions');
+            if (totalSubmissionsSpan) {
+                totalSubmissionsSpan.textContent = totalSubmissions;
+            }
+
+
             // Group data by Branch Name, then by Employee Name
             const groupedData = {};
 
             data.forEach(entry => {
-                const branchName = entry['Branch Name'];
-                const employeeName = entry['Employee Name'];
+                let branchName = entry['Branch Name'];
+                let employeeName = entry['Employee Name'];
 
-                if (!branchName) {
-                    console.warn("Entry missing 'Branch Name':", entry);
-                    return; // Skip entries without a branch name
+                // Handle potential missing values for grouping
+                if (!branchName || branchName.trim() === '') {
+                    branchName = "Unassigned Branch";
                 }
-                if (!employeeName) {
-                    console.warn("Entry missing 'Employee Name' for branch:", branchName, entry);
-                    // For now, let's put entries without an employee under a generic 'Unassigned'
-                    // Or you can skip them, depending on your data quality expectations
-                    // For this example, we'll put them under 'Unassigned Employee'
+                if (!employeeName || employeeName.trim() === '') {
                     employeeName = "Unassigned Employee";
                 }
 
                 if (!groupedData[branchName]) {
-                    groupedData[branchName] = {}; // Initialize branch
+                    groupedData[branchName] = {};
                 }
                 if (!groupedData[branchName][employeeName]) {
-                    groupedData[branchName][employeeName] = []; // Initialize employee for this branch
+                    groupedData[branchName][employeeName] = [];
                 }
-                groupedData[branchName][employeeName].push(entry); // Add the entry to the employee's array
+                groupedData[branchName][employeeName].push(entry);
             });
 
-            console.log("Grouped data:", groupedData); // Log grouped data for debugging
+            console.log("Grouped data:", groupedData);
 
-            // Clear loading message
+            // Clear loading message and prepare for rendering
             reportsContainer.innerHTML = '';
 
             // Render the grouped data
             for (const branch in groupedData) {
                 const branchDiv = document.createElement('div');
-                branchDiv.className = 'branch-group'; // Add a class for styling
+                branchDiv.className = 'branch-group';
                 branchDiv.innerHTML = `<h2>Branch Name: ${branch}</h2>`;
 
                 const employeeList = document.createElement('ul');
-                employeeList.className = 'employee-list'; // Add a class for styling
+                employeeList.className = 'employee-list';
 
                 for (const employee in groupedData[branch]) {
                     const employeeLi = document.createElement('li');
-                    employeeLi.className = 'employee-item'; // Add a class for styling
+                    employeeLi.className = 'employee-item';
                     employeeLi.innerHTML = `<h3>Employee Name: ${employee}</h3>`;
 
                     const entryDetailsList = document.createElement('ul');
-                    entryDetailsList.className = 'entry-details-list'; // Add a class for styling
+                    entryDetailsList.className = 'entry-details-list';
 
-                    // Loop through each entry for this employee
                     groupedData[branch][employee].forEach(entry => {
                         const entryLi = document.createElement('li');
-                        entryLi.className = 'entry-detail-item'; // Add a class for styling
+                        entryLi.className = 'entry-detail-item';
 
                         // Dynamically display all relevant fields for each entry
                         let detailHtml = `<h4>Canvassing Entry</h4>`;
                         detailHtml += `<p><strong>Timestamp:</strong> ${entry['Timestamp'] || 'N/A'}</p>`;
                         detailHtml += `<p><strong>Date:</strong> ${entry['Date'] || 'N/A'}</p>`;
-                        // No need for Branch Name/Employee Name again here as they are headers
                         detailHtml += `<p><strong>Employee Code:</strong> ${entry['Employee Code'] || 'N/A'}</p>`;
                         detailHtml += `<p><strong>Designation:</strong> ${entry['Designation'] || 'N/A'}</p>`;
                         detailHtml += `<p><strong>Activity Type:</strong> ${entry['Activity Type'] || 'N/A'}</p>`;
@@ -93,11 +121,11 @@ document.addEventListener('DOMContentLoaded', () => {
                         detailHtml += `<p><strong>Lead Source:</strong> ${entry['Lead Source'] || 'N/A'}</p>`;
                         detailHtml += `<p><strong>How Contacted:</strong> ${entry['How Contacted'] || 'N/A'}</p>`;
                         detailHtml += `<p><strong>Prospect Name:</strong> ${entry['Prospect Name'] || 'N/A'}</p>`;
-                        detailHtml += `<p><strong>Phone Number (Whatsapp):</strong> ${entry['Phone Numebr(Whatsapp)'] || 'N/A'}</p>`;
+                        detailHtml += `<p><strong>Phone Numebr(Whatsapp):</strong> ${entry['Phone Numebr(Whatsapp)'] || 'N/A'}</p>`;
                         detailHtml += `<p><strong>Address:</strong> ${entry['Address'] || 'N/A'}</p>`;
                         detailHtml += `<p><strong>Profession:</strong> ${entry['Profession'] || 'N/A'}</p>`;
                         detailHtml += `<p><strong>DOB/WD:</strong> ${entry['DOB/WD'] || 'N/A'}</p>`;
-                        detailHtml += `<p><strong>Product Interested:</strong> ${entry['Prodcut Interested'] || 'N/A'}</p>`;
+                        detailHtml += `<p><strong>Prodcut Interested:</strong> ${entry['Prodcut Interested'] || 'N/A'}</p>`;
                         detailHtml += `<p><strong>Remarks:</strong> ${entry['Remarks'] || 'N/A'}</p>`;
                         detailHtml += `<p><strong>Next Follow-up Date:</strong> ${entry['Next Follow-up Date'] || 'N/A'}</p>`;
                         detailHtml += `<p><strong>Relation With Staff:</strong> ${entry['Relation With Staff'] || 'N/A'}</p>`;
@@ -116,7 +144,7 @@ document.addEventListener('DOMContentLoaded', () => {
         })
         .catch(error => {
             console.error("Error fetching or processing data:", error);
-            // Display a user-friendly error message on the page
-            reportsContainer.innerHTML = "<p>Error loading data. Please try again later. Check browser console for details.</p>";
+            const mainContent = document.querySelector('main') || document.body;
+            mainContent.innerHTML = "<p>Error loading data. Please try again later. Check browser console for details.</p>";
         });
 });
