@@ -1,6 +1,6 @@
 document.addEventListener('DOMContentLoaded', () => {
     // *** Configuration ***
-    const DATA_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTO7LujC4VSa2wGkJ2YEYSN7UeXR221ny3THaVegYfNfRm2JQGg7QR9Bxxh9SadXtK8Pi6-psl2tGsb/pub?gid=696550092&single=true&output=csv";
+    const DATA_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTO7LujC4VSa2wGkJ2YEYSN7UeXR221ny3THaVegYfNfRm2JQGg7QR9Bxxh9SadXtK8Pi6-ps2tGsb/pub?gid=696550092&single=true&output=csv";
 
     const MONTHLY_WORKING_DAYS = 22; // Common approximation for a month's working days
 
@@ -81,28 +81,27 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // Filters data for the current month and year
+    // Filters data for the current month and year using string comparison
     function filterDataForCurrentMonth(data) {
         const now = new Date();
-        const currentMonth = now.getMonth(); // 0-indexed
-        const currentYear = now.getFullYear();
-        console.log(`Filtering for Current Month: ${currentMonth + 1}, Year: ${currentYear}`); // Debugging
+        const currentMonthString = String(now.getMonth() + 1).padStart(2, '0'); // '06' for June
+        const currentYearString = String(now.getFullYear()); // '2025'
+
+        console.log(`Filtering for Current Month (Target): ${currentMonthString}, Year: ${currentYearString}`); // Debugging
 
         return data.filter(entry => {
             if (entry['Date']) {
-                const dateParts = entry['Date'].split('/'); // Assumes DD/MM/YY
+                const dateParts = entry['Date'].split('/'); // Assumes DD/MM/YYYY
                 if (dateParts.length === 3) {
-                    const entryDay = parseInt(dateParts[0], 10);
-                    const entryMonth = parseInt(dateParts[1], 10) - 1; // Convert to 0-indexed for JS Date
-                    let entryYear = parseInt(dateParts[2], 10);
-                    // Handle 2-digit year (e.g., '25' -> 2025). Assume 20xx century
-                    entryYear = (entryYear < 70 ? 2000 + entryYear : 1900 + entryYear); // Common heuristic for 2-digit years
+                    const entryMonthString = dateParts[1]; // '06'
+                    const entryYearString = dateParts[2]; // '2025' (from YYYY) or '25' (from YY)
 
-                    // Use Date constructor for robust comparison
-                    const entryDate = new Date(entryYear, entryMonth, entryDay);
-
-                    const isMatch = entryDate.getMonth() === currentMonth && entryDate.getFullYear() === currentYear;
-                    // console.log(`Entry Date: ${entry['Date']} -> Parsed: ${entryDate.toDateString()} (Match: ${isMatch})`); // Detailed Debugging
+                    // For 2-digit years like '25', convert to '2025' for consistent string comparison if needed
+                    // However, your data is 'YYYY', so direct comparison is fine.
+                    // If you have mixed 'YY' and 'YYYY', this needs robust handling.
+                    // For now, assuming entryYearString is always 'YYYY' for '02/06/2025' format
+                    const isMatch = entryMonthString === currentMonthString && entryYearString === currentYearString;
+                    // console.log(`Entry Date: ${entry['Date']} (Month: ${entryMonthString}, Year: ${entryYearString}) vs Current (Month: ${currentMonthString}, Year: ${currentYearString}) -> Match: ${isMatch}`); // Detailed Debugging
                     return isMatch;
                 }
             }
