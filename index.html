@@ -5,22 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Canvassing Efforts Dashboard</title>
     <link rel="stylesheet" href="style.css">
-    <style>
-        /* Basic styling for demonstration - you can move this to style.css */
-        body { font-family: Arial, sans-serif; margin: 0; padding: 0; background-color: #f4f4f4; }
-        header { background-color: #333; color: white; padding: 1rem; text-align: center; }
-        main { padding: 20px; max-width: 1200px; margin: 20px auto; background-color: white; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
-        .control-panel { background-color: #eee; padding: 15px; border-radius: 5px; margin-bottom: 20px; display: flex; flex-wrap: wrap; gap: 15px; align-items: center;}
-        .control-panel label { font-weight: bold; margin-right: 5px; }
-        .control-panel select, .control-panel button { padding: 8px 12px; border: 1px solid #ccc; border-radius: 4px; }
-        .control-panel button { background-color: #007bff; color: white; cursor: pointer; border: none; }
-        .control-panel button:hover { background-color: #0056b3; }
-        #reportDisplay { min-height: 200px; border: 1px solid #ddd; padding: 20px; border-radius: 5px; background-color: #f9f9f9; }
-        .branch-group, .employee-item { margin-bottom: 20px; border-left: 5px solid #007bff; padding-left: 10px; }
-        .employee-list, .entry-details-list { list-style: none; padding-left: 20px; }
-        .entry-detail-item { border: 1px solid #eee; padding: 10px; margin-bottom: 10px; background-color: white; border-radius: 4px; }
-        footer { text-align: center; padding: 1rem; margin-top: 20px; background-color: #333; color: white; }
-    </style>
 </head>
 <body>
     <header>
@@ -43,9 +27,11 @@
             </div>
 
             <div id="viewOptions" style="display: none;">
-                <button id="viewAllEntriesBtn">View All Entries</button>
-                <button id="viewEmployeeSummaryBtn">View Employee Summary</button>
-                </div>
+                <button id="viewBranchSummaryBtn">View All Staff Activity (Branch Summary)</button>
+                <button id="viewAllEntriesBtn">View Employee Entries (Detailed)</button>
+                <button id="viewEmployeeSummaryBtn">View Employee Activity Summary</button>
+                <button id="viewPerformanceReportBtn">View Employee Performance Report</button>
+            </div>
         </div>
 
         <div id="reportDisplay">
