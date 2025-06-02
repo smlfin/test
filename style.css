@@ -1,54 +1,291 @@
+/* General Body and Container Styles */
 body {
-    font-family: Arial, sans-serif;
+    font-family: 'Segoe UI', Arial, sans-serif; /* A more modern font */
     margin: 0;
-    padding: 20px;
-    background-color: #f4f4f4;
+    padding: 0;
+    background-color: #eef2f6; /* Light background */
     color: #333;
+    line-height: 1.6;
 }
 
 header {
-    background-color: #007bff;
+    background-color: #2c3e50; /* Dark blue header */
     color: white;
-    padding: 15px;
+    padding: 1.5rem 1rem;
     text-align: center;
-    margin-bottom: 20px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+}
+
+header h1 {
+    margin: 0;
+    font-size: 2.2rem;
+    font-weight: 600;
 }
 
 main {
-    background-color: white;
-    padding: 20px;
-    border-radius: 8px;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    padding: 30px;
+    max-width: 1300px; /* Wider main content area */
+    margin: 30px auto;
+    background-color: #ffffff;
+    border-radius: 12px;
+    box-shadow: 0 8px 25px rgba(0,0,0,0.1); /* Deeper shadow */
 }
 
-section {
+/* Control Panel Layout and Styling */
+.control-panel {
+    background-color: #f7f9fb; /* Lighter background for control panel */
+    padding: 25px;
+    border-radius: 10px;
     margin-bottom: 30px;
-    border-bottom: 1px solid #eee;
-    padding-bottom: 20px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px; /* More spacing */
+    align-items: center;
+    justify-content: flex-start;
+    box-shadow: inset 0 1px 3px rgba(0,0,0,0.08); /* Inner shadow for depth */
+    border: 1px solid #e0e6ed;
 }
 
-section:last-child {
-    border-bottom: none;
+.control-panel div {
+    display: flex;
+    align-items: center;
+    gap: 10px;
 }
 
-h2, h3 {
-    color: #007bff;
+.control-panel label {
+    font-weight: 600;
+    color: #555;
+    font-size: 1.05rem;
 }
 
-ul {
-    list-style: none;
-    padding: 0;
+.control-panel select,
+.control-panel button {
+    padding: 10px 18px; /* More padding for a softer look */
+    border: 1px solid #cdd4da;
+    border-radius: 6px; /* Slightly more rounded corners */
+    font-size: 1rem;
+    background-color: #ffffff;
+    cursor: pointer;
+    transition: all 0.3s ease; /* Smooth transitions */
+    box-shadow: 0 1px 3px rgba(0,0,0,0.08);
 }
 
-li {
-    background-color: #e9ecef;
+.control-panel select:hover,
+.control-panel button:hover {
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15); /* More pronounced hover shadow */
+}
+
+.control-panel select:focus,
+.control-panel button:focus {
+    border-color: #8bbceb; /* A subtle blue focus border */
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(0,123,255,0.2); /* Soft blue glow */
+}
+
+.control-panel button {
+    background-color: #007bff; /* Primary blue button */
+    color: white;
+    border: none;
+    font-weight: 500;
+}
+
+.control-panel button:hover {
+    background-color: #0056b3; /* Darker blue on hover */
+}
+
+/* Report Display Area */
+#reportDisplay {
+    background-color: #ffffff;
+    padding: 30px;
+    border-radius: 10px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+    min-height: 400px;
+    border: 1px solid #e0e6ed;
+    /* This is crucial for horizontal tables */
+    overflow-x: auto;
+}
+
+#reportDisplay h2,
+#reportDisplay h3,
+#reportDisplay h4 {
+    color: #0056b3;
+    margin-top: 25px;
+    margin-bottom: 15px;
+    border-bottom: 2px solid #e9ecef;
+    padding-bottom: 8px;
+    font-weight: 600;
+}
+
+/* Table Styling for Detailed Entries and Performance Reports */
+.data-table, .performance-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 25px;
+    font-size: 0.95em; /* Slightly larger font for readability */
+    min-width: 700px; /* Ensure table doesn't get too narrow before scrolling */
+}
+
+.data-table th,
+.data-table td,
+.performance-table th,
+.performance-table td {
+    border: 1px solid #e0e6ed; /* Lighter border */
+    padding: 12px 15px; /* More padding */
+    text-align: left;
+    vertical-align: middle; /* Center content vertically */
+}
+
+.data-table th,
+.performance-table th {
+    background-color: #f0f4f7; /* Light grey header */
+    font-weight: 600;
+    color: #495057;
+    white-space: nowrap;
+    position: sticky; /* Keep header visible on horizontal scroll */
+    top: 0;
+    z-index: 1; /* Ensure it stays above content */
+}
+
+.data-table tr:nth-child(even),
+.performance-table tr:nth-child(even) {
+    background-color: #fbfdff; /* Very light blue tint for even rows */
+}
+
+.data-table tr:hover,
+.performance-table tr:hover {
+    background-color: #e6f2ff; /* Soft blue on hover */
+    cursor: default; /* Indicate not clickable */
+}
+
+/* Specific styles for summary lists (for individual employee summary) */
+.summary-list {
+    list-style: none; /* Remove default bullet points */
+    padding-left: 0;
+    margin-top: 15px;
+}
+.summary-list li {
     margin-bottom: 8px;
-    padding: 10px;
-    border-radius: 4px;
+    padding-left: 20px;
+    position: relative;
+}
+.summary-list li::before { /* Custom bullet point */
+    content: '•';
+    color: #007bff;
+    position: absolute;
+    left: 0;
 }
 
+/* Performance Report Specifics */
+.performance-metric {
+    font-weight: bold;
+    color: #34495e;
+}
+
+.progress-bar-container {
+    width: 100%;
+    background-color: #e0e0e0;
+    border-radius: 5px;
+    overflow: hidden;
+    margin-top: 5px;
+    height: 25px; /* Taller progress bar */
+}
+
+.progress-bar {
+    height: 100%;
+    background-color: #28a745; /* Green for good progress */
+    width: 0%;
+    text-align: center;
+    color: white;
+    line-height: 25px;
+    font-size: 0.85em;
+    font-weight: bold;
+    transition: width 0.6s ease-in-out;
+    display: flex; /* For centering text */
+    align-items: center;
+    justify-content: center;
+    box-shadow: inset 0 1px 2px rgba(0,0,0,0.2);
+}
+.progress-bar.warning { background-color: #ffc107; } /* Orange */
+.progress-bar.danger { background-color: #dc3545; } /* Red */
+.progress-bar.overachieved { background-color: #6f42c1; } /* Purple for >100% */
+
+
+/* Branch and Employee Grouping (Branch Summary View) */
+.branch-group {
+    margin-bottom: 30px;
+    border: 1px solid #b3d7ff; /* Lighter border */
+    border-left: 5px solid #007bff; /* Prominent blue bar */
+    padding: 20px;
+    background-color: #eaf6ff;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0,123,255,0.08);
+}
+.branch-group h2 {
+    color: #0056b3;
+    margin-top: 0;
+}
+
+.employee-summary-card { /* New style for individual employee summary in branch overview */
+    background-color: #ffffff;
+    border: 1px solid #dee2e6;
+    border-left: 4px solid #6c757d; /* Darker grey bar */
+    padding: 15px 20px;
+    margin-top: 15px;
+    border-radius: 6px;
+    box-shadow: 0 1px 5px rgba(0,0,0,0.05);
+}
+.employee-summary-card h4 {
+    color: #495057;
+    margin-top: 0;
+    margin-bottom: 10px;
+    font-size: 1.15rem;
+    border-bottom: 1px dashed #e0e0e0;
+    padding-bottom: 5px;
+}
+.employee-summary-card p {
+    margin: 5px 0;
+    font-size: 0.95rem;
+}
+.employee-summary-card strong {
+    color: #555;
+}
+
+/* Footer Styling */
 footer {
     text-align: center;
-    margin-top: 30px;
-    color: #777;
+    padding: 1.5rem;
+    margin-top: 40px;
+    background-color: #333;
+    color: #ccc;
+    font-size: 0.9rem;
+    box-shadow: 0 -2px 5px rgba(0,0,0,0.1);
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    main {
+        padding: 15px;
+        margin: 15px auto;
+    }
+    .control-panel {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    .control-panel div {
+        flex-direction: column;
+        align-items: flex-start;
+        width: 100%;
+    }
+    .control-panel select,
+    .control-panel button {
+        width: 100%;
+        margin-top: 5px;
+    }
+    .data-table, .performance-table {
+        min-width: unset; /* Allow tables to shrink on small screens, relies on overflow-x for scrolling */
+    }
+    .data-table th, .data-table td,
+    .performance-table th, .performance-table td {
+        padding: 8px 10px;
+    }
 }

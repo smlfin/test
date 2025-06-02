@@ -2,16 +2,14 @@ document.addEventListener('DOMContentLoaded', () => {
     // *** Configuration ***
     const DATA_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTO7LujC4VSa2wGkJ2YEYSN7UeXR221ny3THaVegYfNfRm2JQGg7QR9Bxxh9SadXtK8Pi6-psl2tGsb/pub?gid=696550092&single=true&output=csv";
 
-    // Define monthly targets based on your clarification
-    // Assuming 22 working days for daily targets
-    const MONTHLY_WORKING_DAYS = 22; // As of June 2025, a common approximation for a month's working days
+    const MONTHLY_WORKING_DAYS = 22; // Common approximation for a month's working days
 
     const TARGETS = {
         'Branch Manager': {
-            'Visit': 10,  // Visits/month
-            'Call': 3 * MONTHLY_WORKING_DAYS, // Calls/month
-            'Reference': 1 * MONTHLY_WORKING_DAYS, // References/month
-            'New Customer Leads': 20 // Leads/month
+            'Visit': 10,
+            'Call': 3 * MONTHLY_WORKING_DAYS,
+            'Reference': 1 * MONTHLY_WORKING_DAYS,
+            'New Customer Leads': 20
         },
         'Default': { // For all other designations not explicitly defined
             'Visit': 5,
@@ -90,21 +88,70 @@ document.addEventListener('DOMContentLoaded', () => {
         const currentYear = now.getFullYear();
 
         return data.filter(entry => {
-            // Your 'Date' format is 'DD/MM/YY' (e.g., '01/06/25')
             if (entry['Date']) {
-                const dateParts = entry['Date'].split('/');
+                const dateParts = entry['Date'].split('/'); // Assumes DD/MM/YY
                 if (dateParts.length === 3) {
                     const entryDay = parseInt(dateParts[0], 10);
                     const entryMonth = parseInt(dateParts[1], 10) - 1; // Convert to 0-indexed for JS Date
                     let entryYear = parseInt(dateParts[2], 10);
-                    // Handle 2-digit year (e.g., '25' -> 2025). Assumes years are 2000-2099
-                    entryYear = (entryYear < 70 ? 2000 + entryYear : 1900 + entryYear); // Using 70 as cutoff for 2-digit year
+                    // Handle 2-digit year (e.g., '25' -> 2025). Assume 20xx century
+                    entryYear = (entryYear < 70 ? 2000 + entryYear : 1900 + entryYear); // Common heuristic for 2-digit years
 
-                    return entryMonth === currentMonth && entryYear === currentYear;
+                    // Use Date constructor for robust comparison
+                    const entryDate = new Date(entryYear, entryMonth, entryDay);
+
+                    return entryDate.getMonth() === currentMonth && entryDate.getFullYear() === currentYear;
                 }
             }
             return false;
         });
+    }
+
+    // Function to calculate key metrics for a given set of entries (used in multiple reports)
+    function calculateMetrics(entries) {
+        const metrics = {
+            totalEntries: entries.length,
+            visits: 0,
+            calls: 0,
+            references: 0,
+            newCustomerLeads: 0,
+            activityTypeCounts: {},
+            customerTypeCounts: {},
+            leadSourceCounts: {},
+            productInterestedCounts: {},
+            professionCounts: {}
+        };
+
+        entries.forEach(entry => {
+            const activity = entry['Activity Type'];
+            const customerType = entry['Type of Customer'];
+            const leadSource = entry['Lead Source'];
+            const product = entry['Prodcut Interested'];
+            const profession = entry['Profession'];
+
+            // Counting based on your specific definitions
+            if (activity === 'Visit') {
+                metrics.visits++;
+            }
+            if (activity === 'Call') {
+                metrics.calls++;
+            }
+            if (customerType === 'New' && activity === 'Referance') { // Corrected logic for "Reference"
+                metrics.references++;
+            }
+            if (customerType === 'New') { // "New Customer Leads" definition
+                metrics.newCustomerLeads++;
+            }
+
+            // General counts for summaries
+            if (activity) metrics.activityTypeCounts[activity] = (metrics.activityTypeCounts[activity] || 0) + 1;
+            if (customerType) metrics.customerTypeCounts[customerType] = (metrics.customerTypeCounts[customerType] || 0) + 1;
+            if (leadSource) metrics.leadSourceCounts[leadSource] = (metrics.leadSourceCounts[leadSource] || 0) + 1;
+            if (product) metrics.productInterestedCounts[product] = (metrics.productInterestedCounts[product] || 0) + 1;
+            if (profession) metrics.professionCounts[profession] = (metrics.professionCounts[profession] || 0) + 1;
+        });
+
+        return metrics;
     }
 
 
@@ -160,65 +207,40 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
-        // --- Calculate Summary Metrics ---
-        const totalEntries = entries.length;
-        const activityTypeCounts = {};
-        const customerTypeCounts = {};
-        const leadSourceCounts = {};
-        const productInterestedCounts = {};
-        const professionCounts = {};
+        const metrics = calculateMetrics(entries);
 
-        entries.forEach(entry => {
-            const activity = entry['Activity Type'];
-            const customerType = entry['Type of Customer'];
-            const leadSource = entry['Lead Source'];
-            const product = entry['Prodcut Interested'];
-            const profession = entry['Profession'];
+        let summaryHtml = `<p><strong>Total Canvassing Entries:</strong> ${metrics.totalEntries}</p>`;
 
-            if (activity) activityTypeCounts[activity] = (activityTypeCounts[activity] || 0) + 1;
-            if (customerType) customerTypeCounts[customerType] = (customerTypeCounts[customerType] || 0) + 1;
-            if (leadSource) leadSourceCounts[leadSource] = (leadSourceCounts[leadSource] || 0) + 1;
-            if (product) productInterestedCounts[product] = (productInterestedCounts[product] || 0) + 1;
-            if (profession) professionCounts[profession] = (professionCounts[profession] || 0) + 1;
-        });
+        summaryHtml += `<h4>Key Activity Counts:</h4><ul class="summary-list">`;
+        summaryHtml += `<li>Visits: ${metrics.visits}</li>`;
+        summaryHtml += `<li>Calls: ${metrics.calls}</li>`;
+        summaryHtml += `<li>References: ${metrics.references}</li>`;
+        summaryHtml += `<li>New Customer Leads: ${metrics.newCustomerLeads}</li>`;
+        summaryHtml += `</ul>`;
 
-        // --- Display Summary ---
-        let summaryHtml = `<p><strong>Total Canvassing Entries:</strong> ${totalEntries}</p>`;
-
-        summaryHtml += `<h4>Activity Types:</h4><ul class="summary-list">`;
-        for (const type in activityTypeCounts) {
-            summaryHtml += `<li>${type}: ${activityTypeCounts[type]}</li>`;
+        // Detailed breakdowns for other categories
+        summaryHtml += `<h4>Activity Types Breakdown:</h4><ul class="summary-list">`;
+        for (const type in metrics.activityTypeCounts) {
+            summaryHtml += `<li>${type}: ${metrics.activityTypeCounts[type]}</li>`;
         }
         summaryHtml += `</ul>`;
 
-        summaryHtml += `<h4>Customer Types:</h4><ul class="summary-list">`;
-        for (const type in customerTypeCounts) {
-            summaryHtml += `<li>${type}: ${customerTypeCounts[type]}</li>`;
+        summaryHtml += `<h4>Customer Types Breakdown:</h4><ul class="summary-list">`;
+        for (const type in metrics.customerTypeCounts) {
+            summaryHtml += `<li>${type}: ${metrics.customerTypeCounts[type]}</li>`;
         }
         summaryHtml += `</ul>`;
 
-        summaryHtml += `<h4>Lead Sources:</h4><ul class="summary-list">`;
-        for (const source in leadSourceCounts) {
-            summaryHtml += `<li>${source}: ${leadSourceCounts[source]}</li>`;
-        }
-        summaryHtml += `</ul>`;
-
-        summaryHtml += `<h4>Products Interested:</h4><ul class="summary-list">`;
-        for (const product in productInterestedCounts) {
-            summaryHtml += `<li>${product}: ${productInterestedCounts[product]}</li>`;
-        }
-        summaryHtml += `</ul>`;
-
-        summaryHtml += `<h4>Professions:</h4><ul class="summary-list">`;
-        for (const profession in professionCounts) {
-            summaryHtml += `<li>${profession}: ${professionCounts[profession]}</li>`;
+        summaryHtml += `<h4>Products Interested Breakdown:</h4><ul class="summary-list">`;
+        for (const product in metrics.productInterestedCounts) {
+            summaryHtml += `<li>${product}: ${metrics.productInterestedCounts[product]}</li>`;
         }
         summaryHtml += `</ul>`;
 
         reportDisplay.innerHTML += summaryHtml;
     }
 
-    // New Function: Renders a summary for all staff in a branch
+    // New Function: Renders a summary for all staff in a branch with key metrics per employee
     function renderBranchSummary(branchData) {
         const branchName = branchData[0]['Branch Name'];
         reportDisplay.innerHTML = `<h3>All Staff Activity Summary for ${branchName} Branch</h3>`;
@@ -228,55 +250,34 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
-        const employeeAggregates = {};
-
-        // Aggregate data for each employee in the branch
+        // Group data by employee
+        const employeesInBranch = {};
         branchData.forEach(entry => {
             const employee = entry['Employee Name'];
-            const activity = entry['Activity Type'];
-            const customerType = entry['Type of Customer'];
-            const leadSource = entry['Lead Source'];
-            const product = entry['Prodcut Interested'];
-            const profession = entry['Profession'];
-
-            if (!employeeAggregates[employee]) {
-                employeeAggregates[employee] = {
-                    totalEntries: 0,
-                    activityTypeCounts: {},
-                    customerTypeCounts: {},
-                    leadSourceCounts: {},
-                    productInterestedCounts: {},
-                    professionCounts: {}
-                };
+            if (!employeesInBranch[employee]) {
+                employeesInBranch[employee] = [];
             }
-
-            employeeAggregates[employee].totalEntries++;
-            if (activity) employeeAggregates[employee].activityTypeCounts[activity] = (employeeAggregates[employee].activityTypeCounts[activity] || 0) + 1;
-            if (customerType) employeeAggregates[employee].customerTypeCounts[customerType] = (employeeAggregates[employee].customerTypeCounts[customerType] || 0) + 1;
-            if (leadSource) employeeAggregates[employee].leadSourceCounts[leadSource] = (employeeAggregates[employee].leadSourceCounts[leadSource] || 0) + 1;
-            if (product) employeeAggregates[employee].productInterestedCounts[product] = (employeeAggregates[employee].productInterestedCounts[product] || 0) + 1;
-            if (profession) employeeAggregates[employee].professionCounts[profession] = (employeeAggregates[employee].professionCounts[profession] || 0) + 1;
+            employeesInBranch[employee].push(entry);
         });
 
-        // Display summary for each employee in the branch
-        for (const employee in employeeAggregates) {
-            const empSummary = employeeAggregates[employee];
-            let empHtml = `<div class="employee-item">`;
-            empHtml += `<h4>${employee} (${empSummary.totalEntries} entries)</h4>`;
+        // Display summary for each employee
+        for (const employeeName in employeesInBranch) {
+            const empEntries = employeesInBranch[employeeName];
+            const metrics = calculateMetrics(empEntries); // Calculate metrics for each employee
 
-            empHtml += `<h5>Activity Types:</h5><ul class="summary-list">`;
-            for (const type in empSummary.activityTypeCounts) {
-                empHtml += `<li>${type}: ${empSummary.activityTypeCounts[type]}</li>`;
+            let empHtml = `<div class="employee-summary-card">`;
+            empHtml += `<h4>${employeeName} (Total Entries: ${metrics.totalEntries})</h4>`;
+            empHtml += `<p><strong>Visits:</strong> ${metrics.visits}</p>`;
+            empHtml += `<p><strong>Calls:</strong> ${metrics.calls}</p>`;
+            empHtml += `<p><strong>References:</strong> ${metrics.references}</p>`;
+            empHtml += `<p><strong>New Customer Leads:</strong> ${metrics.newCustomerLeads}</p>`;
+
+            // Optional: add top 3 most common activity types
+            const sortedActivities = Object.entries(metrics.activityTypeCounts).sort((a,b) => b[1] - a[1]);
+            if(sortedActivities.length > 0) {
+                empHtml += `<p><strong>Top Activities:</strong> ${sortedActivities.slice(0, 3).map(a => `${a[0]} (${a[1]})`).join(', ')}</p>`;
             }
-            empHtml += `</ul>`;
 
-            empHtml += `<h5>Products Interested:</h5><ul class="summary-list">`;
-            for (const product in empSummary.productInterestedCounts) {
-                empHtml += `<li>${product}: ${empSummary.productInterestedCounts[product]}</li>`;
-            }
-            empHtml += `</ul>`;
-
-            // Add other counts as desired
             empHtml += `</div>`;
             reportDisplay.innerHTML += empHtml;
         }
@@ -292,36 +293,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // Filter entries for the current month for target tracking
         const currentMonthEntries = filterDataForCurrentMonth(entries);
-        console.log(`Entries for current month (${new Date().getMonth() + 1}/${new Date().getFullYear()}):`, currentMonthEntries);
+        console.log(`Current Month Entries for ${employeeName}:`, currentMonthEntries); // Debugging line
 
-        // Calculate actuals for the current month based on clarified mappings
-        const actuals = {
-            'Visit': 0,
-            'Call': 0,
-            'Reference': 0, // This is now more specific
-            'New Customer Leads': 0
-        };
-
-        currentMonthEntries.forEach(entry => {
-            // Count Visits
-            if (entry['Activity Type'] === 'Visit') {
-                actuals['Visit']++;
-            }
-            // Count Calls
-            if (entry['Activity Type'] === 'Call') {
-                actuals['Call']++;
-            }
-            // Count Leads created (Type of Customer: "New")
-            if (entry['Type of Customer'] === 'New') {
-                actuals['New Customer Leads']++;
-            }
-            // Count Reference (Type of Customer: "New" AND Activity Type: "Referance")
-            if (entry['Type of Customer'] === 'New' && entry['Activity Type'] === 'Referance') {
-                actuals['Reference']++;
-            }
-        });
-
-        console.log("Calculated Actuals for current month:", actuals);
+        // Calculate actuals for the current month using the new calculateMetrics function
+        const actuals = calculateMetrics(currentMonthEntries);
+        console.log("Calculated Actuals for current month:", actuals); // Debugging line
 
         // Get targets based on designation, default if not found
         const employeeTargets = TARGETS[designation] || TARGETS['Default'];
@@ -339,21 +315,39 @@ document.addEventListener('DOMContentLoaded', () => {
             </thead>
             <tbody>`;
 
-        for (const metric in employeeTargets) {
-            const target = employeeTargets[metric];
-            const actual = actuals[metric] || 0; // Use 0 if no actuals counted
-            const percentage = target > 0 ? ((actual / target) * 100).toFixed(0) : 'N/A';
-            const progressBarWidth = target > 0 ? Math.min(100, (actual / target) * 100) : 0; // Cap at 100% for bar
+        const metricsToDisplay = ['Visit', 'Call', 'Reference', 'New Customer Leads']; // Explicit order for display
 
-            let progressBarClass = '';
-            if (progressBarWidth < 50) {
-                progressBarClass = 'danger'; // Red for low progress
-            } else if (progressBarWidth < 90) {
-                progressBarClass = 'warning'; // Orange for moderate progress
-            } else {
-                progressBarClass = 'success'; // Green for good progress
+        metricsToDisplay.forEach(metric => {
+            let actualValue;
+            // Map metric name to its actuals property
+            switch(metric) {
+                case 'Visit': actualValue = actuals.visits; break;
+                case 'Call': actualValue = actuals.calls; break;
+                case 'Reference': actualValue = actuals.references; break;
+                case 'New Customer Leads': actualValue = actuals.newCustomerLeads; break;
+                default: actualValue = 0;
             }
 
+            const target = employeeTargets[metric] || 0;
+            const actual = actualValue || 0; // Ensure it's a number
+
+            const percentage = target > 0 ? ((actual / target) * 100).toFixed(0) : 'N/A';
+            let progressBarWidth = 0;
+            if (target > 0) {
+                progressBarWidth = (actual / target) * 100;
+            }
+
+            let progressBarClass = '';
+            if (progressBarWidth >= 100) {
+                progressBarClass = 'overachieved'; // New class for over 100%
+                progressBarWidth = 100; // Cap visual bar at 100%
+            } else if (progressBarWidth >= 90) {
+                progressBarClass = 'success';
+            } else if (progressBarWidth >= 50) {
+                progressBarClass = 'warning';
+            } else {
+                progressBarClass = 'danger';
+            }
 
             tableHtml += `
                 <tr>
@@ -369,7 +363,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         </div>
                     </td>
                 </tr>`;
-        }
+        });
 
         tableHtml += `</tbody></table>`;
         reportDisplay.innerHTML += tableHtml;
@@ -392,18 +386,13 @@ document.addEventListener('DOMContentLoaded', () => {
             if (allCanvassingData.length > 0) {
                 populateDropdown(branchSelect, allCanvassingData, 'Branch Name');
                 displayMessage("Data loaded. Please select a branch to view reports.");
-                // Update total submissions on the main page if that element exists
-                const totalSubmissionsSpan = document.getElementById('totalSubmissions');
-                if (totalSubmissionsSpan) {
-                    totalSubmissionsSpan.textContent = allCanvassingData.length;
-                }
             } else {
                 displayMessage("No data found in the Google Sheet.");
             }
 
         } catch (error) {
             console.error("Error fetching or processing data:", error);
-            displayMessage("Error loading data. Please try again later. Check browser console for details.");
+            displayMessage("Error loading data. Please try again later. Check browser console for details. (Likely CORS issue or sheet not public).");
             // Hide all controls if data loading fails
             branchSelect.style.display = 'none';
             employeeFilterPanel.style.display = 'none';
@@ -467,6 +456,11 @@ document.addEventListener('DOMContentLoaded', () => {
     // Event listeners for View Options buttons
     viewBranchSummaryBtn.addEventListener('click', () => {
         if (filteredBranchData.length > 0) {
+            // Clear employee selection when viewing branch summary
+            employeeSelect.value = "";
+            viewAllEntriesBtn.style.display = 'none';
+            viewEmployeeSummaryBtn.style.display = 'none';
+            viewPerformanceReportBtn.style.display = 'none';
             renderBranchSummary(filteredBranchData);
         } else {
             displayMessage("No data available for this branch to summarize.");
@@ -491,7 +485,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     viewPerformanceReportBtn.addEventListener('click', () => {
         if (selectedEmployeeEntries.length > 0) {
-            // Get the employee's designation for target lookup
             const employeeDesignation = selectedEmployeeEntries[0]['Designation'] || 'Default';
             renderPerformanceReport(selectedEmployeeEntries, selectedEmployeeEntries[0]['Employee Name'], employeeDesignation);
         } else {
