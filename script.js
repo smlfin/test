@@ -1,103 +1,122 @@
 document.addEventListener('DOMContentLoaded', () => {
     // IMPORTANT: Replace with the actual public URL of your canvassing_data.json file from Google Drive
-    // To get this: Go to your Google Drive folder, right-click on the canvassing_data.json file,
-    // select "Share", then "Copy link". It will look like "https://drive.google.com/file/d/FILE_ID/view?usp=sharing".
-    // You'll need to change 'view?usp=sharing' to 'export?format=json' or 'uc?export=download'
-    // A common pattern is: 'https://drive.google.com/uc?id=YOUR_FILE_ID&export=download'
     const DATA_URL = "https://drive.google.com/uc?id=1mKgU6hdDKP8UauGRC6VM7DTR2nM9sOzX&export=download"; // Your verified DATA_URL
+
+    const reportsContainer = document.getElementById('reportsContainer');
+    if (!reportsContainer) {
+        console.error("Error: Element with ID 'reportsContainer' not found in index.html. Cannot display reports.");
+        // If the container is missing, we can't do anything, so we stop.
+        return;
+    }
+    // Set initial loading message
+    reportsContainer.innerHTML = "<p>Loading canvassing data...</p>";
 
     fetch(DATA_URL)
         .then(response => {
             if (!response.ok) {
-                // If the network response is not OK (e.g., 404, 500)
                 throw new Error(`HTTP error! status: ${response.status}`);
             }
-            return response.json(); // Parse the JSON data from the response
+            return response.json();
         })
         .then(data => {
-            console.log("Fetched data:", data); // Log fetched data to console for debugging
+            console.log("Fetched raw data:", data); // Log fetched data for debugging
 
-            // Display total submissions count
-            const totalSubmissions = data.length;
-            document.getElementById('totalSubmissions').textContent = totalSubmissions;
-
-            // --- Generate Branch Reports ---
-            const branchAggregates = {};
-            data.forEach(entry => {
-                const branch = entry['Branch Name']; // Use 'Branch Name' from your JSON
-                if (branch) { // Only aggregate if branch name exists
-                    if (!branchAggregates[branch]) {
-                        branchAggregates[branch] = { submissions: 0 }; // Initialize with submissions count
-                    }
-                    branchAggregates[branch].submissions++;
-                }
-            });
-
-            const branchList = document.getElementById('branchList');
-            // Clear any existing list items to prevent duplicates on re-render
-            branchList.innerHTML = '';
-            for (const branch in branchAggregates) {
-                const li = document.createElement('li');
-                li.textContent = `${branch}: ${branchAggregates[branch].submissions} submissions`;
-                branchList.appendChild(li);
+            if (!data || data.length === 0) {
+                reportsContainer.innerHTML = "<p>No canvassing data available.</p>";
+                return;
             }
 
-            // --- Generate Staff Reports ---
-            const staffAggregates = {};
+            // Group data by Branch Name, then by Employee Name
+            const groupedData = {};
+
             data.forEach(entry => {
-                const staff = entry['Employee Name']; // Use 'Employee Name' from your JSON
-                if (staff) { // Only aggregate if staff name exists
-                    if (!staffAggregates[staff]) {
-                        staffAggregates[staff] = { submissions: 0 }; // Initialize with submissions count
-                    }
-                    staffAggregates[staff].submissions++;
+                const branchName = entry['Branch Name'];
+                const employeeName = entry['Employee Name'];
+
+                if (!branchName) {
+                    console.warn("Entry missing 'Branch Name':", entry);
+                    return; // Skip entries without a branch name
                 }
+                if (!employeeName) {
+                    console.warn("Entry missing 'Employee Name' for branch:", branchName, entry);
+                    // For now, let's put entries without an employee under a generic 'Unassigned'
+                    // Or you can skip them, depending on your data quality expectations
+                    // For this example, we'll put them under 'Unassigned Employee'
+                    employeeName = "Unassigned Employee";
+                }
+
+                if (!groupedData[branchName]) {
+                    groupedData[branchName] = {}; // Initialize branch
+                }
+                if (!groupedData[branchName][employeeName]) {
+                    groupedData[branchName][employeeName] = []; // Initialize employee for this branch
+                }
+                groupedData[branchName][employeeName].push(entry); // Add the entry to the employee's array
             });
 
-            const staffList = document.getElementById('staffList');
-            // Clear any existing list items
-            staffList.innerHTML = '';
-            for (const staff in staffAggregates) {
-                const li = document.createElement('li');
-                li.textContent = `${staff}: ${staffAggregates[staff].submissions} submissions`;
-                staffList.appendChild(li);
-            }
+            console.log("Grouped data:", groupedData); // Log grouped data for debugging
 
-            // --- Generate "How Contacted" Reports ---
-            const howContactedAggregates = {};
-            data.forEach(entry => {
-                const method = entry['How Contacted']; // Use 'How Contacted' from your JSON
-                if (method) {
-                    howContactedAggregates[method] = (howContactedAggregates[method] || 0) + 1;
+            // Clear loading message
+            reportsContainer.innerHTML = '';
+
+            // Render the grouped data
+            for (const branch in groupedData) {
+                const branchDiv = document.createElement('div');
+                branchDiv.className = 'branch-group'; // Add a class for styling
+                branchDiv.innerHTML = `<h2>Branch Name: ${branch}</h2>`;
+
+                const employeeList = document.createElement('ul');
+                employeeList.className = 'employee-list'; // Add a class for styling
+
+                for (const employee in groupedData[branch]) {
+                    const employeeLi = document.createElement('li');
+                    employeeLi.className = 'employee-item'; // Add a class for styling
+                    employeeLi.innerHTML = `<h3>Employee Name: ${employee}</h3>`;
+
+                    const entryDetailsList = document.createElement('ul');
+                    entryDetailsList.className = 'entry-details-list'; // Add a class for styling
+
+                    // Loop through each entry for this employee
+                    groupedData[branch][employee].forEach(entry => {
+                        const entryLi = document.createElement('li');
+                        entryLi.className = 'entry-detail-item'; // Add a class for styling
+
+                        // Dynamically display all relevant fields for each entry
+                        let detailHtml = `<h4>Canvassing Entry</h4>`;
+                        detailHtml += `<p><strong>Timestamp:</strong> ${entry['Timestamp'] || 'N/A'}</p>`;
+                        detailHtml += `<p><strong>Date:</strong> ${entry['Date'] || 'N/A'}</p>`;
+                        // No need for Branch Name/Employee Name again here as they are headers
+                        detailHtml += `<p><strong>Employee Code:</strong> ${entry['Employee Code'] || 'N/A'}</p>`;
+                        detailHtml += `<p><strong>Designation:</strong> ${entry['Designation'] || 'N/A'}</p>`;
+                        detailHtml += `<p><strong>Activity Type:</strong> ${entry['Activity Type'] || 'N/A'}</p>`;
+                        detailHtml += `<p><strong>Type of Customer:</strong> ${entry['Type of Customer'] || 'N/A'}</p>`;
+                        detailHtml += `<p><strong>Lead Source:</strong> ${entry['Lead Source'] || 'N/A'}</p>`;
+                        detailHtml += `<p><strong>How Contacted:</strong> ${entry['How Contacted'] || 'N/A'}</p>`;
+                        detailHtml += `<p><strong>Prospect Name:</strong> ${entry['Prospect Name'] || 'N/A'}</p>`;
+                        detailHtml += `<p><strong>Phone Number (Whatsapp):</strong> ${entry['Phone Numebr(Whatsapp)'] || 'N/A'}</p>`;
+                        detailHtml += `<p><strong>Address:</strong> ${entry['Address'] || 'N/A'}</p>`;
+                        detailHtml += `<p><strong>Profession:</strong> ${entry['Profession'] || 'N/A'}</p>`;
+                        detailHtml += `<p><strong>DOB/WD:</strong> ${entry['DOB/WD'] || 'N/A'}</p>`;
+                        detailHtml += `<p><strong>Product Interested:</strong> ${entry['Prodcut Interested'] || 'N/A'}</p>`;
+                        detailHtml += `<p><strong>Remarks:</strong> ${entry['Remarks'] || 'N/A'}</p>`;
+                        detailHtml += `<p><strong>Next Follow-up Date:</strong> ${entry['Next Follow-up Date'] || 'N/A'}</p>`;
+                        detailHtml += `<p><strong>Relation With Staff:</strong> ${entry['Relation With Staff'] || 'N/A'}</p>`;
+
+                        entryLi.innerHTML = detailHtml;
+                        entryDetailsList.appendChild(entryLi);
+                    });
+
+                    employeeLi.appendChild(entryDetailsList);
+                    employeeList.appendChild(employeeLi);
                 }
-            });
-
-            const howContactedList = document.getElementById('howContactedList'); // Assuming you have a <ul> with this ID in index.html
-            if (howContactedList) { // Check if the element exists in HTML
-                howContactedList.innerHTML = ''; // Clear existing list items
-                for (const method in howContactedAggregates) {
-                    const li = document.createElement('li');
-                    li.textContent = `${method}: ${howContactedAggregates[method]} entries`;
-                    howContactedList.appendChild(li);
-                }
-            } else {
-                console.warn("Element with ID 'howContactedList' not found. Please add it to your index.html.");
+                branchDiv.appendChild(employeeList);
+                reportsContainer.appendChild(branchDiv);
             }
-
-            // You can add more report sections here following the same pattern
-            // For example, for "Activity Type" or "Profession"
-            // You would need corresponding <ul> elements in your index.html (e.g., <ul id="activityTypeList">)
 
         })
         .catch(error => {
-            // This block runs if fetching or parsing the data fails
             console.error("Error fetching or processing data:", error);
             // Display a user-friendly error message on the page
-            const mainContent = document.querySelector('main');
-            if (mainContent) {
-                mainContent.innerHTML = "<p>Error loading data. Please try again later.</p>";
-            } else {
-                document.body.innerHTML = "<p>Error loading data. Please try again later.</p>";
-            }
+            reportsContainer.innerHTML = "<p>Error loading data. Please try again later. Check browser console for details.</p>";
         });
 });
