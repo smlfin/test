@@ -1,6 +1,6 @@
 document.addEventListener('DOMContentLoaded', () => {
     // *** Configuration ***
-    const DATA_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTO7LujC4VSa2wGkJ2YEYSN7UeXR221ny3THaVegYfNfRm2JQGg7QR9Bxxh9SadXtK8Pi6-psl2tGsb/pub?gid=696550092&single=true&output=csv";
+    const DATA_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTO7LujC4VSa2wGkJ2YEYSN7UeXR221ny3THaVegYfNfRm2JQGg7QR9Bxxh9SadXtK8Pi6-ps2tGsb/pub?gid=696550092&single=true&output=csv";
 
     const MONTHLY_WORKING_DAYS = 22; // Common approximation for a month's working days
 
@@ -135,16 +135,19 @@ document.addEventListener('DOMContentLoaded', () => {
             const profession = entry['Profession'];
 
             // Counting based on your specific definitions (now case-insensitive and trimmed)
-            if (activity === 'visit') {
+            // AND matching your exact predefined values (singular/plural)
+            if (activity === 'visit') { // User specified 'Visit' (singular)
                 metrics.visits++;
             }
-            if (activity === 'call') {
+            if (activity === 'calls') { // User specified 'Calls' (plural)
                 metrics.calls++;
             }
-            if (customerType === 'new' && activity === 'referance') { // Corrected logic for "Reference"
+            // User specified 'Referance' (typo). Check if customer is 'new' AND activity is 'referance'.
+            if (customerType === 'new' && activity === 'referance') {
                 metrics.references++;
             }
-            if (customerType === 'new') { // "New Customer Leads" definition
+            // 'New Customer Leads' based on 'Type of Customer' being 'New'
+            if (customerType === 'new') {
                 metrics.newCustomerLeads++;
             }
 
