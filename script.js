@@ -4,7 +4,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // select "Share", then "Copy link". It will look like "https://drive.google.com/file/d/FILE_ID/view?usp=sharing".
     // You'll need to change 'view?usp=sharing' to 'export?format=json' or 'uc?export=download'
     // A common pattern is: 'https://drive.google.com/uc?id=YOUR_FILE_ID&export=download'
-    const DATA_URL = "https://drive.google.com/uc?id=YOUR_FILE_ID&export=download"; // **IMPORTANT: Update this!**
+    const DATA_URL = "https://drive.google.com/uc?id=1mKgU6hdDKP8UauGRC6VM7DTR2nM9sOzX&export=download"; // **IMPORTANT: Update this!**
 
     fetch(DATA_URL)
         .then(response => {
