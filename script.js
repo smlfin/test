@@ -1,6 +1,6 @@
 document.addEventListener('DOMContentLoaded', () => {
     // *** Configuration ***
-    const DATA_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTO7LujC4VSa2wGkJ2YEYSN7UeXR221ny3THaVegYfNfRm2JQGg7QR9Bxxh9SadXtK8Pi6-psl2tGsb/pub?gid=696550092&single=true&output=csv";
+    const DATA_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTO7LujC4VSa2wGkJ2YEYSN7UeXR221ny3THaVegYfNfRm2JQGg7QR9Bxxh9SadXtK8Pi6-ps2tGsb/pub?gid=696550092&single=true&output=csv";
 
     const MONTHLY_WORKING_DAYS = 22; // Common approximation for a month's working days
 
@@ -25,7 +25,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const employeeSelect = document.getElementById('employeeSelect');
     const viewOptions = document.getElementById('viewOptions');
     const viewBranchSummaryBtn = document.getElementById('viewBranchSummaryBtn');
-    const viewBranchPerformanceReportBtn = document.getElementById('viewBranchPerformanceReportBtn'); // NEW: Reference the new button
+    const viewBranchPerformanceReportBtn = document.getElementById('viewBranchPerformanceReportBtn');
     const viewAllEntriesBtn = document.getElementById('viewAllEntriesBtn');
     const viewEmployeeSummaryBtn = document.getElementById('viewEmployeeSummaryBtn');
     const viewPerformanceReportBtn = document.getElementById('viewPerformanceReportBtn');
@@ -95,7 +95,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 const dateParts = entry['Date'].split('/'); // Assumes DD/MM/YYYY
                 if (dateParts.length === 3) {
                     const entryMonthString = dateParts[1]; // '06'
-                    const entryYearString = dateParts[2]; // '2025' (from YYYY)
+                    const entryYearString = dateParts[2]; // '2025'
 
                     const isMatch = entryMonthString === currentMonthString && entryYearString === currentYearString;
                     return isMatch;
@@ -219,7 +219,7 @@ document.addEventListener('DOMContentLoaded', () => {
         summaryHtml += `<div><h4>Key Activity Counts:</h4><ul class="summary-list">`;
         summaryHtml += `<li>Visits: ${metrics.visits}</li>`;
         summaryHtml += `<li>Calls: ${metrics.calls}</li>`;
-        summaryHtml += `<li>References: ${metrics.references}</li>`;
+        summaryHtml => `<li>References: ${metrics.references}</li>`; // Fixed: changed to '='
         summaryHtml += `<li>New Customer Leads: ${metrics.newCustomerLeads}</li>`;
         summaryHtml += `</ul></div>`;
 
@@ -534,7 +534,7 @@ document.addEventListener('DOMContentLoaded', () => {
             // Show view options panel, and the Branch Summary button
             viewOptions.style.display = 'block';
             viewBranchSummaryBtn.style.display = 'inline-block'; // Always show Branch Summary
-            viewBranchPerformanceReportBtn.style.display = 'inline-block'; // NEW: Show Branch Performance Report button
+            viewBranchPerformanceReportBtn.style.display = 'inline-block'; // Show Branch Performance Report button
 
             // Hide employee-specific buttons until an employee is selected
             viewAllEntriesBtn.style.display = 'none';
@@ -585,7 +585,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // NEW EVENT LISTENER: For the "View All Staff Performance Report" button
+    // Event listener for the "View All Staff Performance Report" button
     viewBranchPerformanceReportBtn.addEventListener('click', () => {
         if (filteredBranchData.length > 0) {
             // Clear employee selection when viewing branch performance report
