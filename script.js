@@ -1,6 +1,6 @@
 document.addEventListener('DOMContentLoaded', () => {
     // *** Configuration ***
-    const DATA_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTO7LujC4VSa2wGkJ2YEYSN7UeXR221ny3THaVegYfNfRm2JQGg7QR9Bxxh9SadXtK8Pi6-psl2tGsb/pub?gid=696550092&single=true&output=csv";
+    const DATA_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTO7LujC4VSa2wGkJ2YEYSN7UeXR221ny3THaVegYfNfRm2JQGg7QR9Bxxh9SadXtK8Pi6-ps2tGsb/pub?gid=696550092&single=true&output=csv";
 
     const MONTHLY_WORKING_DAYS = 22; // Common approximation for a month's working days
 
@@ -86,6 +86,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const now = new Date();
         const currentMonth = now.getMonth(); // 0-indexed
         const currentYear = now.getFullYear();
+        console.log(`Filtering for Current Month: ${currentMonth + 1}, Year: ${currentYear}`); // Debugging
 
         return data.filter(entry => {
             if (entry['Date']) {
@@ -100,9 +101,12 @@ document.addEventListener('DOMContentLoaded', () => {
                     // Use Date constructor for robust comparison
                     const entryDate = new Date(entryYear, entryMonth, entryDay);
 
-                    return entryDate.getMonth() === currentMonth && entryDate.getFullYear() === currentYear;
+                    const isMatch = entryDate.getMonth() === currentMonth && entryDate.getFullYear() === currentYear;
+                    // console.log(`Entry Date: ${entry['Date']} -> Parsed: ${entryDate.toDateString()} (Match: ${isMatch})`); // Detailed Debugging
+                    return isMatch;
                 }
             }
+            // console.log(`Skipping entry due to invalid/missing date: ${entry['Date']}`); // Debugging
             return false;
         });
     }
@@ -123,32 +127,33 @@ document.addEventListener('DOMContentLoaded', () => {
         };
 
         entries.forEach(entry => {
-            const activity = entry['Activity Type'];
-            const customerType = entry['Type of Customer'];
+            // Normalize activity and customer type strings
+            const activity = entry['Activity Type'] ? entry['Activity Type'].trim().toLowerCase() : '';
+            const customerType = entry['Type of Customer'] ? entry['Type of Customer'].trim().toLowerCase() : '';
             const leadSource = entry['Lead Source'];
-            const product = entry['Prodcut Interested'];
+            const product = entry['Prodcut Interested']; // Use original spelling from sheet
             const profession = entry['Profession'];
 
-            // Counting based on your specific definitions
-            if (activity === 'Visit') {
+            // Counting based on your specific definitions (now case-insensitive and trimmed)
+            if (activity === 'visit') {
                 metrics.visits++;
             }
-            if (activity === 'Call') {
+            if (activity === 'call') {
                 metrics.calls++;
             }
-            if (customerType === 'New' && activity === 'Referance') { // Corrected logic for "Reference"
+            if (customerType === 'new' && activity === 'referance') { // Corrected logic for "Reference"
                 metrics.references++;
             }
-            if (customerType === 'New') { // "New Customer Leads" definition
+            if (customerType === 'new') { // "New Customer Leads" definition
                 metrics.newCustomerLeads++;
             }
 
-            // General counts for summaries
-            if (activity) metrics.activityTypeCounts[activity] = (metrics.activityTypeCounts[activity] || 0) + 1;
-            if (customerType) metrics.customerTypeCounts[customerType] = (metrics.customerTypeCounts[customerType] || 0) + 1;
-            if (leadSource) metrics.leadSourceCounts[leadSource] = (metrics.leadSourceCounts[leadSource] || 0) + 1;
-            if (product) metrics.productInterestedCounts[product] = (metrics.productInterestedCounts[product] || 0) + 1;
-            if (profession) metrics.professionCounts[profession] = (metrics.professionCounts[profession] || 0) + 1;
+            // General counts for summaries (these were already working, but ensure consistency)
+            if (entry['Activity Type']) metrics.activityTypeCounts[entry['Activity Type'].trim()] = (metrics.activityTypeCounts[entry['Activity Type'].trim()] || 0) + 1;
+            if (entry['Type of Customer']) metrics.customerTypeCounts[entry['Type of Customer'].trim()] = (metrics.customerTypeCounts[entry['Type of Customer'].trim()] || 0) + 1;
+            if (leadSource) metrics.leadSourceCounts[leadSource.trim()] = (metrics.leadSourceCounts[leadSource.trim()] || 0) + 1;
+            if (product) metrics.productInterestedCounts[product.trim()] = (metrics.productInterestedCounts[product.trim()] || 0) + 1;
+            if (profession) metrics.professionCounts[profession.trim()] = (metrics.professionCounts[profession.trim()] || 0) + 1;
         });
 
         return metrics;
