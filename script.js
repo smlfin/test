@@ -1,6 +1,6 @@
 document.addEventListener('DOMContentLoaded', () => {
     // *** Configuration ***
-    const DATA_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTO7LujC4VSa2wGkJ2YEYSN7UeXR221ny3THaVegYfNfRm2JQGg7QR9Bxxh9SadXtK8Pi6-psl2tGsb/pub?gid=696550092&single=true&output=csv";
+    const DATA_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTO7LujC4VSa2wGkJ2YEYSN7UeXR221ny3THaVegYfNfRm2JQGg7QR9Bxxh9SadXtK8Pi6-ps2tGsb/pub?gid=696550092&single=true&output=csv";
 
     const MONTHLY_WORKING_DAYS = 22; // Common approximation for a month's working days
 
@@ -146,7 +146,6 @@ document.addEventListener('DOMContentLoaded', () => {
             if (customerType === 'new' && activity === 'referance') {
                 metrics.references++;
             }
-            // 'New Customer Leads' based on 'Type of Customer' being 'New'
             if (customerType === 'new') {
                 metrics.newCustomerLeads++;
             }
@@ -197,7 +196,7 @@ document.addEventListener('DOMContentLoaded', () => {
         // Table Body
         const tbody = table.createTBody();
         entries.forEach(entry => {
-            const row = tbody.insertCell();
+            const row = tbody.insertRow();
             columnsToDisplayInTable.forEach(col => {
                 const cell = row.insertCell();
                 cell.textContent = entry[col] || ''; // Display value or empty string
@@ -610,14 +609,14 @@ document.addEventListener('DOMContentLoaded', () => {
             branchSelect.style.display = 'none';
             employeeFilterPanel.style.display = 'none';
             viewOptions.style.display = 'none';
-            reportsMenuBtn.style.display = 'none'; // Hide report menu if data fails
+            if (reportsMenuBtn) reportsMenuBtn.style.display = 'none'; // Hide report menu if data fails
         }
     }
 
     // Event listener for Branch selection
     branchSelect.addEventListener('change', () => {
         // Hide reports dropdown if active
-        reportsDropdown.classList.remove('show');
+        if (reportsDropdown) reportsDropdown.classList.remove('show');
 
         const selectedBranch = branchSelect.value;
         employeeSelect.innerHTML = `<option value="">-- Select an Employee --</option>`; // Reset employee selection
@@ -653,7 +652,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Event listener for Employee selection
     employeeSelect.addEventListener('change', () => {
         // Hide reports dropdown if active
-        reportsDropdown.classList.remove('show');
+        if (reportsDropdown) reportsDropdown.classList.remove('show');
 
         const selectedEmployee = employeeSelect.value;
         reportDisplay.innerHTML = ''; // Clear report display
@@ -678,7 +677,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Event listeners for View Options buttons
     viewBranchSummaryBtn.addEventListener('click', () => {
         // Hide reports dropdown if active
-        reportsDropdown.classList.remove('show');
+        if (reportsDropdown) reportsDropdown.classList.remove('show');
         if (filteredBranchData.length > 0) {
             // Clear employee selection when viewing branch summary
             employeeSelect.value = "";
@@ -694,7 +693,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Event listener for the "View All Staff Performance Report" button
     viewBranchPerformanceReportBtn.addEventListener('click', () => {
         // Hide reports dropdown if active
-        reportsDropdown.classList.remove('show');
+        if (reportsDropdown) reportsDropdown.classList.remove('show');
         if (filteredBranchData.length > 0) {
             // Clear employee selection when viewing branch performance report
             employeeSelect.value = "";
@@ -709,7 +708,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     viewAllEntriesBtn.addEventListener('click', () => {
         // Hide reports dropdown if active
-        reportsDropdown.classList.remove('show');
+        if (reportsDropdown) reportsDropdown.classList.remove('show');
         if (selectedEmployeeEntries.length > 0) {
             renderEmployeeDetailedEntries(selectedEmployeeEntries);
         } else {
@@ -719,7 +718,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     viewEmployeeSummaryBtn.addEventListener('click', () => {
         // Hide reports dropdown if active
-        reportsDropdown.classList.remove('show');
+        if (reportsDropdown) reportsDropdown.classList.remove('show');
         if (selectedEmployeeEntries.length > 0) {
             renderEmployeeSummary(selectedEmployeeEntries);
         } else {
@@ -729,7 +728,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     viewPerformanceReportBtn.addEventListener('click', () => {
         // Hide reports dropdown if active
-        reportsDropdown.classList.remove('show');
+        if (reportsDropdown) reportsDropdown.classList.remove('show');
         if (selectedEmployeeEntries.length > 0) {
             const employeeDesignation = selectedEmployeeEntries[0]['Designation'] || 'Default';
             renderPerformanceReport(selectedEmployeeEntries, selectedEmployeeEntries[0]['Employee Name'], employeeDesignation);
@@ -750,7 +749,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (allBranchSnapshotBtn) { // Added check in case element is not found
         allBranchSnapshotBtn.addEventListener('click', (event) => {
             event.preventDefault(); // Prevent default link behavior (e.g., navigating)
-            reportsDropdown.classList.remove('show'); // Hide dropdown after selection
+            if (reportsDropdown) reportsDropdown.classList.remove('show'); // Hide dropdown after selection
             renderAllBranchSnapshot();
         });
     }
