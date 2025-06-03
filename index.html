@@ -9,14 +9,9 @@
 <body>
     <header>
         <h1>Employee Canvassing Dashboard</h1>
-        <nav class="main-nav">
-            <div class="dropdown">
-                <button class="dropbtn" id="reportsMenuBtn">Reports ▼</button>
-                <div class="dropdown-content" id="reportsDropdown">
-                    <a href="#" id="allBranchSnapshotBtn">All Branch Snapshot</a>
-                    <a href="#" id="allStaffOverallPerformanceBtn">All Staff Performance (Overall)</a>
-                </div>
-            </div>
+        <nav class="report-tabs">
+            <button class="tab-button active" id="allBranchSnapshotTabBtn">All Branch Snapshot</button>
+            <button class="tab-button" id="allStaffOverallPerformanceTabBtn">All Staff Performance (Overall)</button>
         </nav>
     </header>
 
@@ -46,7 +41,7 @@
         </section>
 
         <section id="reportDisplay" class="report-display">
-            <p>Please select a branch from the dropdown above to view reports, or click 'Reports' for an overall snapshot.</p>
+            <p>Loading reports...</p>
         </section>
     </main>
 
