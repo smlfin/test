@@ -91,7 +91,7 @@ header h1 {
 
 /* NEW: Show the dropdown menu on hover or when button is clicked */
 .dropdown.show .dropdown-content {
-    display: block;
+    display: block !important; /* <--- This is the !important fix */
 }
 
 
