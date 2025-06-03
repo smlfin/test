@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Employee Canvassing Dashboard</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header>
+        <h1>Employee Canvassing Dashboard</h1>
+    </header>
+
+    <main>
+        <section class="controls-panel">
+            <div class="dropdown-group">
+                <label for="branchSelect">Select Branch:</label>
+                <select id="branchSelect">
+                    <option value="">-- Select a Branch --</option>
+                    </select>
+            </div>
+
+            <div id="employeeFilterPanel" class="dropdown-group" style="display: none;">
+                <label for="employeeSelect">Select Employee:</label>
+                <select id="employeeSelect">
+                    <option value="">-- Select an Employee --</option>
+                    </select>
+            </div>
+
+            <div id="viewOptions" class="view-options" style="display: none;">
+                <button id="viewBranchSummaryBtn" class="btn">View All Staff Activity</button>
+                <button id="viewBranchPerformanceReportBtn" class="btn">View All Staff Performance Report</button>
+                <button id="viewEmployeeSummaryBtn" class="btn">View Employee Summary</button>
+                <button id="viewAllEntriesBtn" class="btn">View All Entries</button>
+                <button id="viewPerformanceReportBtn" class="btn">View Employee Performance Report</button>
+            </div>
+        </section>
+
+        <section id="reportDisplay" class="report-display">
+            <p>Please select a branch from the dropdown above to view reports.</p>
+            </section>
+    </main>
+
+    <footer>
+        <p>&copy; 2025 Employee Canvassing Dashboard</p>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+</html>
