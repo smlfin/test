@@ -1,6 +1,6 @@
 document.addEventListener('DOMContentLoaded', () => {
     // *** Configuration ***
-    const DATA_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTO7LujC4VSa2wGkJ2YEYSN7UeXR221ny3THaVegYfNfRm2JQGg7QR9Bxxh9SadXtK8Pi6-psl2tGsb/pub?gid=696550092&single=true&output=csv";
+    const DATA_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTO7LujC4VSa2wGkJ2YEYSN7UeXR221ny3THaVegYfNfRm2JQGg7QR9Bxxh9SadXtK8Pi6-ps2tGsb/pub?gid=696550092&single=true&output=csv";
 
     const MONTHLY_WORKING_DAYS = 22; // Common approximation for a month's working days
 
@@ -35,6 +35,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const reportsMenuBtn = document.getElementById('reportsMenuBtn');
     const reportsDropdown = document.getElementById('reportsDropdown');
     const allBranchSnapshotBtn = document.getElementById('allBranchSnapshotBtn');
+    const allStaffOverallPerformanceBtn = document.getElementById('allStaffOverallPerformanceBtn'); // <--- ADDED FOR NEW REPORT
 
 
     // *** Data Storage ***
@@ -380,6 +381,10 @@ document.addEventListener('DOMContentLoaded', () => {
                     progressBarClass = 'danger';
                 }
 
+                // Debugging log for targets and percentages in branch performance report
+                console.log(`Branch Performance Debug: Employee=${employeeName}, Metric=${metric}, Actual=${actual}, Target=${target}, Percentage=${percentage}`);
+
+
                 tableHtml += `
                     <tr>
                         <td class="performance-metric">${metric}</td>
@@ -388,7 +393,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         <td>
                             <div class="progress-bar-container-small">
                                 <div class="progress-bar ${progressBarClass}" style="width: ${progressBarWidth}%;">
-                                    ${percentage}%
+                                    ${percentage !== 'N/A' ? `${percentage}%` : 'N/A'}
                                 </div>
                             </div>
                         </td>
@@ -470,6 +475,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 progressBarClass = 'danger';
             }
 
+            // Debugging log for targets and percentages in single employee performance report
+            console.log(`Single Employee Performance Debug: Employee=${employeeName}, Metric=${metric}, Actual=${actual}, Target=${target}, Percentage=${percentage}`);
+
             tableHtml += `
                 <tr>
                     <td class="performance-metric">${metric}</td>
@@ -479,7 +487,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     <td>
                         <div class="progress-bar-container">
                             <div class="progress-bar ${progressBarClass}" style="width: ${progressBarWidth}%;">
-                                ${percentage}%
+                                ${percentage !== 'N/A' ? `${percentage}%` : 'N/A'}
                             </div>
                         </div>
                     </td>
@@ -573,6 +581,148 @@ document.addEventListener('DOMContentLoaded', () => {
 
         snapshotHtml += `</tbody></table>`;
         reportDisplay.innerHTML += snapshotHtml;
+
+        // Reset the main controls as we are showing a global report
+        branchSelect.value = "";
+        employeeSelect.value = "";
+        employeeFilterPanel.style.display = 'none';
+        viewOptions.style.display = 'none';
+    }
+
+    // NEW FUNCTION: Renders an "All Staff Performance Report" across all branches in a single table
+    function renderOverallStaffPerformanceReport() {
+        if (allCanvassingData.length === 0) {
+            displayMessage("No data available to create an All Staff Performance Report. Please ensure data is loaded.");
+            return;
+        }
+
+        reportDisplay.innerHTML = `<h3>Overall Staff Performance Report (This Month)</h3>`;
+
+        const employeePerformanceData = {}; // Stores aggregated data for each employee
+
+        // First, group all entries by employee and filter for the current month
+        allCanvassingData.forEach(entry => {
+            const employeeName = entry['Employee Name'];
+            const designation = entry['Designation'] || 'Default'; // Use actual designation or default
+            if (!employeeName) return;
+
+            if (!employeePerformanceData[employeeName]) {
+                employeePerformanceData[employeeName] = {
+                    designation: designation, // Store designation
+                    allEntries: [], // All entries for the employee
+                    currentMonthEntries: [] // Entries for the current month
+                };
+            }
+            employeePerformanceData[employeeName].allEntries.push(entry);
+        });
+
+        // Now, filter for current month and calculate metrics for each employee
+        for (const employeeName in employeePerformanceData) {
+            const empData = employeePerformanceData[employeeName];
+            empData.currentMonthEntries = filterDataForCurrentMonth(empData.allEntries);
+            empData.actuals = calculateMetrics(empData.currentMonthEntries);
+            empData.targets = TARGETS[empData.designation] || TARGETS['Default'];
+        }
+
+        // Check if there's any data for the current month to display
+        const hasCurrentMonthData = Object.values(employeePerformanceData).some(emp => emp.currentMonthEntries.length > 0);
+        if (!hasCurrentMonthData) {
+            reportDisplay.innerHTML += `<p>No current month data found for any staff member to generate this report.</p>`;
+            // Reset the main controls as we are showing a global report
+            branchSelect.value = "";
+            employeeSelect.value = "";
+            employeeFilterPanel.style.display = 'none';
+            viewOptions.style.display = 'none';
+            return; // Exit if no current month data
+        }
+
+        let tableHtml = `<table class="performance-table">
+            <thead>
+                <tr>
+                    <th rowspan="2">Employee Name</th>
+                    <th rowspan="2">Branch</th>
+                    <th rowspan="2">Designation</th>
+                    <th colspan="3">Visit</th>
+                    <th colspan="3">Call</th>
+                    <th colspan="3">Reference</th>
+                    <th colspan="3">New Customer Leads</th>
+                </tr>
+                <tr>
+                    <th>Act</th><th>Tgt</th><th>%</th>
+                    <th>Act</th><th>Tgt</th><th>%</th>
+                    <th>Act</th><th>Tgt</th><th>%</th>
+                    <th>Act</th><th>Tgt</th><th>%</th>
+                    <th>Act</th><th>Tgt</th><th>%</th>
+                </tr>
+            </thead>
+            <tbody>`;
+
+        // Sort employees alphabetically by name for consistent display
+        const sortedEmployeeNames = Object.keys(employeePerformanceData).sort();
+
+        sortedEmployeeNames.forEach(employeeName => {
+            const emp = employeePerformanceData[employeeName];
+            const branchName = emp.allEntries.length > 0 ? emp.allEntries[0]['Branch Name'] : 'N/A'; // Get branch from any entry
+
+            tableHtml += `<tr>
+                <td>${employeeName}</td>
+                <td>${branchName}</td>
+                <td>${emp.designation}</td>
+            `;
+
+            const metricsToDisplay = ['Visit', 'Call', 'Reference', 'New Customer Leads'];
+
+            metricsToDisplay.forEach(metric => {
+                let actualValue;
+                switch(metric) {
+                    case 'Visit': actualValue = emp.actuals.visits; break;
+                    case 'Call': actualValue = emp.actuals.calls; break;
+                    case 'Reference': actualValue = emp.actuals.references; break;
+                    case 'New Customer Leads': actualValue = emp.actuals.newCustomerLeads; break;
+                    default: actualValue = 0;
+                }
+
+                const target = emp.targets[metric] || 0; // Ensure target defaults to 0 if undefined
+                const actual = actualValue || 0;
+
+                const percentage = target > 0 ? ((actual / target) * 100).toFixed(0) : 'N/A';
+                let progressBarWidth = 0;
+                if (target > 0) {
+                    progressBarWidth = (actual / target) * 100;
+                }
+
+                let progressBarClass = '';
+                if (progressBarWidth >= 100) {
+                    progressBarClass = 'overachieved';
+                    progressBarWidth = 100; // Cap visual bar at 100%
+                } else if (progressBarWidth >= 90) {
+                    progressBarClass = 'success';
+                } else if (progressBarWidth >= 50) {
+                    progressBarClass = 'warning';
+                } else {
+                    progressBarClass = 'danger';
+                }
+
+                // Debugging log for targets and percentages for each employee metric
+                console.log(`Overall Staff Performance Debug: Employee=${employeeName}, Metric=${metric}, Actual=${actual}, Target=${target}, Percentage=${percentage}`);
+
+                tableHtml += `
+                    <td>${actual}</td>
+                    <td>${target}</td>
+                    <td>
+                        <div class="progress-bar-container-small">
+                            <div class="progress-bar ${progressBarClass}" style="width: ${progressBarWidth}%;">
+                                ${percentage !== 'N/A' ? `${percentage}%` : 'N/A'}
+                            </div>
+                        </div>
+                    </td>`;
+            });
+
+            tableHtml += `</tr>`;
+        });
+
+        tableHtml += `</tbody></table>`;
+        reportDisplay.innerHTML += tableHtml;
 
         // Reset the main controls as we are showing a global report
         branchSelect.value = "";
@@ -751,6 +901,15 @@ document.addEventListener('DOMContentLoaded', () => {
             event.preventDefault(); // Prevent default link behavior (e.g., navigating)
             if (reportsDropdown) reportsDropdown.classList.remove('show'); // Hide dropdown after selection
             renderAllBranchSnapshot();
+        });
+    }
+
+    // NEW: Event listener for All Staff Overall Performance button
+    if (allStaffOverallPerformanceBtn) {
+        allStaffOverallPerformanceBtn.addEventListener('click', (event) => {
+            event.preventDefault();
+            if (reportsDropdown) reportsDropdown.classList.remove('show');
+            renderOverallStaffPerformanceReport();
         });
     }
 
