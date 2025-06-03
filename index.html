@@ -9,6 +9,14 @@
 <body>
     <header>
         <h1>Employee Canvassing Dashboard</h1>
+        <nav class="main-nav">
+            <div class="dropdown">
+                <button class="dropbtn" id="reportsMenuBtn">Reports ▼</button>
+                <div class="dropdown-content" id="reportsDropdown">
+                    <a href="#" id="allBranchSnapshotBtn">All Branch Snapshot</a>
+                    </div>
+            </div>
+        </nav>
     </header>
 
     <main>
@@ -17,14 +25,14 @@
                 <label for="branchSelect">Select Branch:</label>
                 <select id="branchSelect">
                     <option value="">-- Select a Branch --</option>
-                    </select>
+                </select>
             </div>
 
             <div id="employeeFilterPanel" class="dropdown-group" style="display: none;">
                 <label for="employeeSelect">Select Employee:</label>
                 <select id="employeeSelect">
                     <option value="">-- Select an Employee --</option>
-                    </select>
+                </select>
             </div>
 
             <div id="viewOptions" class="view-options" style="display: none;">
@@ -38,7 +46,7 @@
 
         <section id="reportDisplay" class="report-display">
             <p>Please select a branch from the dropdown above to view reports.</p>
-            </section>
+        </section>
     </main>
 
     <footer>
