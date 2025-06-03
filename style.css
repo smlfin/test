@@ -25,7 +25,7 @@ header h1 {
     font-size: 2em;
 }
 
-/* NEW: Tab Navigation Styles */
+/* Tab Navigation Styles */
 .report-tabs {
     display: flex;
     justify-content: center; /* Center the tabs */
@@ -135,31 +135,40 @@ main {
     padding-bottom: 5px;
 }
 
+/* Enhanced Table Styling for Reports */
 .data-table, .performance-table {
     width: 100%;
     border-collapse: collapse;
     margin-top: 15px;
+    border: 1px solid #e0e0e0; /* Lighter border for overall table */
+    border-radius: 8px; /* Rounded corners for the table */
+    overflow: hidden; /* Ensures rounded corners are visible with borders */
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05); /* Subtle shadow for tables */
 }
 
-.data-table th, .data-table td,
-.performance-table th, .performance-table td {
-    border: 1px solid #ddd;
+.data-table th, .performance-table th {
+    background-color: #f0f8ff; /* Light blue header background */
+    color: #333;
+    font-weight: bold;
+    padding: 12px 10px;
+    text-align: left;
+    border-bottom: 2px solid #cceeff; /* Stronger header border */
+}
+
+.data-table td, .performance-table td {
+    border: 1px solid #f0f0f0; /* Lighter internal borders */
     padding: 10px;
     text-align: left;
 }
 
-.data-table th, .performance-table th {
-    background-color: #f2f2f2;
-    font-weight: bold;
-}
-
 .data-table tr:nth-child(even), .performance-table tr:nth-child(even) {
-    background-color: #f9f9f9;
+    background-color: #fcfcfc; /* Very light subtle stripe */
 }
 
 .data-table tr:hover, .performance-table tr:hover {
-    background-color: #f1f1f1;
+    background-color: #e6f7ff; /* Light blue on hover */
 }
+
 
 .summary-list {
     list-style: none;
