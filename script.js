@@ -31,7 +31,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const viewPerformanceReportBtn = document.getElementById('viewPerformanceReportBtn');
     const reportDisplay = document.getElementById('reportDisplay');
 
-    // NEW: Tab Elements
+    // Tab Elements
     const allBranchSnapshotTabBtn = document.getElementById('allBranchSnapshotTabBtn');
     const allStaffOverallPerformanceTabBtn = document.getElementById('allStaffOverallPerformanceTabBtn');
 
@@ -496,7 +496,7 @@ document.addEventListener('DOMContentLoaded', () => {
         reportDisplay.innerHTML += tableHtml;
     }
 
-    // NEW FUNCTION: Renders an "All Branch Snapshot" report
+    // Renders an "All Branch Snapshot" report
     function renderAllBranchSnapshot() {
         if (allCanvassingData.length === 0) {
             displayMessage("No data available to create an All Branch Snapshot. Please ensure data is loaded.");
@@ -573,7 +573,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     <td>${branchMetrics.visits}</td>
                     <td>${branchMetrics.calls}</td>
                     <td>${branchMetrics.references}</td>
-                    <td>${branchMetrics.newCustomerLevads}</td>
+                    <td>${branchMetrics.newCustomerLeads}</td>
                 </tr>`;
         });
 
@@ -587,7 +587,7 @@ document.addEventListener('DOMContentLoaded', () => {
         viewOptions.style.display = 'none';
     }
 
-    // NEW FUNCTION: Renders an "All Staff Performance Report" across all branches in a single table
+    // Renders an "All Staff Performance Report" across all branches in a single table
     function renderOverallStaffPerformanceReport() {
         if (allCanvassingData.length === 0) {
             displayMessage("No data available to create an All Staff Performance Report. Please ensure data is loaded.");
@@ -731,7 +731,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- Main Fetch and Event Listeners ---
 
-    // NEW: Function to handle tab switching
+    // Function to handle tab switching
     function showTab(tabId) {
         // Remove 'active' class from all tab buttons
         document.querySelectorAll('.tab-button').forEach(btn => {
@@ -773,8 +773,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
             if (allCanvassingData.length > 0) {
                 populateDropdown(branchSelect, allCanvassingData, 'Branch Name');
-                // Immediately show the default global report (All Branch Snapshot)
-                showTab('allBranchSnapshotTabBtn');
+                // Display initial message instead of a report
+                displayMessage("Data loaded. Select a branch from the dropdown above to view specific reports, or click a tab below to view global reports.");
             } else {
                 displayMessage("No data found in the Google Sheet.");
             }
@@ -825,9 +825,8 @@ document.addEventListener('DOMContentLoaded', () => {
             displayMessage(`Branch: ${selectedBranch}. Now select an employee or click "View All Staff Activity".`);
 
         } else {
-            // Reset to initial state and show default global report
-            showTab('allBranchSnapshotTabBtn'); // Show default tab content
-            displayMessage("Please select a branch from the dropdown above to view reports, or click a global report tab.");
+            // Reset to initial state and show default global report prompt
+            displayMessage("Please select a branch from the dropdown above to view specific reports, or click a global report tab below.");
         }
     });
 
@@ -880,7 +879,7 @@ document.addEventListener('DOMContentLoaded', () => {
             viewAllEntriesBtn.style.display = 'none';
             viewEmployeeSummaryBtn.style.display = 'none';
             viewPerformanceReportBtn.style.display = 'none';
-            renderBranchPerformanceReport(filteredBranchData); // Call the new rendering function
+            renderBranchPerformanceReport(filteredBranchData); // Call the rendering function
         } else {
             displayMessage("No data available for this branch to generate a performance report.");
         }
@@ -911,7 +910,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // NEW: Event listeners for tab buttons
+    // Event listeners for tab buttons
     if (allBranchSnapshotTabBtn) {
         allBranchSnapshotTabBtn.addEventListener('click', () => showTab('allBranchSnapshotTabBtn'));
     }
