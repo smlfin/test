@@ -9,14 +9,13 @@
 <body>
     <header>
         <h1>Employee Canvassing Dashboard</h1>
-       <nav class="report-tabs">
+        <nav class="report-tabs">
             <button class="tab-button active" id="allBranchSnapshotTabBtn">All Branch Snapshot</button>
             <button class="tab-button" id="allStaffOverallPerformanceTabBtn">All Staff Performance (Overall)</button>
-            <button class="tab-button" id="employeeManagementTabBtn">Employee Management</button>
         </nav>
     </header>
 
-<main>
+    <main>
         <section class="controls-panel">
             <div class="dropdown-group">
                 <label for="branchSelect">Select Branch:</label>
@@ -41,53 +40,46 @@
             </div>
         </section>
 
-        <section id="employeeManagementPanel" class="input-panel" style="display: none;">
+        <button id="toggleEmployeeManagement" class="btn toggle-btn">Show Employee Management</button>
+
+        <section id="employeeManagementSection" class="employee-management-panel" style="display: none;">
             <h2>Employee Management</h2>
+            <div id="employeeManagementMessage" class="message-area"></div>
 
-            <div class="toggle-buttons">
-                <button id="showAddEmployeeFormBtn" class="btn active">Add Employee(s)</button>
-                <button id="showDeleteEmployeeFormBtn" class="btn">Delete Employee</button>
-            </div>
-
-            <div id="addEmployeeFormContainer" class="form-section active">
-                <h3>Add New Employee(s)</h3>
-                <form id="addEmployeeForm">
-                    <div id="employeeEntryRows">
-                        <div class="employee-entry-row">
-                            <div class="form-group">
-                                <label>Employee Name:</label>
-                                <input type="text" name="employeeName" required>
-                            </div>
-                            <div class="form-group">
-                                <label>Employee Code:</label>
-                                <input type="text" name="employeeCode" required>
-                            </div>
-                            <div class="form-group">
-                                <label>Branch Name:</label>
-                                <input type="text" name="branchName" required>
-                            </div>
-                            <button type="button" class="remove-entry-btn" style="display: none;">X</button>
-                        </div>
+            <div class="form-section">
+                <h3>Add New Employee</h3>
+                <form id="addEmployeeForm" class="employee-form">
+                    <div class="form-group">
+                        <label for="newEmployeeName">Employee Name:</label>
+                        <input type="text" id="newEmployeeName" required>
                     </div>
-                    <button type="button" id="addMoreEntriesBtn" class="btn-secondary">Add More Entries</button>
-                    <button type="submit" class="btn-primary">Submit All New Employees</button>
-                    <p id="addEmployeeResponse" class="form-response"></p>
+                    <div class="form-group">
+                        <label for="newEmployeeCode">Employee Code:</label>
+                        <input type="text" id="newEmployeeCode" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="newBranchName">Branch Name:</label>
+                        <input type="text" id="newBranchName" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="newDesignation">Designation (optional):</label>
+                        <input type="text" id="newDesignation">
+                    </div>
+                    <button type="submit" class="btn">Add Employee</button>
                 </form>
             </div>
 
-            <div id="deleteEmployeeFormContainer" class="form-section" style="display: none;">
+            <div class="form-section">
                 <h3>Delete Employee</h3>
-                <form id="deleteEmployeeForm">
+                <form id="deleteEmployeeForm" class="employee-form">
                     <div class="form-group">
                         <label for="deleteEmployeeCode">Employee Code to Delete:</label>
-                        <input type="text" id="deleteEmployeeCode" name="employeeCode" required>
+                        <input type="text" id="deleteEmployeeCode" required>
                     </div>
-                    <button type="submit" class="btn-primary">Delete Employee</button>
-                    <p id="deleteEmployeeResponse" class="form-response"></p>
+                    <button type="submit" class="btn danger-btn">Delete Employee</button>
                 </form>
             </div>
         </section>
-
         <section id="reportDisplay" class="report-display">
             <p>Loading reports...</p>
         </section>
