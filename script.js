@@ -1,7 +1,7 @@
 document.addEventListener('DOMContentLoaded', () => {
     // *** Configuration ***
     const DATA_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTO7LujC4VSa2wGkJ2YEYSN7UeXR221ny3THaVegYfNfRm2JQGg7QR9Bxxh9SadXtK8Pi6-psl2tGsb/pub?gid=696550092&single=true&output=csv";
-    const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbyr_LP1bpaoszUtWAlMeFxFIwzsUQF0USmdTRaTdqBHcn9HFo82nmBqQt4zokKCuHL5/exec"; // <--- Updated URL!
+    const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbyr_LP1bpaoszUtWAlMeFxFIwzsUQF0USmdTRaTdqBHcn9HFo82nmBqQt4zokKCuHL5/exec"; // Your Apps Script Web App URL
 
     const MONTHLY_WORKING_DAYS = 22; // Common approximation for a month's working days
 
@@ -36,11 +36,25 @@ document.addEventListener('DOMContentLoaded', () => {
     const allBranchSnapshotTabBtn = document.getElementById('allBranchSnapshotTabBtn');
     const allStaffOverallPerformanceTabBtn = document.getElementById('allStaffOverallPerformanceTabBtn');
 
+    // Employee Management DOM elements
+    const toggleEmployeeManagementBtn = document.getElementById('toggleEmployeeManagement');
+    const employeeManagementSection = document.getElementById('employeeManagementSection');
+    const addEmployeeForm = document.getElementById('addEmployeeForm');
+    const deleteEmployeeForm = document.getElementById('deleteEmployeeForm');
+    const employeeManagementMessage = document.getElementById('employeeManagementMessage');
+
+    // NEW Bulk Employee Registration DOM elements
+    const bulkAddEmployeeForm = document.getElementById('bulkAddEmployeeForm');
+    const bulkEmployeeBranchNameInput = document.getElementById('bulkEmployeeBranchName');
+    const bulkEmployeeDetailsTextarea = document.getElementById('bulkEmployeeDetails');
+
 
     // *** Data Storage ***
     let allCanvassingData = []; // Stores all fetched data
     let filteredBranchData = []; // Stores data for the currently selected branch
     let selectedEmployeeEntries = []; // Stores entries for the currently selected employee
+    let allEmployees = []; // Store all unique employees and their branches/designations
+
 
     // *** Utility Functions ***
 
@@ -69,6 +83,14 @@ document.addEventListener('DOMContentLoaded', () => {
     function displayMessage(message) {
         reportDisplay.innerHTML = `<p>${message}</p>`;
     }
+
+    // Displays a message in the employee management area
+    function displayEmployeeManagementMessage(message, isError = false) {
+        employeeManagementMessage.textContent = message;
+        employeeManagementMessage.style.color = isError ? 'red' : 'green';
+        employeeManagementMessage.style.display = 'block';
+    }
+
 
     // Populates a dropdown with unique values
     function populateDropdown(dropdownElement, dataArray, key) {
@@ -179,7 +201,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // Table Header
         const thead = table.createTHead();
-        const headerRow = thead.insertCell();
+        const headerRow = thead.insertRow(); // Changed from insertCell to insertRow
         const columnsToDisplayInTable = [
             "Timestamp", "Date", "Employee Code", "Designation",
             "Activity Type", "Type of Customer", "Lead Source",
@@ -567,28 +589,34 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         // Group data by employee across all branches
-        const allEmployees = {};
+        const allEmployeesMetrics = {};
         currentMonthData.forEach(entry => {
             const employeeName = entry['Employee Name'];
+            const employeeCode = entry['Employee Code'];
+            const designation = entry['Designation'] || 'Default';
+
             if (employeeName) {
-                if (!allEmployees[employeeName]) {
-                    allEmployees[employeeName] = [];
+                if (!allEmployeesMetrics[employeeName]) {
+                    allEmployeesMetrics[employeeName] = {
+                        entries: [],
+                        designation: designation, // Store designation for targets
+                        employeeCode: employeeCode // Store code for display
+                    };
                 }
-                allEmployees[employeeName].push(entry);
+                allEmployeesMetrics[employeeName].entries.push(entry);
             }
         });
 
-        let overallPerformanceHtml = `<div class="overall-performance-grid">`;
+        let overallPerformanceHtml = `<div class="overall-performance-grid">`; // Grid for employee cards
 
-        for (const employeeName in allEmployees) {
-            const empEntries = allEmployees[employeeName];
-            const employeeDesignation = empEntries[0]['Designation'] || 'Default'; // Assuming designation is consistent per employee
-
-            const actuals = calculateMetrics(empEntries);
-            const employeeTargets = TARGETS[employeeDesignation] || TARGETS['Default'];
+        // Display performance for each employee
+        for (const employeeName in allEmployeesMetrics) {
+            const { entries, designation, employeeCode } = allEmployeesMetrics[employeeName];
+            const actuals = calculateMetrics(entries);
+            const employeeTargets = TARGETS[designation] || TARGETS['Default'];
 
             overallPerformanceHtml += `<div class="employee-performance-card">`;
-            overallPerformanceHtml += `<h4>${employeeName} (${employeeDesignation})</h4>`;
+            overallPerformanceHtml += `<h4>${employeeName} (${employeeCode})<br><small>${designation}</small></h4>`;
 
             let tableHtml = `<table class="performance-table">
                 <thead>
@@ -658,30 +686,10 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
 
-    // Function to handle tab switching
-    function showTab(activeTabId) {
-        // Remove 'active' from all tab buttons
-        const tabButtons = document.querySelectorAll('.tab-button');
-        tabButtons.forEach(button => button.classList.remove('active'));
+    // --- Data Fetching and Initialization ---
 
-        // Add 'active' to the clicked tab button
-        const activeTabButton = document.getElementById(activeTabId);
-        if (activeTabButton) {
-            activeTabButton.classList.add('active');
-        }
-
-        // Render the corresponding report
-        if (activeTabId === 'allBranchSnapshotTabBtn') {
-            renderAllBranchSnapshot();
-        } else if (activeTabId === 'allStaffOverallPerformanceTabBtn') {
-            renderOverallStaffPerformanceReport();
-        }
-    }
-
-
-    // *** Main Data Fetching and Initialization ***
     async function fetchData() {
-        displayMessage("Loading data...");
+        displayMessage("Fetching data...");
         try {
             const response = await fetch(DATA_URL);
             if (!response.ok) {
@@ -689,79 +697,122 @@ document.addEventListener('DOMContentLoaded', () => {
             }
             const csvText = await response.text();
             allCanvassingData = parseCSV(csvText);
-            console.log("Fetched Canvassing Data:", allCanvassingData); // Debugging
 
-            if (allCanvassingData.length > 0) {
-                populateDropdown(branchSelect, allCanvassingData, 'Branch Name');
-                // Initially show the "All Branch Snapshot" report
-                showTab('allBranchSnapshotTabBtn');
-            } else {
-                displayMessage("No data found in the Google Sheet. Please check the sheet and URL.");
-            }
+            // Populate initial dropdowns based on all fetched data (MasterEmployees implicitly)
+            populateDropdown(branchSelect, allCanvassingData, 'Branch Name');
+
+            // Extract all unique employees and their details for the employee management section
+            const uniqueEmployees = new Map(); // Using Map to store unique employees by code and latest designation/branch
+            allCanvassingData.forEach(entry => {
+                if (entry['Employee Code'] && entry['Employee Name']) {
+                    // Store the latest branch and designation for each employee code encountered in canvassing data
+                    uniqueEmployees.set(entry['Employee Code'], {
+                        'Employee Name': entry['Employee Name'],
+                        'Employee Code': entry['Employee Code'],
+                        'Branch Name': entry['Branch Name'] || '',
+                        'Designation': entry['Designation'] || ''
+                    });
+                }
+            });
+            allEmployees = Array.from(uniqueEmployees.values());
+            console.log("All Unique Employees:", allEmployees); // Debugging
+
+            displayMessage("Data loaded successfully. Please select a branch or report type.");
+
+            // Set current date for bulk entry form
+            const today = new Date();
+            const yyyy = today.getFullYear();
+            const mm = String(today.getMonth() + 1).padStart(2, '0'); // Months start at 0!
+            const dd = String(today.getDate()).padStart(2, '0');
+            bulkEntryDateInput.value = `${yyyy}-${mm}-${dd}`;
+
+
         } catch (error) {
-            console.error("Error fetching or parsing data:", error);
-            displayMessage(`Failed to load data: ${error.message}. Please ensure the Google Sheet is published to web as CSV.`);
+            console.error("Error fetching data:", error);
+            displayMessage(`Error loading data: ${error.message}. Please check the DATA_URL and ensure the Google Sheet is published to web as CSV.`);
         }
     }
 
-    // *** Event Listeners ***
+    // --- Google Apps Script Communication ---
 
-    // Branch selection change
+    async function sendDataToGoogleAppsScript(actionType, data, messageElement) {
+        messageElement.textContent = 'Processing...';
+        messageElement.style.color = 'blue';
+        messageElement.style.display = 'block';
+
+        try {
+            const response = await fetch(WEB_APP_URL, {
+                method: 'POST',
+                mode: 'cors',
+                cache: 'no-cache',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: new URLSearchParams({
+                    actionType: actionType,
+                    data: JSON.stringify(data) // Send data as a JSON string
+                })
+            });
+
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+
+            const result = await response.json();
+            if (result.status === 'SUCCESS') {
+                messageElement.textContent = result.message;
+                messageElement.style.color = 'green';
+                // Re-fetch data if an employee was added/deleted/bulk added
+                if (actionType === 'add_employee' || actionType === 'delete_employee' || actionType === 'add_bulk_employees') {
+                    await fetchData(); // Refresh local data after modification
+                }
+            } else {
+                messageElement.textContent = `Error: ${result.message}`;
+                messageElement.style.color = 'red';
+            }
+        } catch (error) {
+            console.error("Error sending data to Apps Script:", error);
+            messageElement.textContent = `Failed to send data: ${error.message}`;
+            messageElement.style.color = 'red';
+        } finally {
+            // Hide message after a few seconds
+            setTimeout(() => {
+                messageElement.style.display = 'none';
+            }, 5000);
+        }
+    }
+
+
+    // --- Event Listeners ---
+
     branchSelect.addEventListener('change', () => {
         const selectedBranch = branchSelect.value;
         if (selectedBranch) {
             filteredBranchData = allCanvassingData.filter(entry => entry['Branch Name'] === selectedBranch);
-            populateDropdown(employeeSelect, filteredBranchData, 'Employee Name');
             employeeFilterPanel.style.display = 'block';
-            viewOptions.style.display = 'flex'; // Show view options
-            displayMessage("Select an employee or a report option.");
-            employeeSelect.value = ""; // Reset employee selection
-            selectedEmployeeEntries = []; // Clear selected employee entries
+            viewOptions.style.display = 'flex'; // Show all view options
+            populateDropdown(employeeSelect, filteredBranchData, 'Employee Name');
+            displayMessage(`Data loaded for ${selectedBranch}. Please select an employee or a report type.`);
         } else {
             employeeFilterPanel.style.display = 'none';
             viewOptions.style.display = 'none';
+            employeeSelect.innerHTML = '<option value="">-- Select an Employee --</option>';
             displayMessage("Please select a branch from the dropdown above to view reports.");
-            // When no branch is selected, show the default tab report
-            showTab('allBranchSnapshotTabBtn');
         }
     });
 
-    // Employee selection change
     employeeSelect.addEventListener('change', () => {
-        const selectedEmployee = employeeSelect.value;
-        if (selectedEmployee) {
-            selectedEmployeeEntries = filteredBranchData.filter(entry => entry['Employee Name'] === selectedEmployee);
-            // Default to showing employee summary when selected
-            if (selectedEmployeeEntries.length > 0) {
-                renderEmployeeSummary(selectedEmployeeEntries);
-            } else {
-                displayMessage("No data found for the selected employee.");
-            }
+        const selectedEmployeeName = employeeSelect.value;
+        const selectedBranch = branchSelect.value;
+        if (selectedEmployeeName && selectedBranch) {
+            selectedEmployeeEntries = allCanvassingData.filter(entry =>
+                entry['Branch Name'] === selectedBranch &&
+                entry['Employee Name'] === selectedEmployeeName
+            );
+            displayMessage(`Selected employee: ${selectedEmployeeName}. Choose a report type.`);
         } else {
-            selectedEmployeeEntries = []; // Clear selected employee entries
-            // If employee is unselected, show branch summary
-            if (filteredBranchData.length > 0) {
-                renderBranchSummary(filteredBranchData);
-            } else {
-                displayMessage("Select an employee or a report option.");
-            }
-        }
-    });
-
-    // View Report Buttons Event Listeners
-    viewBranchSummaryBtn.addEventListener('click', () => {
-        if (filteredBranchData.length > 0) {
-            renderBranchSummary(filteredBranchData);
-        } else {
-            displayMessage("No branch selected or no data for this branch to show summary.");
-        }
-    });
-
-    viewBranchPerformanceReportBtn.addEventListener('click', () => {
-        if (filteredBranchData.length > 0) {
-            renderBranchPerformanceReport(filteredBranchData);
-        } else {
-            displayMessage("No branch selected or no data for this branch for performance report.");
+            selectedEmployeeEntries = [];
+            displayMessage("Please select an employee to view their specific reports.");
         }
     });
 
@@ -790,144 +841,141 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // Event listeners for tab buttons
-    if (allBranchSnapshotTabBtn) {
-        allBranchSnapshotTabBtn.addEventListener('click', () => showTab('allBranchSnapshotTabBtn'));
+    viewBranchSummaryBtn.addEventListener('click', () => {
+        if (filteredBranchData.length > 0) {
+            renderBranchSummary(filteredBranchData);
+        } else {
+            displayMessage("No branch selected or no data for this branch to show summary.");
+        }
+    });
+
+    viewBranchPerformanceReportBtn.addEventListener('click', () => {
+        if (filteredBranchData.length > 0) {
+            renderBranchPerformanceReport(filteredBranchData);
+        } else {
+            displayMessage("No branch selected or no data for this branch for performance report.");
+        }
+    });
+
+    // Tab button functionality
+    function showTab(activeTabId) {
+        // Remove 'active' from all tab buttons
+        document.querySelectorAll('.tab-button').forEach(button => {
+            button.classList.remove('active');
+        });
+
+        // Add 'active' to the clicked tab button
+        document.getElementById(activeTabId).classList.add('active');
+
+        // Render the corresponding report
+        if (activeTabId === 'allBranchSnapshotTabBtn') {
+            renderAllBranchSnapshot();
+            // Hide branch/employee specific controls
+            branchSelect.value = ""; // Reset branch selection
+            employeeFilterPanel.style.display = 'none';
+            viewOptions.style.display = 'none';
+        } else if (activeTabId === 'allStaffOverallPerformanceTabBtn') {
+            renderOverallStaffPerformanceReport();
+            // Hide branch/employee specific controls
+            branchSelect.value = ""; // Reset branch selection
+            employeeFilterPanel.style.display = 'none';
+            viewOptions.style.display = 'none';
+        }
     }
-    if (allStaffOverallPerformanceTabBtn) {
-        allStaffOverallPerformanceTabBtn.addEventListener('click', () => showTab('allStaffOverallPerformanceTabBtn'));
-    }
+
+    allBranchSnapshotTabBtn.addEventListener('click', () => showTab('allBranchSnapshotTabBtn'));
+    allStaffOverallPerformanceTabBtn.addEventListener('click', () => showTab('allStaffOverallPerformanceTabBtn'));
+
+
+    // Employee Management Section Toggle
+    toggleEmployeeManagementBtn.addEventListener('click', () => {
+        const isHidden = employeeManagementSection.style.display === 'none';
+        employeeManagementSection.style.display = isHidden ? 'block' : 'none';
+        toggleEmployeeManagementBtn.textContent = isHidden ? 'Hide Employee Management' : 'Show Employee Management';
+    });
+
+    // Add Employee Form Submission
+    addEmployeeForm.addEventListener('submit', async (event) => {
+        event.preventDefault();
+        const employeeName = document.getElementById('newEmployeeName').value.trim();
+        const employeeCode = document.getElementById('newEmployeeCode').value.trim();
+        const branchName = document.getElementById('newBranchName').value.trim();
+        const designation = document.getElementById('newDesignation').value.trim();
+
+        if (!employeeName || !employeeCode || !branchName) {
+            displayEmployeeManagementMessage('Employee Name, Code, and Branch Name are required.', true);
+            return;
+        }
+
+        const employeeData = {
+            'Employee Name': employeeName,
+            'Employee Code': employeeCode,
+            'Branch Name': branchName,
+            'Designation': designation
+        };
+
+        await sendDataToGoogleAppsScript('add_employee', employeeData, employeeManagementMessage);
+        addEmployeeForm.reset(); // Clear form after submission
+    });
+
+    // Delete Employee Form Submission
+    deleteEmployeeForm.addEventListener('submit', async (event) => {
+        event.preventDefault();
+        const employeeCode = document.getElementById('deleteEmployeeCode').value.trim();
+
+        if (!employeeCode) {
+            displayEmployeeManagementMessage('Employee Code is required to delete an employee.', true);
+            return;
+        }
+
+        const employeeData = {
+            'Employee Code': employeeCode
+        };
+
+        await sendDataToGoogleAppsScript('delete_employee', employeeData, employeeManagementMessage);
+        deleteEmployeeForm.reset(); // Clear form after submission
+    });
+
+
+    // NEW: Bulk Add Employee Form Submission
+    bulkAddEmployeeForm.addEventListener('submit', async (event) => {
+        event.preventDefault();
+        const branchName = bulkEmployeeBranchNameInput.value.trim();
+        const bulkDetails = bulkEmployeeDetailsTextarea.value.trim();
+
+        if (!branchName || !bulkDetails) {
+            displayEmployeeManagementMessage('Branch Name and Employee Details are required for bulk entry.', true);
+            return;
+        }
+
+        const employeeLines = bulkDetails.split('\n').filter(line => line.trim() !== '');
+        const employeesToAdd = [];
+
+        for (const line of employeeLines) {
+            const parts = line.split(',').map(part => part.trim());
+            if (parts.length < 2) { // Need at least Name and Code
+                displayEmployeeManagementMessage(`Skipping invalid line: "${line}". Each line must have at least Employee Name and Employee Code.`, true);
+                continue;
+            }
+
+            const employeeData = {
+                'Employee Name': parts[0],
+                'Employee Code': parts[1],
+                'Branch Name': branchName, // Apply the common branch name
+                'Designation': parts[2] || '' // Designation is optional
+            };
+            employeesToAdd.push(employeeData);
+        }
+
+        if (employeesToAdd.length > 0) {
+            await sendDataToGoogleAppsScript('add_bulk_employees', employeesToAdd, employeeManagementMessage);
+            bulkAddEmployeeForm.reset(); // Clear form after submission
+        } else {
+            displayEmployeeManagementMessage('No valid employee entries found in the bulk details.', true);
+        }
+    });
 
 
     // Initial data fetch when the page loads
     fetchData();
-
-    // --- New Code for Employee Management ---
-
-    // DOM elements for the employee management form
-    const addEmployeeForm = document.getElementById('addEmployeeForm');
-    const deleteEmployeeForm = document.getElementById('deleteEmployeeForm');
-    const employeeManagementMessage = document.getElementById('employeeManagementMessage');
-
-    // Function to display messages in the employee management section
-    function displayEmployeeManagementMessage(message, isError = false) {
-        if (employeeManagementMessage) {
-            employeeManagementMessage.textContent = message;
-            employeeManagementMessage.style.color = isError ? 'red' : 'green';
-            employeeManagementMessage.style.display = 'block';
-            setTimeout(() => {
-                employeeManagementMessage.style.display = 'none';
-                employeeManagementMessage.textContent = '';
-            }, 5000); // Hide after 5 seconds
-        }
-    }
-
-    // Handle Add Employee form submission
-    if (addEmployeeForm) {
-        addEmployeeForm.addEventListener('submit', async (e) => {
-            e.preventDefault();
-
-            const employeeName = document.getElementById('newEmployeeName').value;
-            const employeeCode = document.getElementById('newEmployeeCode').value;
-            const branchName = document.getElementById('newBranchName').value;
-            const designation = document.getElementById('newDesignation').value || 'Default'; // Default designation
-
-            if (!employeeName || !employeeCode || !branchName) {
-                displayEmployeeManagementMessage('Please fill in all required fields.', true);
-                return;
-            }
-
-            const dataToSend = {
-                type: 'add',
-                data: [{
-                    'Employee Name': employeeName,
-                    'Employee Code': employeeCode,
-                    'Branch Name': branchName,
-                    'Designation': designation
-                }]
-            };
-
-            try {
-                const response = await fetch(WEB_APP_URL, {
-                    method: 'POST',
-                    mode: 'no-cors', // Important for Apps Script Web App
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify(dataToSend)
-                });
-
-                // Since 'no-cors' mode, response.ok will always be true and status 0
-                // We rely on the Apps Script to handle errors internally and assume success if no network error
-                displayEmployeeManagementMessage('Employee added (or request sent). Check your Google Sheet for updates.', false);
-
-                // Clear the form
-                addEmployeeForm.reset();
-                // Optionally refetch data to update dropdowns if relevant for other sections
-                // fetchData();
-
-            } catch (error) {
-                console.error('Error adding employee:', error);
-                displayEmployeeManagementMessage(`Failed to add employee: ${error.message}.`, true);
-            }
-        });
-    }
-
-    // Handle Delete Employee form submission
-    if (deleteEmployeeForm) {
-        deleteEmployeeForm.addEventListener('submit', async (e) => {
-            e.preventDefault();
-
-            const employeeCodeToDelete = document.getElementById('deleteEmployeeCode').value;
-
-            if (!employeeCodeToDelete) {
-                displayEmployeeManagementMessage('Please enter an Employee Code to delete.', true);
-                return;
-            }
-
-            const dataToSend = {
-                type: 'delete',
-                employeeCode: employeeCodeToDelete
-            };
-
-            try {
-                const response = await fetch(WEB_APP_URL, {
-                    method: 'POST',
-                    mode: 'no-cors', // Important for Apps Script Web App
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify(dataToSend)
-                });
-
-                // Similar to add, due to 'no-cors', assume success or check sheet manually
-                displayEmployeeManagementMessage('Delete request sent. Check your Google Sheet for updates.', false);
-
-                // Clear the form
-                deleteEmployeeForm.reset();
-                // Optionally refetch data to update dropdowns if relevant for other sections
-                // fetchData();
-
-            } catch (error) {
-                console.error('Error deleting employee:', error);
-                displayEmployeeManagementMessage(`Failed to delete employee: ${error.message}.`, true);
-            }
-        });
-    }
-
-    // Toggle Employee Management Section Visibility
-    const toggleEmployeeManagementBtn = document.getElementById('toggleEmployeeManagement');
-    const employeeManagementSection = document.getElementById('employeeManagementSection');
-
-    if (toggleEmployeeManagementBtn && employeeManagementSection) {
-        toggleEmployeeManagementBtn.addEventListener('click', () => {
-            if (employeeManagementSection.style.display === 'none' || employeeManagementSection.style.display === '') {
-                employeeManagementSection.style.display = 'block';
-                toggleEmployeeManagementBtn.textContent = 'Hide Employee Management';
-            } else {
-                employeeManagementSection.style.display = 'none';
-                toggleEmployeeManagementBtn.textContent = 'Show Employee Management';
-            }
-        });
-    }
 });
