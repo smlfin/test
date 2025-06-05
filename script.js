@@ -719,12 +719,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             displayMessage("Data loaded successfully. Please select a branch or report type.");
 
-            // Set current date for bulk entry form
-            const today = new Date();
-            const yyyy = today.getFullYear();
-            const mm = String(today.getMonth() + 1).padStart(2, '0'); // Months start at 0!
-            const dd = String(today.getDate()).padStart(2, '0');
-            bulkEntryDateInput.value = `${yyyy}-${mm}-${dd}`;
+            // Removed the problematic line here: bulkEntryDateInput.value = `${yyyy}-${mm}-${dd}`;
 
 
         } catch (error) {
