@@ -70,6 +70,23 @@
             </div>
 
             <div class="form-section">
+                <h3>Bulk Employee Registration</h3>
+                <p>Enter employee details below, one per line. Format: <code>Employee Name,Employee Code,Designation (optional)</code></p>
+                <p>Example: <code>John Doe,EMP001,Branch Manager</code></p>
+                <p>All employees added here will be assigned to the selected branch.</p>
+                <form id="bulkAddEmployeeForm" class="employee-form">
+                    <div class="form-group">
+                        <label for="bulkEmployeeBranchName">Branch Name for Bulk Entry:</label>
+                        <input type="text" id="bulkEmployeeBranchName" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="bulkEmployeeDetails">Employee Details (Name,Code,Designation - one per line):</label>
+                        <textarea id="bulkEmployeeDetails" rows="10" placeholder="e.g.,&#10;Alice,EMP001,Manager&#10;Bob,EMP002,Sales Exec&#10;Charlie,EMP003" required></textarea>
+                    </div>
+                    <button type="submit" class="btn">Add Bulk Employees</button>
+                </form>
+            </div>
+            <div class="form-section">
                 <h3>Delete Employee</h3>
                 <form id="deleteEmployeeForm" class="employee-form">
                     <div class="form-group">
