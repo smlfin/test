@@ -2,7 +2,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // *** Configuration ***
     const DATA_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTO7LujC4VSa2wGkJ2YEYSN7UeXR221ny3THaVegYfNfRm2JQGg7QR9Bxxh9SadXtK8Pi6-psl2tGsb/pub?gid=696550092&single=true&output=csv";
     // IMPORTANT: Replace this with YOUR DEPLOYED GOOGLE APPS SCRIPT WEB APP URL
-    const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzEYf0CKgwP0O4-z1lup1lDZImD1dQVEveLWsHwa_7T5ltndfIuRWXVZqFDj03_proD/exec";
+    const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzEYf0CKgwP0O4-z1lup1lDZImD1dQVEveLWsHwa_7T5ltndfIuRWXVZqFDj03_proD/exec"; // Ensure this is YOUR Apps Script URL
 
     const MONTHLY_WORKING_DAYS = 22; // Common approximation for a month's working days
 
@@ -37,11 +37,18 @@ document.addEventListener('DOMContentLoaded', () => {
     const viewEmployeeSummaryBtn = document.getElementById('viewEmployeeSummaryBtn');
     const viewAllEntriesBtn = document.getElementById('viewAllEntriesBtn');
     const viewPerformanceReportBtn = document.getElementById('viewPerformanceReportBtn');
-    const reportDisplay = document.getElementById('reportDisplay');
 
-    // Tab buttons for main reports
+    // Main Report Display Area
+    const reportDisplay = document.getElementById('reportDisplay'); // Moved this here for clarity
+
+    // Tab buttons for main navigation
     const allBranchSnapshotTabBtn = document.getElementById('allBranchSnapshotTabBtn');
     const allStaffOverallPerformanceTabBtn = document.getElementById('allStaffOverallPerformanceTabBtn');
+    const employeeManagementTabBtn = document.getElementById('employeeManagementTabBtn'); // NEW: Employee Management Tab Button
+
+    // Main Content Sections to toggle
+    const reportsSection = document.getElementById('reportsSection'); // NEW: The main reports section
+    const employeeManagementSection = document.getElementById('employeeManagementSection'); // NEW: The employee management section
 
     // Employee Management Form Elements
     const addEmployeeForm = document.getElementById('addEmployeeForm');
@@ -49,7 +56,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const newEmployeeCodeInput = document.getElementById('newEmployeeCode');
     const newBranchNameInput = document.getElementById('newBranchName');
     const newDesignationInput = document.getElementById('newDesignation');
-    const employeeManagementMessage = document.getElementById('employeeManagementMessage'); // For all employee management messages
+    const employeeManagementMessage = document.getElementById('employeeManagementMessage'); // Central message area for employee management forms
 
     const bulkAddEmployeeForm = document.getElementById('bulkAddEmployeeForm');
     const bulkEmployeeBranchNameInput = document.getElementById('bulkEmployeeBranchName');
@@ -94,7 +101,6 @@ document.addEventListener('DOMContentLoaded', () => {
             }, 5000);
         }
     }
-
 
     // Function to fetch data from Google Sheet
     async function fetchData() {
@@ -174,7 +180,7 @@ document.addEventListener('DOMContentLoaded', () => {
     employeeSelect.addEventListener('change', () => {
         const selectedEmployee = employeeSelect.value;
         if (selectedEmployee) {
-            selectedEmployeeEntries = selectedBranchEntries.filter(entry => entry['Employee Name'] === selectedEmployee);
+            selectedEmployeeEntries = allCanvassingData.filter(entry => entry['Employee Name'] === selectedEmployee && entry['Branch Name'] === branchSelect.value);
             reportDisplay.innerHTML = `<p>Ready to view reports for ${selectedEmployee}.</p>`;
         } else {
             selectedEmployeeEntries = [];
@@ -242,7 +248,6 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-
     // Function to calculate performance percentage
     function calculatePerformance(actual, target) {
         const performance = {};
@@ -255,7 +260,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         return performance;
     }
-
 
     // Render Branch Summary
     function renderBranchSummary(branchEntries) {
@@ -356,7 +360,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-
     // Render Employee Performance Report
     function renderPerformanceReport(employeeEntries, employeeName, designation) {
         reportDisplay.innerHTML = `<h2>Performance Report for ${employeeName} (${designation})</h2>`;
@@ -380,10 +383,10 @@ document.addEventListener('DOMContentLoaded', () => {
                     <h4>Activity Breakdown by Date</h4>
                     <ul class="summary-list">
                         ${employeeEntries.map(entry => `
-                            <li>${formatDate(entry['Date'])}: 
-                                V:${entry['No of Visit (Client)']} | 
-                                C:${entry['No of Call']} | 
-                                R:${entry['No of Reference']} | 
+                            <li>${formatDate(entry['Date'])}:
+                                V:${entry['No of Visit (Client)']} |
+                                C:${entry['No of Call']} |
+                                R:${entry['No of Reference']} |
                                 L:${entry['No of New Customer Leads']}
                             </li>`).join('')}
                     </ul>
@@ -450,7 +453,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
 
-    // Event Listeners for main report buttons (already in your script)
+    // Event Listeners for main report buttons
     viewBranchSummaryBtn.addEventListener('click', () => {
         if (selectedBranchEntries.length > 0) {
             renderBranchSummary(selectedBranchEntries);
@@ -523,49 +526,49 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // Event listeners for tab buttons (main navigation)
-    function showTab(tabId) {
+    function showTab(tabButtonId) {
         // Remove 'active' from all tab buttons
         document.querySelectorAll('.tab-button').forEach(button => {
             button.classList.remove('active');
         });
         // Add 'active' to the clicked tab button
-        document.getElementById(tabId).classList.add('active');
+        document.getElementById(tabButtonId).classList.add('active');
 
         // Hide all report sections and show the relevant one
-        document.querySelectorAll('.report-section').forEach(section => {
-            section.style.display = 'none';
-        });
+        reportsSection.style.display = 'none';
+        employeeManagementSection.style.display = 'none';
 
-        if (tabId === 'allBranchSnapshotTabBtn') {
-            document.getElementById('reportsSection').style.display = 'block'; // Show general reports section
-            renderAllBranchSnapshot();
-        } else if (tabId === 'allStaffOverallPerformanceTabBtn') {
-            document.getElementById('reportsSection').style.display = 'block'; // Show general reports section
-            renderOverallStaffPerformanceReport();
-        } else if (tabId === 'employeeManagementTabBtn') {
-            document.getElementById('employeeManagementSection').style.display = 'block';
-        } else {
-            // Default to showing report display if no specific tab section
-            document.getElementById('reportsSection').style.display = 'block';
-            reportDisplay.innerHTML = '<p>Please select a branch from the dropdown above to view reports.</p>';
+
+        if (tabButtonId === 'allBranchSnapshotTabBtn' || tabButtonId === 'allStaffOverallPerformanceTabBtn') {
+            reportsSection.style.display = 'block';
+            // Also ensure the controls panel is visible for reports
+            document.querySelector('.controls-panel').style.display = 'block';
+            // Trigger the corresponding report rendering if it's a report tab
+            if (tabButtonId === 'allBranchSnapshotTabBtn') {
+                renderAllBranchSnapshot();
+            } else if (tabButtonId === 'allStaffOverallPerformanceTabBtn') {
+                renderOverallStaffPerformanceReport();
+            }
+        } else if (tabButtonId === 'employeeManagementTabBtn') {
+            employeeManagementSection.style.display = 'block';
+            // Hide controls panel when in employee management
+            document.querySelector('.controls-panel').style.display = 'none';
         }
+        // No else needed, if other tabs are added, handle them specifically
     }
 
 
-    // Event listener for main tab buttons
+    // Event listeners for main tab buttons
     if (allBranchSnapshotTabBtn) {
         allBranchSnapshotTabBtn.addEventListener('click', () => showTab('allBranchSnapshotTabBtn'));
     }
     if (allStaffOverallPerformanceTabBtn) {
         allStaffOverallPerformanceTabBtn.addEventListener('click', () => showTab('allStaffOverallPerformanceTabBtn'));
     }
-
-    // Employee Management Tab Button (if you add one in HTML)
-    const employeeManagementTabBtn = document.getElementById('employeeManagementTabBtn');
+    // NEW: Employee Management tab button listener
     if (employeeManagementTabBtn) {
         employeeManagementTabBtn.addEventListener('click', () => showTab('employeeManagementTabBtn'));
     }
-
 
     // NEW: Event Listener for Add Employee Form
     if (addEmployeeForm) {
@@ -664,4 +667,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Initial data fetch when the page loads
     fetchData();
+
+    // Show the "All Branch Snapshot" tab by default on load
+    showTab('allBranchSnapshotTabBtn');
 });
