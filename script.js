@@ -525,7 +525,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // Event listeners for tab buttons (main navigation)
+    // Function to manage tab visibility
     function showTab(tabButtonId) {
         // Remove 'active' from all tab buttons
         document.querySelectorAll('.tab-button').forEach(button => {
@@ -534,16 +534,14 @@ document.addEventListener('DOMContentLoaded', () => {
         // Add 'active' to the clicked tab button
         document.getElementById(tabButtonId).classList.add('active');
 
-        // Hide all report sections and show the relevant one
+        // Hide all major content sections first
         reportsSection.style.display = 'none';
         employeeManagementSection.style.display = 'none';
 
-
+        // Show the relevant section and adjust controls visibility
         if (tabButtonId === 'allBranchSnapshotTabBtn' || tabButtonId === 'allStaffOverallPerformanceTabBtn') {
             reportsSection.style.display = 'block';
-            // Also ensure the controls panel is visible for reports
-            document.querySelector('.controls-panel').style.display = 'block';
-            // Trigger the corresponding report rendering if it's a report tab
+            document.querySelector('.controls-panel').style.display = 'block'; // Show controls for reports
             if (tabButtonId === 'allBranchSnapshotTabBtn') {
                 renderAllBranchSnapshot();
             } else if (tabButtonId === 'allStaffOverallPerformanceTabBtn') {
@@ -551,10 +549,10 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         } else if (tabButtonId === 'employeeManagementTabBtn') {
             employeeManagementSection.style.display = 'block';
-            // Hide controls panel when in employee management
-            document.querySelector('.controls-panel').style.display = 'none';
+            document.querySelector('.controls-panel').style.display = 'none'; // Hide controls when in employee management
+            // Optionally clear existing messages when switching to employee management tab
+            displayEmployeeManagementMessage('', false);
         }
-        // No else needed, if other tabs are added, handle them specifically
     }
 
 
