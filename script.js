@@ -5,21 +5,26 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const MONTHLY_WORKING_DAYS = 22; // Common approximation for a month's working days
 
-    const TARGETS = {
-        'Branch Manager': {
-            'Visit': 10,
-            'Call': 3 * MONTHLY_WORKING_DAYS,
-            'Reference': 1 * MONTHLY_WORKING_DAYS,
-            'New Customer Leads': 20
-        },
-        'Default': { // For all other designations not explicitly defined
-            'Visit': 5,
-            'Call': 3 * MONTHLY_WORKING_DAYS,
-            'Reference': 1 * MONTHLY_WORKING_DAYS,
-            'New Customer Leads': 20
-        }
-    };
-
+   const TARGETS = {
+    'Branch Manager': {
+        'Visit': 10,
+        'Call': 3 * MONTHLY_WORKING_DAYS,
+        'Reference': 1 * MONTHLY_WORKING_DAYS,
+        'New Customer Leads': 20
+    },
+    'Investment Staff': { // Added Investment Staff with custom Visit target
+        'Visit': 30,
+        'Call': 5 * MONTHLY_WORKING_DAYS,
+        'Reference': 1 * MONTHLY_WORKING_DAYS,
+        'New Customer Leads': 20
+    },
+    'Default': { // For all other designations not explicitly defined
+        'Visit': 5,
+        'Call': 3 * MONTHLY_WORKING_DAYS,
+        'Reference': 1 * MONTHLY_WORKING_DAYS,
+        'New Customer Leads': 20
+    }
+};
     // *** DOM Elements ***
     const branchSelect = document.getElementById('branchSelect');
     const employeeFilterPanel = document.getElementById('employeeFilterPanel');
