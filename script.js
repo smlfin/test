@@ -1,7 +1,7 @@
 document.addEventListener('DOMContentLoaded', () => {
     // *** Configuration ***
     const DATA_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTO7LujC4VSa2wGkJ2YEYSN7UeXR221ny3THaVegYfNfRm2JQGg7QR9Bxxh9SadXtK8Pi6-psl2tGsb/pub?gid=696550092&single=true&output=csv";
-    const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbyr_LP1bpaoszUtWAlMeFxFIwzsUQF0USmdTRaTdqBHcn9HFo82nmBqQt4zokKCuHL5/exec"; // Your Apps Script Web App URL
+    const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzEYf0CKgwP0O4-z1lup1lDZImD1dQVEveLWsHwa_7T5ltndfIuRWXVZqFDj03_proD/exec"; // Your Apps Script Web App URL
 
     const MONTHLY_WORKING_DAYS = 22; // Common approximation for a month's working days
 
