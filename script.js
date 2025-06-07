@@ -4,7 +4,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // IMPORTANT: Replace this with YOUR DEPLOYED GOOGLE APPS SCRIPT WEB APP URL
     const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzEYf0CKgwP0O4-z1lup1lDZImD1dQVEveLWsHwa_7T5ltndfIuRWXVZqFDj03_proD/exec"; // <-- PASTE YOUR NEWLY DEPLOYED WEB APP URL HERE
     // NEW: URL for your published MasterEmployees sheet (as CSV)
-    const EMPLOYEE_MASTER_DATA_URL = "YOUR_MASTER_EMPLOYEES_PUB_CSV_URL"; // <-- PASTE THE PUBLIC CSV URL FOR YOUR 'MasterEmployees' SHEET HERE
+    const EMPLOYEE_MASTER_DATA_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTO7LujC4VSa2wGkJ2YEYSN7UeXR221ny3THaVegYfNfRm2JQGg7QR9Bxxh9SadXtK8Pi6-psl2tGsb/pub?gid=2120288173&single=true&output=csv"; // <-- PASTE THE PUBLIC CSV URL FOR YOUR 'MasterEmployees' SHEET HERE
 
     const MONTHLY_WORKING_DAYS = 22; // Common approximation for a month's working days
 
