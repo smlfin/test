@@ -37,16 +37,26 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- Column Headers Mapping (IMPORTANT: Adjust these to match your actual CSV headers) ---
     // Ensure these match the exact column names in your "Form Responses 2" (or "Canvassing Data") sheet.
     const HEADER_TIMESTAMP = 'Timestamp';
+    const HEADER_DATE = 'Date'; // Added from user's provided headers
     const HEADER_BRANCH_NAME = 'Branch Name';
     const HEADER_EMPLOYEE_NAME = 'Employee Name';
     const HEADER_EMPLOYEE_CODE = 'Employee Code';
     const HEADER_DESIGNATION = 'Designation';
     const HEADER_ACTIVITY_TYPE = 'Activity Type';
-    const HEADER_NO_OF_VISIT = 'No of Visit (Client)';
-    const HEADER_NO_OF_CALL = 'No of Call';
-    const HEADER_NO_OF_REFERENCE = 'No of Reference';
-    const HEADER_NO_OF_NEW_CUSTOMER_LEADS = 'No of New Customer Leads';
-    const HEADER_TYPE_OF_CUSTOMER = 'Type of Customer';
+    // Removed old HEADER_NO_OF_VISIT, HEADER_NO_OF_CALL etc. as they are not in provided headers
+    const HEADER_TYPE_OF_CUSTOMER = 'Type of Custome'; // Corrected typo
+    const HEADER_LEAD_SOURCE = 'Lead Source'; // Added from user's provided headers
+    const HEADER_HOW_CONTACTED = 'How Contacted'; // Added from user's provided headers
+    const HEADER_PROSPECT_NAME = 'Prospect Name'; // Added from user's provided headers
+    const HEADER_PHONE_NUMBER_WHATSAPP = 'Phone Numebr(Whatsapp)'; // Corrected typo here, but user provided "Phone Numebr(Whatsapp)"
+    const HEADER_ADDRESS = 'Address'; // Added from user's provided headers
+    const HEADER_PROFESSION = 'Profession'; // Added from user's provided headers
+    const HEADER_DOB_WD = 'DOB/WD'; // Added from user's provided headers
+    const HEADER_PRODUCT_INTERESTED = 'Prodcut Interested'; // Corrected typo here, but user provided "Prodcut Interested"
+    const HEADER_REMARKS = 'Remarks'; // Added from user's provided headers
+    const HEADER_NEXT_FOLLOW_UP_DATE = 'Next Follow-up Date'; // Added from user's provided headers
+    const HEADER_RELATION_WITH_STAFF = 'Relation With Staff'; // Added from user's provided headers
+
 
     // *** DOM Elements ***
     const branchSelect = document.getElementById('branchSelect');
@@ -247,6 +257,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     employeeCodeToNameMap[employeeCode] = employeeName || employeeCode; // Use name from canvassing or code
                     console.log(`Updated name for ${employeeCode} from canvassing data to: ${employeeCodeToNameMap[employeeCode]}`);
                 }
+                // Only update designation if it's not set or is 'Default' in master data
                 if (!employeeCodeToDesignationMap[employeeCode] || employeeCodeToDesignationMap[employeeCode] === 'Default') {
                      employeeCodeToDesignationMap[employeeCode] = designation || 'Default';
                      console.log(`Updated designation for ${employeeCode} from canvassing data to: ${employeeCodeToDesignationMap[employeeCode]}`);
@@ -276,9 +287,6 @@ document.addEventListener('DOMContentLoaded', () => {
         });
         console.log('Final All Unique Employees (Codes):', allUniqueEmployees);
 
-
-        // Branch dropdown is already populated and updated above
-        // Employee dropdown will be populated based on branch selection.
     }
 
     // Populate dropdown utility
@@ -361,30 +369,48 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // Helper to calculate total activity from a set of activity entries
+    // Helper to calculate total activity from a set of activity entries based on Activity Type
     function calculateTotalActivity(entries) {
-        const totalActivity = { 'Visit': 0, 'C  all': 0, 'Reference': 0, 'New Customer Leads': 0 }; // NOTICE THE SPACE IN 'Call' - this was intentional for testing
+        const totalActivity = { 'Visit': 0, 'Call': 0, 'Reference': 0, 'New Customer Leads': 0 }; // Initialize counters
         entries.forEach(entry => {
-            totalActivity['Visit'] += parseInt(entry[HEADER_NO_OF_VISIT]) || 0;
-            totalActivity['Call'] += parseInt(entry[HEADER_NO_OF_CALL]) || 0;
-            totalActivity['Reference'] += parseInt(entry[HEADER_NO_OF_REFERENCE]) || 0;
-            totalActivity['New Customer Leads'] += parseInt(entry[HEADER_NO_OF_NEW_CUSTOMER_LEADS]) || 0;
+            const activityType = entry[HEADER_ACTIVITY_TYPE];
+            switch (activityType) {
+                case 'Visit':
+                    totalActivity['Visit']++;
+                    break;
+                case 'Call':
+                    totalActivity['Call']++;
+                    break;
+                case 'Reference':
+                    totalActivity['Reference']++;
+                    break;
+                case 'New Customer Leads':
+                    totalActivity['New Customer Leads']++;
+                    break;
+                // Add more cases if there are other activity types you want to count
+                default:
+                    // Optionally log unknown activity types
+                    console.warn(`Unknown Activity Type encountered: ${activityType}`);
+            }
         });
         return totalActivity;
     }
 
-    // Render All Branch Snapshot (now uses allUniqueBranches from master data)
+    // Render All Branch Snapshot (now uses allUniqueBranches from combined data)
     function renderAllBranchSnapshot() {
         reportDisplay.innerHTML = '<h2>All Branch Snapshot</h2>';
         
+        // Use allUniqueBranches which has been populated from both sources
         allUniqueBranches.forEach(branch => {
-            // Get all employees in this branch from master data AND canvassing data
+            // Get all unique employee codes associated with this branch (from either source)
             const employeeCodesInBranchFromMaster = employeeMasterData.filter(emp => emp[HEADER_BRANCH_NAME] === branch).map(emp => emp[HEADER_EMPLOYEE_CODE]);
             const employeeCodesInBranchFromCanvassing = allCanvassingData.filter(entry => entry[HEADER_BRANCH_NAME] === branch).map(entry => entry[HEADER_EMPLOYEE_CODE]);
             const employeeCodesInBranch = [...new Set([...employeeCodesInBranchFromMaster, ...employeeCodesInBranchFromCanvassing])];
 
             // Filter activity data only for employees in this branch
-            const branchActivityEntries = allCanvassingData.filter(entry => employeeCodesInBranch.includes(entry[HEADER_EMPLOYEE_CODE]));
+            const branchActivityEntries = allCanvassingData.filter(entry => 
+                employeeCodesInBranch.includes(entry[HEADER_EMPLOYEE_CODE]) && entry[HEADER_BRANCH_NAME] === branch
+            );
             
             const totalActivity = calculateTotalActivity(branchActivityEntries);
             const displayEmployeeCount = employeeCodesInBranch.length; // Count all unique employees in this branch
@@ -392,7 +418,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const branchDiv = document.createElement('div');
             branchDiv.className = 'branch-snapshot';
             branchDiv.innerHTML = `<h3>${branch}</h3>
-                                   <p>Total Employees: ${displayEmployeeCount}</p>
+                                   <p>Total Employees in this Branch (from Master or Canvassing): ${displayEmployeeCount}</p>
                                    <ul class="summary-list">
                                        <li><strong>Total Visits:</strong> ${totalActivity['Visit']}</li>
                                        <li><strong>Total Calls:</strong> ${totalActivity['Call']}</li>
@@ -409,7 +435,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const performanceGrid = reportDisplay.querySelector('.branch-performance-grid');
 
         allUniqueEmployees.forEach(employeeCode => {
-            // Get activity data for this specific employee code
+            // Get activity data for this specific employee code across all branches
             const employeeActivityEntries = allCanvassingData.filter(entry => entry[HEADER_EMPLOYEE_CODE] === employeeCode);
 
             const totalActivity = calculateTotalActivity(employeeActivityEntries);
@@ -493,7 +519,7 @@ document.addEventListener('DOMContentLoaded', () => {
         // Get all unique employee codes within this branch from master data AND canvassing data
         const employeeCodesInSelectedBranchFromMaster = employeeMasterData.filter(emp => emp[HEADER_BRANCH_NAME] === branchName).map(e => e[HEADER_EMPLOYEE_CODE]);
         const employeeCodesInSelectedBranchFromCanvassing = allCanvassingData.filter(entry => entry[HEADER_BRANCH_NAME] === branchName).map(e => e[HEADER_EMPLOYEE_CODE]);
-        const uniqueEmployeeCodesInBranch = [...new Set([...employeeCodesInSelectedBranchFromMaster, ...employeeCodesInSelectedBranchFromCanvassing])];
+        const uniqueEmployeeCodesInBranch = [...new Set([...employeeCodesInSelectedBranchFromMaster, ...employeeCodesInBranchFromCanvassing])];
 
 
         uniqueEmployeeCodesInBranch.forEach(employeeCode => {
@@ -529,18 +555,34 @@ document.addEventListener('DOMContentLoaded', () => {
         table.className = 'data-table';
         const thead = table.createTHead();
         const headerRow = thead.insertRow();
-        const headersToShow = Object.keys(employeeCodeEntries[0]).filter(header =>
-            header !== HEADER_EMPLOYEE_CODE &&
-            header !== HEADER_BRANCH_NAME &&
-            header !== HEADER_DESIGNATION
-        );
-
-        const preferredOrder = [
-            HEADER_TIMESTAMP, HEADER_EMPLOYEE_NAME, 'Type of Customer', HEADER_ACTIVITY_TYPE, 'Activity Remarks',
-            HEADER_NO_OF_VISIT, HEADER_NO_OF_CALL, HEADER_NO_OF_REFERENCE, HEADER_NO_OF_NEW_CUSTOMER_LEADS
+        
+        // Define the headers you want to show in the detailed table
+        // Ensure these match your actual Canvassing Data sheet headers
+        const headersToShow = [
+            HEADER_TIMESTAMP, 
+            HEADER_DATE, // Added
+            HEADER_BRANCH_NAME,
+            HEADER_EMPLOYEE_NAME,
+            HEADER_EMPLOYEE_CODE,
+            HEADER_DESIGNATION,
+            HEADER_ACTIVITY_TYPE,
+            HEADER_TYPE_OF_CUSTOMER,
+            HEADER_LEAD_SOURCE, // Added
+            HEADER_HOW_CONTACTED, // Added
+            HEADER_PROSPECT_NAME, // Added
+            HEADER_PHONE_NUMBER_WHATSAPP, // Added
+            HEADER_ADDRESS, // Added
+            HEADER_PROFESSION, // Added
+            HEADER_DOB_WD, // Added
+            HEADER_PRODUCT_INTERESTED, // Added
+            HEADER_REMARKS, // Added
+            HEADER_NEXT_FOLLOW_UP_DATE, // Added
+            HEADER_RELATION_WITH_STAFF // Added
         ];
-        const finalHeaders = preferredOrder.filter(h => headersToShow.includes(h))
-            .concat(headersToShow.filter(h => !preferredOrder.includes(h)).sort());
+
+        // Ensure only headers that actually exist in the data are displayed
+        const actualHeadersInFirstEntry = Object.keys(employeeCodeEntries[0]);
+        const finalHeaders = headersToShow.filter(header => actualHeadersInFirstEntry.includes(header));
 
 
         finalHeaders.forEach(headerText => {
@@ -554,7 +596,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const row = tbody.insertRow();
             finalHeaders.forEach(header => {
                 const cell = row.insertCell();
-                if (header === HEADER_TIMESTAMP) {
+                if (header === HEADER_TIMESTAMP || header === HEADER_DATE || header === HEADER_NEXT_FOLLOW_UP_DATE || header === HEADER_DOB_WD) {
                     cell.textContent = formatDate(entry[header]);
                 } else {
                     cell.textContent = entry[header];
@@ -695,10 +737,10 @@ document.addEventListener('DOMContentLoaded', () => {
                     <ul class="summary-list">
                         ${employeeCodeEntries.map(entry => `
                             <li>${formatDate(entry[HEADER_TIMESTAMP])}:
-                                V:${entry[HEADER_NO_OF_VISIT] || 0} |
-                                C:${entry[HEADER_NO_OF_CALL] || 0} |
-                                R:${entry[HEADER_NO_OF_REFERENCE] || 0} |
-                                L:${entry[HEADER_NO_OF_NEW_CUSTOMER_LEADS] || 0}
+                                V:${totalActivity['Visit']} |
+                                C:${totalActivity['Call']} |
+                                R:${totalActivity['Reference']} |
+                                L:${totalActivity['New Customer Leads']}
                             </li>`).join('')}
                     </ul>
                 </div>
