@@ -166,13 +166,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             });
 
-            // Populate all unique branches and employees from master data
+            // Populate all unique branches from master data
+            // We now get employees from both master and canvassing data later
             allUniqueBranches = [...new Set(employeeMasterData.map(entry => entry[HEADER_BRANCH_NAME]))].sort();
-            allUniqueEmployees = Object.keys(employeeCodeToNameMap).sort((codeA, codeB) => {
-                const nameA = employeeCodeToNameMap[codeA] || codeA;
-                const nameB = employeeCodeToNameMap[codeB] || codeB;
-                return nameA.localeCompare(nameB);
-            });
             populateDropdown(branchSelect, allUniqueBranches); // Populate initial branch dropdown with all branches
             displayMessage("Employee master data loaded successfully!", 'success');
         } catch (error) {
@@ -182,7 +178,6 @@ document.addEventListener('DOMContentLoaded', () => {
             employeeCodeToNameMap = {};
             employeeCodeToDesignationMap = {};
             allUniqueBranches = [];
-            allUniqueEmployees = [];
         }
     }
 
@@ -236,6 +231,17 @@ document.addEventListener('DOMContentLoaded', () => {
         await fetchEmployeeMasterData(); // Fetch all employees from master sheet first
         await fetchCanvassingData(); // Then fetch activity data
 
+        // Re-populate allUniqueEmployees based on combined data
+        // This is done here to ensure it's up-to-date after any data fetches/updates
+        // and is used by renderOverallStaffPerformanceReport
+        const allEmployeeCodesFromMaster = employeeMasterData.map(entry => entry[HEADER_EMPLOYEE_CODE]);
+        const allEmployeeCodesFromCanvassing = allCanvassingData.map(entry => entry[HEADER_EMPLOYEE_CODE]);
+        allUniqueEmployees = [...new Set([...allEmployeeCodesFromMaster, ...allEmployeeCodesFromCanvassing])].sort((codeA, codeB) => {
+            const nameA = employeeCodeToNameMap[codeA] || codeA;
+            const nameB = employeeCodeToNameMap[codeB] || codeB;
+            return nameA.localeCompare(nameB);
+        });
+
         // Branch dropdown is already populated by fetchEmployeeMasterData
         // Employee dropdown will be populated based on branch selection.
     }
@@ -247,7 +253,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const option = document.createElement('option');
             if (useCodeForValue) {
                 option.value = item; // item is employeeCode
-                option.textContent = employeeCodeToNameMap[item] || item; // Display name
+                option.textContent = employeeCodeToNameMap[item] || item; // Display name from map or code itself
             } else {
                 option.value = item; // item is branch name
                 option.textContent = item;
@@ -261,13 +267,26 @@ document.addEventListener('DOMContentLoaded', () => {
         const selectedBranch = branchSelect.value;
         if (selectedBranch) {
             employeeFilterPanel.style.display = 'block';
-            // Filter employee codes based on master data for the selected branch
-            const employeeCodesInBranch = employeeMasterData
+
+            // Get employee codes from MasterEmployees for the selected branch
+            const employeeCodesInBranchFromMaster = employeeMasterData
                 .filter(entry => entry[HEADER_BRANCH_NAME] === selectedBranch)
                 .map(entry => entry[HEADER_EMPLOYEE_CODE]);
 
-            // Sort and populate employee dropdown using codes as values and names for display
-            const sortedEmployeeCodesInBranch = [...new Set(employeeCodesInBranch)].sort((codeA, codeB) => {
+            // Get employee codes from Canvassing Data for the selected branch
+            const employeeCodesInBranchFromCanvassing = allCanvassingData
+                .filter(entry => entry[HEADER_BRANCH_NAME] === selectedBranch)
+                .map(entry => entry[HEADER_EMPLOYEE_CODE]);
+
+            // Combine and unique all employee codes for the selected branch
+            const combinedEmployeeCodes = new Set([
+                ...employeeCodesInBranchFromMaster,
+                ...employeeCodesInBranchFromCanvassing
+            ]);
+
+            // Convert Set back to array and sort
+            const sortedEmployeeCodesInBranch = [...combinedEmployeeCodes].sort((codeA, codeB) => {
+                // Use the name from the map if available, otherwise use the code for sorting and display
                 const nameA = employeeCodeToNameMap[codeA] || codeA;
                 const nameB = employeeCodeToNameMap[codeB] || codeB;
                 return nameA.localeCompare(nameB);
@@ -346,7 +365,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // Render All Staff Overall Performance Report (now uses allUniqueEmployees from master data)
+    // Render All Staff Overall Performance Report (now uses allUniqueEmployees from combined data)
     function renderOverallStaffPerformanceReport() {
         reportDisplay.innerHTML = '<h2>All Staff Overall Performance Report</h2><div class="branch-performance-grid"></div>';
         const performanceGrid = reportDisplay.querySelector('.branch-performance-grid');
@@ -356,7 +375,8 @@ document.addEventListener('DOMContentLoaded', () => {
             const employeeActivityEntries = allCanvassingData.filter(entry => entry[HEADER_EMPLOYEE_CODE] === employeeCode);
 
             const totalActivity = calculateTotalActivity(employeeActivityEntries);
-            const employeeName = employeeCodeToNameMap[employeeCode] || 'Unknown Employee';
+            // Prioritize name from master data, otherwise use code
+            const employeeName = employeeCodeToNameMap[employeeCode] || employeeCode;
             const designation = employeeCodeToDesignationMap[employeeCode] || 'Default';
 
             const targets = TARGETS[designation] || TARGETS['Default'];
@@ -432,15 +452,17 @@ document.addEventListener('DOMContentLoaded', () => {
         reportDisplay.innerHTML = `<h2>Branch Activity Summary for ${branchName}</h2><div class="branch-summary-grid"></div>`;
         const summaryGrid = reportDisplay.querySelector('.branch-summary-grid');
 
-        // Get all unique employee codes within this branch from master data
-        const employeesInSelectedBranch = employeeMasterData.filter(emp => emp[HEADER_BRANCH_NAME] === branchName);
-        const uniqueEmployeeCodesInBranch = [...new Set(employeesInSelectedBranch.map(e => e[HEADER_EMPLOYEE_CODE]))];
+        // Get all unique employee codes within this branch from master data AND canvassing data
+        const employeeCodesInSelectedBranchFromMaster = employeeMasterData.filter(emp => emp[HEADER_BRANCH_NAME] === branchName).map(e => e[HEADER_EMPLOYEE_CODE]);
+        const employeeCodesInSelectedBranchFromCanvassing = allCanvassingData.filter(entry => entry[HEADER_BRANCH_NAME] === branchName).map(e => e[HEADER_EMPLOYEE_CODE]);
+        const uniqueEmployeeCodesInBranch = [...new Set([...employeeCodesInSelectedBranchFromMaster, ...employeeCodesInSelectedBranchFromCanvassing])];
+
 
         uniqueEmployeeCodesInBranch.forEach(employeeCode => {
             // Filter activity data for this specific employee code within the selected branch
             const employeeActivities = branchActivityEntries.filter(entry => entry[HEADER_EMPLOYEE_CODE] === employeeCode);
             const totalActivity = calculateTotalActivity(employeeActivities); // Will be zeros if no activity
-            const employeeDisplayName = employeeCodeToNameMap[employeeCode] || employeeCode;
+            const employeeDisplayName = employeeCodeToNameMap[employeeCode] || employeeCode; // Use name from map or code
 
             const employeeSummaryCard = document.createElement('div');
             employeeSummaryCard.className = 'employee-summary-card';
@@ -727,16 +749,18 @@ document.addEventListener('DOMContentLoaded', () => {
         reportDisplay.innerHTML = `<h2>All Staff Performance for ${branchName}</h2><div class="branch-performance-grid"></div>`;
         const performanceGrid = reportDisplay.querySelector('.branch-performance-grid');
 
-        // Get all employees in this branch from master data
-        const employeesInSelectedBranch = employeeMasterData.filter(emp => emp[HEADER_BRANCH_NAME] === branchName);
-        const uniqueEmployeeCodesInBranch = [...new Set(employeesInSelectedBranch.map(e => e[HEADER_EMPLOYEE_CODE]))];
+        // Get all employees in this branch from master data AND canvassing data
+        const employeesInSelectedBranchFromMaster = employeeMasterData.filter(emp => emp[HEADER_BRANCH_NAME] === branchName).map(e => e[HEADER_EMPLOYEE_CODE]);
+        const employeesInSelectedBranchFromCanvassing = allCanvassingData.filter(entry => entry[HEADER_BRANCH_NAME] === branchName).map(e => e[HEADER_EMPLOYEE_CODE]);
+        const uniqueEmployeeCodesInBranch = [...new Set([...employeesInSelectedBranchFromMaster, ...employeesInSelectedBranchFromCanvassing])];
+
 
         uniqueEmployeeCodesInBranch.forEach(employeeCode => {
             // Filter activity data only for this employee code within the branch's activity entries
             const employeeActivities = branchActivityEntries.filter(entry => entry[HEADER_EMPLOYEE_CODE] === employeeCode);
             
             const totalActivity = calculateTotalActivity(employeeActivities);
-            const employeeDisplayName = employeeCodeToNameMap[employeeCode] || employeeCode;
+            const employeeDisplayName = employeeCodeToNameMap[employeeCode] || employeeCode; // Use name from map or code
             const designation = employeeCodeToDesignationMap[employeeCode] || 'Default';
 
             const targets = TARGETS[designation] || TARGETS['Default'];
@@ -800,11 +824,8 @@ document.addEventListener('DOMContentLoaded', () => {
         if (selectedEmployeeCode) {
             // Find the full employee master data for the selected employee
             const employeeMasterEntry = employeeMasterData.find(emp => emp[HEADER_EMPLOYEE_CODE] === selectedEmployeeCode);
-            if (!employeeMasterEntry) {
-                displayMessage("Employee details not found in Master Employees data.");
-                return;
-            }
-
+            // We don't return if not found in master data, as employee might only be in canvassing data
+            
             // Filter activity entries for this specific employee
             const employeeActivityEntries = allCanvassingData.filter(entry => entry[HEADER_EMPLOYEE_CODE] === selectedEmployeeCode);
             renderPerformanceReport(employeeActivityEntries); // This function handles zero activity
@@ -856,7 +877,7 @@ document.addEventListener('DOMContentLoaded', () => {
             event.preventDefault();
 
             const employeeName = newEmployeeNameInput.value.trim();
-            const employeeCode = newEmployeeCodeInput.value.trim();
+            const employeeCode = newEmployeeCodeInput.trim();
             const branchName = newBranchNameInput.value.trim();
             const designation = newDesignationInput.value.trim();
 
@@ -876,8 +897,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
             if (success) {
                 addEmployeeForm.reset();
-                // processData() is now called in finally block of sendDataToGoogleAppsScript
-                // showTab() is also in finally block for refresh
             }
         });
     }
@@ -917,8 +936,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 const success = await sendDataToGoogleAppsScript('add_bulk_employees', employeesToAdd);
                 if (success) {
                     bulkAddEmployeeForm.reset();
-                    // processData() is now called in finally block of sendDataToGoogleAppsScript
-                    // showTab() is also in finally block for refresh
                 }
             } else {
                 displayEmployeeManagementMessage('No valid employee entries found in the bulk details.', true);
@@ -942,8 +959,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
             if (success) {
                 deleteEmployeeForm.reset();
-                // processData() is now called in finally block of sendDataToGoogleAppsScript
-                // showTab() is also in finally block for refresh
             }
         });
     }
