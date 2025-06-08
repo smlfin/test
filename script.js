@@ -341,45 +341,31 @@ document.addEventListener('DOMContentLoaded', () => {
             let activityType = entry[HEADER_ACTIVITY_TYPE];
             let typeOfCustomer = entry[HEADER_TYPE_OF_CUSTOMER];
             
+            // Trim and convert to lowercase for robust comparison
+            const trimmedActivityType = activityType ? activityType.trim().toLowerCase() : '';
+            const trimmedTypeOfCustomer = typeOfCustomer ? typeOfCustomer.trim().toLowerCase() : '';
+
             console.log(`--- Entry ${index + 1} Debug ---`);
-            console.log(`  Raw Activity Type: '${activityType}'`);
-            console.log(`  Raw Type of Customer: '${typeOfCustomer}'`);
+            console.log(`  Processed Activity Type (trimmed, lowercase): '${trimmedActivityType}'`);
+            console.log(`  Processed Type of Customer (trimmed, lowercase): '${trimmedTypeOfCustomer}'`);
 
-            if (activityType) {
-                activityType = activityType.trim();
-            } else {
-                activityType = '';
-            }
-            
-            if (typeOfCustomer) {
-                typeOfCustomer = typeOfCustomer.trim();
-            } else {
-                typeOfCustomer = '';
-            }
-
-            console.log(`  Trimmed Activity Type: '${activityType}'`);
-            console.log(`  Trimmed Type of Customer: '${typeOfCustomer}'`);
-
-            // Direct matching to user's provided sheet values for Visit, Calls, Reference
-            if (activityType === 'Visit') {
+            // Direct matching to user's provided sheet values (now lowercase)
+            if (trimmedActivityType === 'visit') {
                 totalActivity['Visit']++;
-                console.log(`  Counted as Visit. Current Visits: ${totalActivity['Visit']}`);
-            } else if (activityType === 'Calls') {
+            } else if (trimmedActivityType === 'calls') { // Matches "Calls" from sheet, now lowercase
                 totalActivity['Call']++;
-                console.log(`  Counted as Call. Current Calls: ${totalActivity['Call']}`);
-            } else if (activityType === 'Referance') {
+            } else if (trimmedActivityType === 'referance') { // Matches "Referance" (with typo) from sheet, now lowercase
                 totalActivity['Reference']++;
-                console.log(`  Counted as Reference. Current References: ${totalActivity['Reference']}`);
             } else {
-                console.warn(`  Unknown or unhandled Activity Type encountered and skipped from direct counting: '${activityType}'.`);
+                // If it's not one of the direct activity types, log for debugging
+                console.warn(`  Unknown or unhandled Activity Type encountered (trimmed, lowercase): '${trimmedActivityType}'.`);
             }
             
-            // Logic for 'New Customer Leads'
-            const isNewCustomerLead = (activityType === 'Visit' || activityType === 'Calls') && typeOfCustomer === 'New';
-            console.log(`  New Customer Lead condition check: (Activity Type is 'Visit' or 'Calls') && (Type of Customer is 'New') -> Result: ${isNewCustomerLead}`);
+            // Logic for 'New Customer Leads' (now using trimmed and lowercased values)
+            const isNewCustomerLead = (trimmedActivityType === 'visit' || trimmedActivityType === 'calls') && trimmedTypeOfCustomer === 'new';
+            console.log(`  New Customer Lead condition check: (Activity Type is 'visit' or 'calls') && (Type of Customer is 'new') -> Result: ${isNewCustomerLead}`);
             if (isNewCustomerLead) {
                 totalActivity['New Customer Leads']++;
-                console.log(`  Counted as New Customer Lead. Current New Customer Leads: ${totalActivity['New Customer Leads']}`);
             }
             console.log(`--- End Entry ${index + 1} Debug ---`);
         });
@@ -765,12 +751,12 @@ document.addEventListener('DOMContentLoaded', () => {
                         <h4>Activity Breakdown by Date</h4>
                         <ul class="summary-list">
                             ${employeeCodeEntries.map(entry => {
-                                const activityType = entry[HEADER_ACTIVITY_TYPE] ? entry[HEADER_ACTIVITY_TYPE].trim() : '';
-                                const typeOfCustomer = entry[HEADER_TYPE_OF_CUSTOMER] ? entry[HEADER_TYPE_OF_CUSTOMER].trim() : '';
-                                const isVisit = activityType === 'Visit';
-                                const isCall = activityType === 'Calls';
-                                const isReference = activityType === 'Referance';
-                                const isNewLead = ((activityType === 'Visit' || activityType === 'Calls') && typeOfCustomer === 'New'); 
+                                const activityType = entry[HEADER_ACTIVITY_TYPE] ? entry[HEADER_ACTIVITY_TYPE].trim().toLowerCase() : '';
+                                const typeOfCustomer = entry[HEADER_TYPE_OF_CUSTOMER] ? entry[HEADER_TYPE_OF_CUSTOMER].trim().toLowerCase() : '';
+                                const isVisit = activityType === 'visit';
+                                const isCall = activityType === 'calls';
+                                const isReference = activityType === 'referance';
+                                const isNewLead = (isVisit || isCall) && typeOfCustomer === 'new'; 
                                 return `
                                 <li>${formatDate(entry[HEADER_TIMESTAMP])}:
                                     V:${isVisit ? 1 : 0} |
