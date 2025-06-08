@@ -2,7 +2,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // *** Configuration ***
     // This URL is for your Canvassing Data sheet. Ensure it's correct and published as CSV.
     // NOTE: If you are still getting 404, this URL is the problem.
-    const DATA_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTO7LujC4VSa2wGkJ2YEYSN7UeXR221ny3THaVegYfNfRm2JQGg7QR9Bxxh9SadXtK8Pi6-psl2tGsb/pub?gid=696550092&single=true&output=csv"; 
+    const DATA_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTO7LujC4VSa2wGkJ2YEYSN7UeXR221ny3THaVegYfRmV2JQGg7QR9Bxxh9SadXtK8Pi6-psl2tGsb/pub?gid=696550092&single=true&output=csv"; 
 
     // IMPORTANT: Replace this with YOUR DEPLOYED GOOGLE APPS SCRIPT WEB APP URL
     // NOTE: If you are getting errors sending data, this URL is the problem.
@@ -86,6 +86,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Tab buttons for main navigation
     const allBranchSnapshotTabBtn = document.getElementById('allBranchSnapshotTabBtn');
     const allStaffOverallPerformanceTabBtn = document.getElementById('allStaffOverallPerformanceTabBtn');
+    const nonParticipatingBranchesTabBtn = document.getElementById('nonParticipatingBranchesTabBtn'); // NEW
     const employeeManagementTabBtn = document.getElementById('employeeManagementTabBtn');
 
     // Main Content Sections to toggle
@@ -338,13 +339,21 @@ document.addEventListener('DOMContentLoaded', () => {
         console.log('Calculating total activity for entries:', entries); // Log entries being processed
         entries.forEach(entry => {
             let activityType = entry[HEADER_ACTIVITY_TYPE];
+            let typeOfCustomer = entry[HEADER_TYPE_OF_CUSTOMER]; // NEW: Get Type of Custome
+            
             if (activityType) {
                 activityType = activityType.trim(); // Just trim spaces
             } else {
                 activityType = ''; // Handle undefined or null activity types
             }
             
-            console.log(`Processing raw activity type: '${activityType}' for employee code: ${entry[HEADER_EMPLOYEE_CODE]}`);
+            if (typeOfCustomer) {
+                typeOfCustomer = typeOfCustomer.trim();
+            } else {
+                typeOfCustomer = '';
+            }
+
+            console.log(`Processing raw activity type: '${activityType}' and customer type: '${typeOfCustomer}' for employee code: ${entry[HEADER_EMPLOYEE_CODE]}`);
 
             // Direct matching to user's provided sheet values
             if (activityType === 'Visit') {
@@ -353,10 +362,22 @@ document.addEventListener('DOMContentLoaded', () => {
                 totalActivity['Call']++;
             } else if (activityType === 'Referance') { // Matches "Referance" (with typo) from sheet
                 totalActivity['Reference']++;
-            } else if (activityType === 'New Lead') { // Matches "New Lead" from sheet
+            } 
+            
+            // NEW LOGIC for 'New Customer Leads'
+            if ((activityType === 'Visit' || activityType === 'Calls') && typeOfCustomer === 'New') {
                 totalActivity['New Customer Leads']++;
-            } else {
-                console.warn(`Unknown or unhandled Activity Type encountered and skipped: '${activityType}'. Please standardize your 'Activity Type' column values in Canvassing Data sheet or update script.js.`);
+            }
+            // Note: If 'New Lead' was a distinct Activity Type previously, it's now handled by the new logic.
+            // If there's an 'Activity Type' simply named 'New Lead' in your data, it will be skipped by the initial if/else if block
+            // unless you explicitly add a case for it here as a separate counter, or
+            // if you intend for it to directly count as a 'New Customer Lead' without
+            // requiring the 'Type of Custome = New' condition.
+            // Based on your latest request "New customer leads = Activity Type is Visit or Calls & Type of Customer = New",
+            // the above `if` condition correctly implements this.
+            
+            else {
+                console.warn(`Unknown or unhandled Activity Type encountered and skipped from direct counting: '${activityType}'. If this is a valid activity, please update script.js.`);
             }
         });
         console.log('Calculated Total Activity:', totalActivity); // Log final calculated activity
@@ -367,41 +388,63 @@ document.addEventListener('DOMContentLoaded', () => {
     function renderAllBranchSnapshot() {
         reportDisplay.innerHTML = '<h2>All Branch Snapshot</h2>';
         
+        const table = document.createElement('table');
+        table.className = 'all-branch-snapshot-table';
+        
+        const thead = table.createTHead();
+        const headerRow = thead.insertRow();
+        ['Branch Name', 'Employees with Activity', 'Total Visits', 'Total Calls', 'Total References', 'Total New Customer Leads'].forEach(text => {
+            const th = document.createElement('th');
+            th.textContent = text;
+            headerRow.appendChild(th);
+        });
+
+        const tbody = table.createTBody();
+
         PREDEFINED_BRANCHES.forEach(branch => {
-            // Filter activity data for this specific branch
             const branchActivityEntries = allCanvassingData.filter(entry => entry[HEADER_BRANCH_NAME] === branch);
-            
             const totalActivity = calculateTotalActivity(branchActivityEntries);
-            
-            // Get all unique employee codes associated with this branch from canvassing data
             const employeeCodesInBranch = [...new Set(branchActivityEntries.map(entry => entry[HEADER_EMPLOYEE_CODE]))];
             const displayEmployeeCount = employeeCodesInBranch.length;
 
-            const branchDiv = document.createElement('div');
-            branchDiv.className = 'branch-snapshot';
-
-            if (branchActivityEntries.length === 0) {
-                branchDiv.innerHTML = `<h3>${branch}</h3>
-                                       <p class="no-participation-message">No participation from this branch.</p>
-                                       <ul class="summary-list">
-                                           <li><strong>Total Visits:</strong> 0</li>
-                                           <li><strong>Total Calls:</strong> 0</li>
-                                           <li><strong>Total References:</strong> 0</li>
-                                           <li><strong>Total New Customer Leads:</strong> 0</li>
-                                       </ul>`;
-            } else {
-                branchDiv.innerHTML = `<h3>${branch}</h3>
-                                       <p>Total Employees with activity: ${displayEmployeeCount}</p>
-                                       <ul class="summary-list">
-                                           <li><strong>Total Visits:</strong> ${totalActivity['Visit']}</li>
-                                           <li><strong>Total Calls:</strong> ${totalActivity['Call']}</li>
-                                           <li><strong>Total References:</strong> ${totalActivity['Reference']}</li>
-                                           <li><strong>Total New Customer Leads:</strong> ${totalActivity['New Customer Leads']}</li>
-                                       </ul>`;
-            }
-            reportDisplay.appendChild(branchDiv);
+            const row = tbody.insertRow();
+            row.insertCell().textContent = branch;
+            row.insertCell().textContent = displayEmployeeCount;
+            row.insertCell().textContent = totalActivity['Visit'];
+            row.insertCell().textContent = totalActivity['Call'];
+            row.insertCell().textContent = totalActivity['Reference'];
+            row.insertCell().textContent = totalActivity['New Customer Leads'];
         });
+
+        reportDisplay.appendChild(table);
     }
+
+    // NEW: Render Non-Participating Branches Report
+    function renderNonParticipatingBranches() {
+        reportDisplay.innerHTML = '<h2>Non-Participating Branches</h2>';
+        const nonParticipatingBranches = [];
+
+        PREDEFINED_BRANCHES.forEach(branch => {
+            const hasActivity = allCanvassingData.some(entry => entry[HEADER_BRANCH_NAME] === branch);
+            if (!hasActivity) {
+                nonParticipatingBranches.push(branch);
+            }
+        });
+
+        if (nonParticipatingBranches.length > 0) {
+            const ul = document.createElement('ul');
+            ul.className = 'non-participating-branch-list';
+            nonParticipatingBranches.forEach(branch => {
+                const li = document.createElement('li');
+                li.textContent = branch;
+                ul.appendChild(li);
+            });
+            reportDisplay.appendChild(ul);
+        } else {
+            reportDisplay.innerHTML += '<p class="no-participation-message">All predefined branches have recorded activity!</p>';
+        }
+    }
+
 
     // Render All Staff Overall Performance Report (now uses allUniqueEmployees from canvassing data)
     function renderOverallStaffPerformanceReport() {
@@ -661,7 +704,7 @@ document.addEventListener('DOMContentLoaded', () => {
                                             </thead>
                                             <tbody>
                                                 ${Object.keys(targets).map(metric => {
-                                                    const actualValue = 0;
+                                                    const actualValue = totalActivity[metric] || 0;
                                                     const targetValue = targets[metric];
                                                     const percentAchieved = performance[metric];
                                                     const progressBarClass = getProgressBarClass(percentAchieved);
@@ -723,7 +766,7 @@ document.addEventListener('DOMContentLoaded', () => {
                                 const isVisit = activityType === 'Visit';
                                 const isCall = activityType === 'Calls'; // Matches "Calls"
                                 const isReference = activityType === 'Referance'; // Matches "Referance"
-                                const isNewLead = activityType === 'New Lead'; // Matches "New Lead"
+                                const isNewLead = ((activityType === 'Visit' || activityType === 'Calls') && (entry[HEADER_TYPE_OF_CUSTOMER] && entry[HEADER_TYPE_OF_CUSTOMER].trim() === 'New')); // Updated New Lead Logic
                                 return `
                                 <li>${formatDate(entry[HEADER_TIMESTAMP])}:
                                     V:${isVisit ? 1 : 0} |
@@ -786,7 +829,10 @@ document.addEventListener('DOMContentLoaded', () => {
                     renderAllBranchSnapshot();
                 } else if (activeTabButton.id === 'allStaffOverallPerformanceTabBtn') {
                     renderOverallStaffPerformanceReport();
-                } else if (branchSelect.value) { // If a branch is selected, try to re-render relevant reports
+                } else if (activeTabButton.id === 'nonParticipatingBranchesTabBtn') { // NEW
+                    renderNonParticipatingBranches(); // NEW
+                }
+                else if (branchSelect.value) { // If a branch is selected, try to re-render relevant reports
                     const lastViewedReportButton = document.querySelector('.view-options button.active');
                     if (lastViewedReportButton) {
                         lastViewedReportButton.click(); // Simulate click on the last active report button
@@ -930,17 +976,20 @@ document.addEventListener('DOMContentLoaded', () => {
         document.querySelectorAll('.view-options button').forEach(btn => btn.classList.remove('active'));
 
 
-        if (tabButtonId === 'allBranchSnapshotTabBtn' || tabButtonId === 'allStaffOverallPerformanceTabBtn') {
+        if (tabButtonId === 'allBranchSnapshotTabBtn' || tabButtonId === 'allStaffOverallPerformanceTabBtn' || tabButtonId === 'nonParticipatingBranchesTabBtn') { // Updated to include new tab
             reportsSection.style.display = 'block';
-            document.querySelector('.controls-panel').style.display = 'flex';
+            document.querySelector('.controls-panel').style.display = 'flex'; // Controls panel visible for report tabs
             if (tabButtonId === 'allBranchSnapshotTabBtn') {
                 renderAllBranchSnapshot();
             } else if (tabButtonId === 'allStaffOverallPerformanceTabBtn') {
                 renderOverallStaffPerformanceReport();
+            } else if (tabButtonId === 'nonParticipatingBranchesTabBtn') { // NEW
+                renderNonParticipatingBranches(); // NEW
+                document.querySelector('.controls-panel').style.display = 'none'; // Hide controls for this specific tab
             }
         } else if (tabButtonId === 'employeeManagementTabBtn') {
             employeeManagementSection.style.display = 'block';
-            document.querySelector('.controls-panel').style.display = 'none';
+            document.querySelector('.controls-panel').style.display = 'none'; // Hide controls for employee management
             displayEmployeeManagementMessage('', false);
         }
     }
@@ -952,6 +1001,9 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     if (allStaffOverallPerformanceTabBtn) {
         allStaffOverallPerformanceTabBtn.addEventListener('click', () => showTab('allStaffOverallPerformanceTabBtn'));
+    }
+    if (nonParticipatingBranchesTabBtn) { // NEW
+        nonParticipatingBranchesTabBtn.addEventListener('click', () => showTab('nonParticipatingBranchesTabBtn')); // NEW
     }
     if (employeeManagementTabBtn) {
         employeeManagementTabBtn.addEventListener('click', () => showTab('employeeManagementTabBtn'));
