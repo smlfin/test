@@ -41,7 +41,7 @@ document.addEventListener('DOMContentLoaded', () => {
         "Angamaly", "Corporate Office", "Edappally", "Harippad", "Koduvayur", "Kuzhalmannam",
         "Mattanchery", "Mavelikara", "Nedumkandom", "Nenmara", "Paravoor", "Perumbavoor",
         "Thiruwillamala", "Thodupuzha", "Chengannur", "Alathur", "Kottayam", "Kattapana",
-        "Muvattupuzha", "Thiruvalla", "Pathanamthanam", "HO KKM" // Corrected "Pathanamthitta" typo if it existed previously
+        "Muvattupuzha", "Thiruvalla", "Pathanamthitta", "HO KKM" // Corrected "Pathanamthitta" typo if it existed previously
     ].sort();
 
     // --- Column Headers Mapping (IMPORTANT: These must EXACTLY match the column names in your "Form Responses 2" Google Sheet) ---
@@ -465,81 +465,118 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
 
-    // Render All Staff Overall Performance Report (now uses allUniqueEmployees from canvassing data)
+    // Render All Staff Overall Performance Report (for d1.PNG)
     function renderOverallStaffPerformanceReport() {
-        reportDisplay.innerHTML = '<h2>All Staff Overall Performance Report</h2><div class="branch-performance-grid"></div>';
-        const performanceGrid = reportDisplay.querySelector('.branch-performance-grid');
+        reportDisplay.innerHTML = '<h2>Overall Staff Performance Report (This Month)</h2>';
+        
+        const tableContainer = document.createElement('div');
+        tableContainer.style.overflowX = 'auto'; // Make table scrollable on small screens
+
+        const table = document.createElement('table');
+        table.className = 'performance-table';
+
+        // Create Header (d1.PNG style with merged cells)
+        const thead = table.createTHead();
+        const headerRow1 = thead.insertRow();
+        const headerRow2 = thead.insertRow();
+
+        // First row headers with rowspan
+        const mainHeaders = ['Employee Name', 'Branch', 'Designation'];
+        mainHeaders.forEach(text => {
+            const th = document.createElement('th');
+            th.textContent = text;
+            th.rowSpan = 2; // Span across two rows
+            headerRow1.appendChild(th);
+        });
+
+        // Metrics headers with colspan for the first row
+        const metrics = ['Visit', 'Call', 'Reference', 'New Customer Leads'];
+        metrics.forEach(metric => {
+            const th = document.createElement('th');
+            th.textContent = metric;
+            th.colSpan = 3; // Span across three columns (Act, Tgt, %)
+            headerRow1.appendChild(th);
+        });
+
+        // Second row headers (Act, Tgt, %)
+        metrics.forEach(() => {
+            ['Act', 'Tgt', '%'].forEach(subHeader => {
+                const th = document.createElement('th');
+                th.textContent = subHeader;
+                headerRow2.appendChild(th);
+            });
+        });
+
+        const tbody = table.createTBody();
 
         if (allUniqueEmployees.length === 0) {
-            performanceGrid.innerHTML = '<p>No employee activity data found to generate overall staff performance report.</p>';
+            const row = tbody.insertRow();
+            const cell = row.insertCell();
+            cell.colSpan = 3 + (metrics.length * 3); // Span across all columns
+            cell.textContent = 'No employee activity data found to generate overall staff performance report.';
+            cell.classList.add('no-participation-message-cell'); // Apply message style
+            tableContainer.appendChild(table);
+            reportDisplay.appendChild(tableContainer);
             return;
         }
 
         allUniqueEmployees.forEach(employeeCode => {
-            // Get activity data for this specific employee code across all branches
             const employeeActivityEntries = allCanvassingData.filter(entry => entry[HEADER_EMPLOYEE_CODE] === employeeCode);
-
-            const { totalActivity } = calculateTotalActivity(employeeActivityEntries); // Destructure
-            // Name and designation will be from `employeeCodeToNameMap` which is populated from canvassing data
+            const { totalActivity } = calculateTotalActivity(employeeActivityEntries);
             const employeeName = employeeCodeToNameMap[employeeCode] || employeeCode;
-            const designation = employeeCodeToDesignationMap[employeeCode] || 'Default'; // Use map, default if not found
+            const designation = employeeCodeToDesignationMap[employeeCode] || 'Default';
+            const branchName = employeeActivityEntries.length > 0 ? employeeActivityEntries[0][HEADER_BRANCH_NAME] : 'N/A';
 
             const targets = TARGETS[designation] || TARGETS['Default'];
             const performance = calculatePerformance(totalActivity, targets);
 
-            const employeeCard = document.createElement('div');
-            employeeCard.className = 'employee-performance-card';
-            employeeCard.innerHTML = `<h3>${employeeName} (${designation})</h3>
-                                    <div style="overflow-x: auto;"> <!-- Wrapper for table scroll -->
-                                    <table class="performance-table">
-                                        <thead>
-                                            <tr><th>Metric</th><th>Actual</th><th>Target</th><th>% Achieved</th></tr>
-                                        </thead>
-                                        <tbody>
-                                            ${Object.keys(targets).map(metric => {
-                                                const actualValue = totalActivity[metric] || 0;
-                                                const targetValue = targets[metric];
-                                                let percentValue = performance[metric]; // Raw numerical percentage
-                                                
-                                                let displayPercent;
-                                                let progressWidth;
-                                                let progressBarClass;
+            const row = tbody.insertRow();
+            row.insertCell().textContent = employeeName;
+            row.insertCell().textContent = branchName;
+            row.insertCell().textContent = designation;
 
-                                                if (isNaN(percentValue)) { // Check for NaN (e.g., target is 0)
-                                                    displayPercent = 'N/A';
-                                                    progressWidth = 0;
-                                                    progressBarClass = 'no-activity';
-                                                } else {
-                                                    displayPercent = `${Math.round(percentValue)}%`; // Round to nearest whole number
-                                                    progressWidth = Math.min(100, Math.round(percentValue)); // Round for width
-                                                    progressBarClass = getProgressBarClass(percentValue); // Use original float for color
-                                                }
+            metrics.forEach(metric => {
+                const actualValue = totalActivity[metric] || 0;
+                const targetValue = targets[metric] || 0; // Ensure target is 0 if undefined
 
-                                                // Special handling for 0 actuals with positive targets
-                                                if (actualValue === 0 && targetValue > 0) {
-                                                    displayPercent = '0%';
-                                                    progressWidth = 0;
-                                                    progressBarClass = 'danger'; // Red if 0% and target exists
-                                                }
+                let percentValue = performance[metric];
+                let displayPercent;
+                let progressBarClass;
+                let progressWidth;
 
-                                                return `
-                                                    <tr>
-                                                        <td data-label="Metric">${metric}</td>
-                                                        <td data-label="Actual">${actualValue}</td>
-                                                        <td data-label="Target">${targetValue}</td>
-                                                        <td data-label="% Achieved">
-                                                            <div class="progress-bar-container-small">
-                                                                <div class="progress-bar ${progressBarClass}" style="width: ${progressWidth === 0 && displayPercent !== 'N/A' ? '30px' : progressWidth}%">${displayPercent}</div>
-                                                            </div>
-                                                        </td>
-                                                    </tr>
-                                                `;
-                                            }).join('')}
-                                        </tbody>
-                                    </table>
-                                    </div>`; {/* Close wrapper */}
-            performanceGrid.appendChild(employeeCard);
+                if (isNaN(percentValue) || targetValue === 0) { // If target is 0, it's N/A
+                    displayPercent = 'N/A';
+                    progressWidth = 0;
+                    progressBarClass = 'no-activity';
+                } else {
+                    displayPercent = `${Math.round(percentValue)}%`;
+                    progressWidth = Math.min(100, Math.round(percentValue));
+                    progressBarClass = getProgressBarClass(percentValue);
+                }
+
+                // Special handling for 0 actuals with positive targets to show 0% and danger color
+                if (actualValue === 0 && targetValue > 0) {
+                    displayPercent = '0%';
+                    progressWidth = 0;
+                    progressBarClass = 'danger';
+                }
+
+                row.insertCell().textContent = actualValue;
+                row.insertCell().textContent = targetValue;
+                
+                const percentCell = row.insertCell();
+                percentCell.innerHTML = `
+                    <div class="progress-bar-container-small">
+                        <div class="progress-bar ${progressBarClass}" style="width: ${progressWidth === 0 && displayPercent !== 'N/A' ? '30px' : progressWidth}%">
+                            ${displayPercent}
+                        </div>
+                    </div>
+                `;
+            });
         });
+
+        tableContainer.appendChild(table);
+        reportDisplay.appendChild(tableContainer);
     }
 
     // Function to calculate performance percentage
@@ -566,7 +603,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
 
-    // Refactored: Render Branch Activity Summary (consolidated branch totals)
+    // Render Branch Activity Summary (consolidated branch totals, now a grid of employee cards for d2.PNG)
     function renderBranchSummary() {
         const selectedBranch = branchSelect.value;
         if (!selectedBranch) {
@@ -576,33 +613,50 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const branchActivity = allCanvassingData.filter(entry => entry[HEADER_BRANCH_NAME] === selectedBranch);
 
+        reportDisplay.innerHTML = `<h2>All Staff Activity Summary for ${selectedBranch} Branch</h2>`;
+
         if (branchActivity.length === 0) {
-            reportDisplay.innerHTML = `<h2>Branch Activity Summary for ${selectedBranch}</h2>
-                                       <p class="no-participation-message">No activity recorded for this branch.</p>
-                                       <ul class="summary-list">
-                                           <li><strong>Total Visits:</strong> 0</li>
-                                           <li><strong>Total Calls:</strong> 0</li>
-                                           <li><strong>Total References:</strong> 0</li>
-                                           <li><strong>Total New Customer Leads:</strong> 0</li>
-                                       </ul>`;
+            reportDisplay.innerHTML += `<p class="no-participation-message">No activity recorded for this branch.</p>`;
             return;
         }
 
-        const { totalActivity } = calculateTotalActivity(branchActivity);
+        const employeeSummaryGrid = document.createElement('div');
+        employeeSummaryGrid.className = 'branch-summary-grid';
 
-        // Display as a single summary card for the branch
-        reportDisplay.innerHTML = `
-            <h2>Branch Activity Summary for ${selectedBranch}</h2>
-            <div class="branch-summary-card-single">
-                <h3>Overall Metrics for ${selectedBranch}</h3>
-                <ul class="summary-list">
-                    <li><strong>Total Visits:</strong> ${totalActivity['Visit']}</li>
-                    <li><strong>Total Calls:</strong> ${totalActivity['Call']}</li>
-                    <li><strong>Total References:</strong> ${totalActivity['Reference']}</li>
-                    <li><strong>Total New Customer Leads:</strong> ${totalActivity['New Customer Leads']}</li>
-                </ul>
-            </div>
-        `;
+        // Group data by employee within this branch
+        const employeesInBranch = {};
+        branchActivity.forEach(entry => {
+            const employeeCode = entry[HEADER_EMPLOYEE_CODE];
+            if (!employeesInBranch[employeeCode]) {
+                employeesInBranch[employeeCode] = [];
+            }
+            employeesInBranch[employeeCode].push(entry);
+        });
+
+        Object.keys(employeesInBranch).sort((codeA, codeB) => {
+            const nameA = employeeCodeToNameMap[codeA] || codeA;
+            const nameB = employeeCodeToNameMap[codeB] || codeB;
+            return nameA.localeCompare(nameB);
+        }).forEach(employeeCode => {
+            const empEntries = employeesInBranch[employeeCode];
+            const { totalActivity } = calculateTotalActivity(empEntries);
+            const employeeName = employeeCodeToNameMap[employeeCode] || employeeCode;
+            const employeeDesignation = employeeCodeToDesignationMap[employeeCode] || 'Default';
+
+            const employeeCard = document.createElement('div');
+            employeeCard.className = 'employee-summary-card';
+            employeeCard.innerHTML = `
+                <h4>${employeeName} (${employeeDesignation})</h4>
+                <p><strong>Total Entries:</strong> ${empEntries.length}</p>
+                <p><strong>Visits:</strong> ${totalActivity['Visit']}</p>
+                <p><strong>Calls:</strong> ${totalActivity['Call']}</p>
+                <p><strong>References:</strong> ${totalActivity['Reference']}</p>
+                <p><strong>New Customer Leads:</strong> ${totalActivity['New Customer Leads']}</p>
+            `;
+            employeeSummaryGrid.appendChild(employeeCard);
+        });
+
+        reportDisplay.appendChild(employeeSummaryGrid);
     }
 
     // Render Employee Detailed Entries (uses selectedEmployeeCodeEntries which are activity entries)
@@ -678,7 +732,7 @@ document.addEventListener('DOMContentLoaded', () => {
         reportDisplay.appendChild(tableContainer); // Append container to display area
     }
 
-    // Render Employee Summary (Current Month) - now includes Product Interested
+    // Render Employee Summary (Current Month) - now includes Product Interested and new layout for d4.PNG
     function renderEmployeeSummary(employeeCodeEntries) {
         if (employeeCodeEntries.length === 0) {
             reportDisplay.innerHTML = '<p>No activity data for this employee for the selected period.</p>';
@@ -696,30 +750,67 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const { totalActivity, productInterests } = calculateTotalActivity(currentMonthEntries); // Get both
 
+        reportDisplay.innerHTML = `<h2>Activity Summary for ${employeeDisplayName}</h2>`;
+
+        const summaryBreakdownCard = document.createElement('div');
+        summaryBreakdownCard.className = 'summary-breakdown-card'; // New class for this grid layout
+
+        // Key Activity Counts
+        const keyActivityDiv = document.createElement('div');
+        keyActivityDiv.innerHTML = `<h4>Key Activity Counts:</h4>
+                                    <ul class="summary-list">
+                                        <li><strong>Visits:</strong> ${totalActivity['Visit']}</li>
+                                        <li><strong>Calls:</strong> ${totalActivity['Call']}</li>
+                                        <li><strong>References:</strong> ${totalActivity['Reference']}</li>
+                                        <li><strong>New Customer Leads:</strong> ${totalActivity['New Customer Leads']}</li>
+                                    </ul>`;
+        summaryBreakdownCard.appendChild(keyActivityDiv);
+
+        // Activity Types Breakdown
+        const activityTypeCounts = {}; // Recalculate this specifically for current month entries
+        currentMonthEntries.forEach(entry => {
+            const type = entry[HEADER_ACTIVITY_TYPE] || 'Unknown';
+            activityTypeCounts[type] = (activityTypeCounts[type] || 0) + 1;
+        });
+        activityTypesDiv.innerHTML = `<h4>Activity Types Breakdown:</h4>
+                                      <ul class="summary-list">
+                                          ${Object.keys(activityTypeCounts).map(type => `<li><strong>${type}:</strong> ${activityTypeCounts[type]}</li>`).join('')}
+                                      </ul>`;
+        summaryBreakdownCard.appendChild(activityTypesDiv);
+
+        // Customer Types Breakdown
+        const customerTypeCounts = {}; // Recalculate this specifically for current month entries
+        currentMonthEntries.forEach(entry => {
+            const type = entry[HEADER_TYPE_OF_CUSTOMER] || 'Unknown';
+            customerTypeCounts[type] = (customerTypeCounts[type] || 0) + 1;
+        });
+        customerTypesDiv.innerHTML = `<h4>Customer Types Breakdown:</h4>
+                                      <ul class="summary-list">
+                                          ${Object.keys(customerTypeCounts).map(type => `<li><strong>${type}:</strong> ${customerTypeCounts[type]}</li>`).join('')}
+                                      </ul>`;
+        summaryBreakdownCard.appendChild(customerTypesDiv);
+
+        // Products Interested Breakdown
+        const productsInterestedDiv = document.createElement('div');
         let productInterestHtml = '';
         if (productInterests.length > 0) {
             productInterestHtml = `
-                <h4>Products Interested:</h4>
-                <ul class="product-interest-list">
+                <h4>Products Interested Breakdown:</h4>
+                <ul class="summary-list product-interest-list">
                     ${productInterests.map(product => `<li>${product}</li>`).join('')}
                 </ul>
             `;
         } else {
-            productInterestHtml = '<p>No specific product interests recorded this month.</p>';
+            productInterestHtml = '<h4>Products Interested Breakdown:</h4><p>No specific product interests recorded this month.</p>';
         }
+        productsInterestedDiv.innerHTML = productInterestHtml;
+        summaryBreakdownCard.appendChild(productsInterestedDiv);
 
 
-        reportDisplay.innerHTML = `<h2>Employee Summary for ${employeeDisplayName} (Current Month)</h2>
-                                   <ul class="summary-list">
-                                       <li><strong>Total Visits:</strong> ${totalActivity['Visit']}</li>
-                                       <li><strong>Total Calls:</b> ${totalActivity['Call']}</li>
-                                       <li><strong>Total References:</strong> ${totalActivity['Reference']}</li>
-                                       <li><strong>Total New Customer Leads:</strong> ${totalActivity['New Customer Leads']}</li>
-                                   </ul>
-                                   ${productInterestHtml}`;
+        reportDisplay.appendChild(summaryBreakdownCard);
     }
 
-    // Render Employee Performance Report (uses selectedEmployeeCodeEntries (activity entries))
+    // Render Employee Performance Report (for d5.PNG)
     function renderPerformanceReport(employeeCodeEntries) {
         const selectedEmployeeCode = employeeSelect.value;
         if (!selectedEmployeeCode) {
@@ -743,7 +834,13 @@ document.addEventListener('DOMContentLoaded', () => {
             <div style="overflow-x: auto;"> <!-- Wrapper for table scroll -->
             <table class="performance-table">
                 <thead>
-                    <tr><th>Metric</th><th>Actual</th><th>Target</th><th>% Achieved</th></tr>
+                    <tr>
+                        <th>Metric</th>
+                        <th>Actual (This Month)</th>
+                        <th>Target (Monthly)</th>
+                        <th>Achievement (%)</th>
+                        <th>Progress</th>
+                    </tr>
                 </thead>
                 <tbody>
                     ${Object.keys(targets).map(metric => {
@@ -755,7 +852,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         let progressWidth;
                         let progressBarClass;
 
-                        if (isNaN(percentValue)) { // Check for NaN (e.g., target is 0)
+                        if (isNaN(percentValue) || targetValue === 0) { // Check for NaN or if target is 0
                             displayPercent = 'N/A';
                             progressWidth = 0;
                             progressBarClass = 'no-activity';
@@ -777,7 +874,8 @@ document.addEventListener('DOMContentLoaded', () => {
                                 <td data-label="Metric">${metric}</td>
                                 <td data-label="Actual">${actualValue}</td>
                                 <td data-label="Target">${targetValue}</td>
-                                <td data-label="% Achieved">
+                                <td data-label="Achievement (%)">${displayPercent}</td>
+                                <td data-label="Progress">
                                     <div class="progress-bar-container">
                                         <div class="progress-bar ${progressBarClass}" style="width: ${progressWidth === 0 && displayPercent !== 'N/A' ? '30px' : progressWidth}%">${displayPercent}</div>
                                     </div>
@@ -806,7 +904,7 @@ document.addEventListener('DOMContentLoaded', () => {
                                 const isVisit = activityType === 'visit';
                                 const isCall = activityType === 'calls';
                                 const isReference = activityType === 'referance';
-                                const isNewLead = (isVisit || isCall) && typeOfCustomer === 'new'; 
+                                const isNewLead = typeOfCustomer === 'new'; // Updated logic for New Leads
                                 return `
                                 <li>${formatDate(entry[HEADER_TIMESTAMP])}:
                                     V:${isVisit ? 1 : 0} |
@@ -908,7 +1006,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Helper for branch performance report (similar to overall staff performance, but for a specific branch)
     function renderOverallStaffPerformanceReportForBranch(branchName, branchActivityEntries) {
-        reportDisplay.innerHTML = `<h2>All Staff Performance for ${branchName}</h2><div class="branch-performance-grid"></div>`;
+        reportDisplay.innerHTML = `<h2>All Staff Performance for ${branchName} Branch (This Month)</h2><div class="branch-performance-grid"></div>`;
         const performanceGrid = reportDisplay.querySelector('.branch-performance-grid');
 
         // Get all unique employee codes within this branch from canvassing data only
@@ -932,11 +1030,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
             const employeeCard = document.createElement('div');
             employeeCard.className = 'employee-performance-card';
-            employeeCard.innerHTML = `<h3>${employeeDisplayName} (${designation})</h3>
+            employeeCard.innerHTML = `<h4>${employeeDisplayName} (${designation})</h4>
                                     <div style="overflow-x: auto;"> <!-- Wrapper for table scroll -->
                                     <table class="performance-table">
                                         <thead>
-                                            <tr><th>Metric</th><th>Actual</th><th>Target</th><th>% Achieved</th></tr>
+                                            <tr><th>Metric</th><th>Actual</th><th>Target</th><th>%</th></tr>
                                         </thead>
                                         <tbody>
                                             ${Object.keys(targets).map(metric => {
@@ -948,7 +1046,7 @@ document.addEventListener('DOMContentLoaded', () => {
                                                 let progressWidth;
                                                 let progressBarClass;
 
-                                                if (isNaN(percentValue)) { // Check for NaN (e.g., target is 0)
+                                                if (isNaN(percentValue) || targetValue === 0) { // Check for NaN or if target is 0
                                                     displayPercent = 'N/A';
                                                     progressWidth = 0;
                                                     progressBarClass = 'no-activity';
@@ -970,7 +1068,7 @@ document.addEventListener('DOMContentLoaded', () => {
                                                         <td data-label="Metric">${metric}</td>
                                                         <td data-label="Actual">${actualValue}</td>
                                                         <td data-label="Target">${targetValue}</td>
-                                                        <td data-label="% Achieved">
+                                                        <td data-label="%">
                                                             <div class="progress-bar-container-small">
                                                                 <div class="progress-bar ${progressBarClass}" style="width: ${progressWidth === 0 && displayPercent !== 'N/A' ? '30px' : progressWidth}%">${displayPercent}</div>
                                                             </div>
@@ -983,6 +1081,7 @@ document.addEventListener('DOMContentLoaded', () => {
                                     </div>`; {/* Close wrapper */}
             performanceGrid.appendChild(employeeCard);
         });
+        reportDisplay.appendChild(performanceGrid); // Ensure grid is appended
     }
 
     viewAllEntriesBtn.addEventListener('click', () => {
@@ -1033,14 +1132,24 @@ document.addEventListener('DOMContentLoaded', () => {
 
         if (tabButtonId === 'allBranchSnapshotTabBtn' || tabButtonId === 'allStaffOverallPerformanceTabBtn' || tabButtonId === 'nonParticipatingBranchesTabBtn') { // Updated to include new tab
             reportsSection.style.display = 'block';
-            document.querySelector('.controls-panel').style.display = 'flex'; // Controls panel visible for report tabs
+            // Show controls panel for tabs that need it, hide for others
+            if (tabButtonId === 'allBranchSnapshotTabBtn' || tabButtonId === 'allStaffOverallPerformanceTabBtn') {
+                document.querySelector('.controls-panel').style.display = 'flex'; 
+                // Reset dropdowns for global reports
+                branchSelect.value = '';
+                employeeSelect.value = '';
+                employeeFilterPanel.style.display = 'none';
+                viewOptions.style.display = 'none';
+            } else {
+                document.querySelector('.controls-panel').style.display = 'none'; 
+            }
+
             if (tabButtonId === 'allBranchSnapshotTabBtn') {
                 renderAllBranchSnapshot();
             } else if (tabButtonId === 'allStaffOverallPerformanceTabBtn') {
                 renderOverallStaffPerformanceReport();
             } else if (tabButtonId === 'nonParticipatingBranchesTabBtn') { // NEW
                 renderNonParticipatingBranches(); // NEW
-                document.querySelector('.controls-panel').style.display = 'none'; // Hide controls for this specific tab
             }
         } else if (tabButtonId === 'employeeManagementTabBtn') {
             employeeManagementSection.style.display = 'block';
