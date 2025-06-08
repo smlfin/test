@@ -197,6 +197,7 @@ main {
     margin-top: 20px;
     box-shadow: 0 2px 8px rgba(0,0,0,0.1);
     background-color: #fff; /* Ensure white background for table */
+    table-layout: auto; /* Allow browser to determine column widths */
 }
 
 .all-branch-snapshot-table th,
@@ -246,7 +247,7 @@ main {
 .branch-performance-grid, .branch-summary-grid {
     display: grid;
     /* Adjusted minmax to fit more cards per row */
-    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); 
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); /* Increased min-width for cards */
     gap: 20px; /* Spacing between cards */
     margin-top: 20px;
 }
@@ -259,6 +260,7 @@ main {
     box-shadow: 0 2px 5px rgba(0,0,0,0.08);
     display: flex;
     flex-direction: column; /* Stack content vertically within the card */
+    min-width: 0; /* Ensures content inside can shrink */
 }
 
 .employee-performance-card h3, .employee-summary-card h3, .branch-summary-card-single h3 {
@@ -292,12 +294,21 @@ main {
     border-collapse: collapse;
     margin-top: 20px;
     box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    table-layout: auto; /* Allow browser to determine column widths */
 }
+
+.data-table-container { /* NEW: Wrapper for scrollable tables on desktop */
+    overflow-x: auto;
+    width: 100%;
+}
+
 
 .data-table th, .data-table td {
     border: 1px solid #ddd;
     padding: 10px;
     text-align: left;
+    word-wrap: break-word; /* Ensure text wraps within cells */
+    white-space: normal; /* Override nowrap in responsive section */
 }
 
 .data-table th {
@@ -425,6 +436,7 @@ footer {
     width: 100%;
     border-collapse: collapse;
     margin-bottom: 20px;
+    table-layout: fixed; /* Fixed layout for performance table */
 }
 
 .performance-table th,
@@ -432,16 +444,13 @@ footer {
     border: 1px solid #ddd;
     padding: 10px;
     text-align: left;
+    vertical-align: middle;
 }
 
 .performance-table th {
     background-color: #eef;
     font-weight: bold;
     color: #3F51B5;
-}
-
-.performance-table td {
-    vertical-align: middle;
 }
 
 .progress-bar-container {
@@ -451,6 +460,8 @@ footer {
     overflow: hidden;
     height: 25px; /* Larger height for main performance report */
     position: relative;
+    display: flex; /* Use flex to align text */
+    align-items: center; /* Center vertically */
 }
 
 .progress-bar-container-small {
@@ -460,30 +471,35 @@ footer {
     overflow: hidden;
     height: 20px; /* Smaller height for nested tables */
     position: relative;
+    display: flex; /* Use flex to align text */
+    align-items: center; /* Center vertically */
 }
 
 
 .progress-bar {
     height: 100%;
-    line-height: 25px; /* Center text vertically for main bar */
     color: white;
     text-align: center;
     font-weight: bold;
     border-radius: 5px;
     transition: width 0.5s ease-in-out;
-    white-space: nowrap; /* Prevent text wrap */
+    white-space: nowrap; /* Prevent text wrap inside bar */
     overflow: hidden;
     text-overflow: ellipsis; /* Add ellipsis for long text */
-}
-.progress-bar-container-small .progress-bar {
-    line-height: 20px; /* Center text vertically for small bar */
-    font-size: 0.85em;
+    display: flex; /* For text inside bar */
+    align-items: center;
+    justify-content: center;
+    padding: 0 5px; /* Add some padding for text inside bar */
+    box-sizing: border-box; /* Include padding in width */
+    min-width: 30px; /* Ensure space for text even if percentage is small */
 }
 
 .progress-bar.overachieved { background-color: #4CAF50; } /* Green */
 .progress-bar.success { background-color: #8BC34A; } /* Light Green */
 .progress-bar.warning { background-color: #FFC107; } /* Amber */
 .progress-bar.danger { background-color: #F44336; } /* Red */
+.progress-bar.no-activity { background-color: #cccccc; color: #555; } /* Grey for N/A or 0% */
+
 
 .summary-details-container {
     margin-top: 25px;
@@ -573,16 +589,27 @@ footer {
     }
 
     /* Important: Table responsiveness for smaller screens */
+    /* Remove display: block from table elements and apply overflow-x to a wrapper if necessary */
     .data-table, .performance-table, .all-branch-snapshot-table {
-        display: block; /* Make tables act as block elements */
-        width: 100%; /* Take full width */
-        overflow-x: auto; /* Enable horizontal scrolling if content is too wide */
-        /* Removed white-space: nowrap here as it conflicts with stacking */
+        /* No longer display: block; on the table itself for mobile stacking */
+        width: 100%;
+        border-collapse: collapse; /* Ensure collapse for mobile view */
+        /* overflow-x: auto; - moved to wrapper if needed, or handled by inner cells */
+    }
+
+    /* Container for tables that might overflow on desktop/tablet but need to stack on mobile */
+    .report-display > .data-table,
+    .report-display > .all-branch-snapshot-table {
+        /* This rule allows tables to scroll horizontally on larger mobile screens before fully stacking */
+        display: block;
+        overflow-x: auto;
+        white-space: nowrap; /* Keep content in cells from wrapping prematurely */
     }
 
     .data-table thead, .data-table tbody, .data-table th, .data-table td, .data-table tr,
     .all-branch-snapshot-table thead, .all-branch-snapshot-table tbody, .all-branch-snapshot-table th, .all-branch-snapshot-table td, .all-branch-snapshot-table tr {
-        display: block; /* Stack table parts */
+        /* These rules are for when the table fully stacks, overriding the above overflow-x for individual cells */
+        display: block;
     }
 
     .data-table thead tr, .all-branch-snapshot-table thead tr {
@@ -603,7 +630,7 @@ footer {
         position: relative;
         padding-left: 50%; /* Space for the pseudo-element label */
         text-align: right;
-        white-space: normal; /* Allow text to wrap within the cell */
+        white-space: normal; /* Allow text to wrap within the cell when stacked */
     }
 
     .data-table td:before, .all-branch-snapshot-table td:before {
@@ -618,30 +645,29 @@ footer {
     }
 
     /* Specific adjustments for performance tables on mobile */
-    .performance-table tbody tr {
-        display: flex;
-        flex-direction: column;
-        margin-bottom: 15px;
-        border: 1px solid #ddd;
-        border-radius: 8px;
+    .performance-table {
+        table-layout: auto; /* Reset fixed for mobile performance tables */
+        display: block; /* Make it block to enable scrolling */
+        overflow-x: auto; /* Allow horizontal scrolling */
+        white-space: nowrap; /* Prevent content within table cells from wrapping */
     }
-
+    .performance-table tbody {
+        display: table-row-group; /* Reset to normal table flow within overflow */
+    }
+    .performance-table tr {
+        display: table-row; /* Reset to normal table row flow within overflow */
+    }
     .performance-table td {
-        display: flex;
-        justify-content: space-between;
-        padding: 8px 10px;
-        border-bottom: 1px solid #eee;
+        display: table-cell; /* Reset to normal table cell flow within overflow */
+        white-space: nowrap; /* Keep content in cells from wrapping prematurely for scrolling */
     }
-
-    .performance-table td:last-child {
-        border-bottom: none;
-    }
-
     .performance-table td:before {
-        content: attr(data-label);
-        font-weight: bold;
-        margin-right: 10px;
+        content: none; /* Hide data-label for this specific table on mobile */
     }
+    .performance-table th {
+        white-space: nowrap;
+    }
+
 
     .summary-details-container ul.summary-list {
         flex-direction: row; /* Keep horizontal for smaller screens if possible */
