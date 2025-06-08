@@ -246,8 +246,8 @@ main {
 /* Grid for Branch and Overall Staff Performance Reports (cards) */
 .branch-performance-grid, .branch-summary-grid {
     display: grid;
-    /* Adjusted minmax to fit more cards per row */
-    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); /* Increased min-width for cards */
+    /* Increased min-width for cards to accommodate content better */
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); 
     gap: 20px; /* Spacing between cards */
     margin-top: 20px;
 }
@@ -261,6 +261,8 @@ main {
     display: flex;
     flex-direction: column; /* Stack content vertically within the card */
     min-width: 0; /* Ensures content inside can shrink */
+    overflow: hidden; /* Prevent content from breaking out of the card */
+    box-sizing: border-box; /* Crucial for padding/border not adding to total width */
 }
 
 .employee-performance-card h3, .employee-summary-card h3, .branch-summary-card-single h3 {
@@ -443,8 +445,9 @@ footer {
 .performance-table td {
     border: 1px solid #ddd;
     padding: 10px;
-    text-align: left;
     vertical-align: middle;
+    word-wrap: break-word; /* Allow text to wrap */
+    white-space: normal; /* Ensure text wraps */
 }
 
 .performance-table th {
@@ -452,6 +455,29 @@ footer {
     font-weight: bold;
     color: #3F51B5;
 }
+
+/* Column widths for performance tables */
+.performance-table th:nth-child(1), /* Metric */
+.performance-table td:nth-child(1) { 
+    width: 30%; 
+    text-align: left;
+}
+.performance-table th:nth-child(2), /* Actual */
+.performance-table td:nth-child(2) { 
+    width: 15%;
+    text-align: center;
+}
+.performance-table th:nth-child(3), /* Target */
+.performance-table td:nth-child(3) { 
+    width: 15%;
+    text-align: center;
+}
+.performance-table th:nth-child(4), /* % Achieved */
+.performance-table td:nth-child(4) { 
+    width: 40%; /* More space for progress bar */
+    text-align: center;
+}
+
 
 .progress-bar-container {
     width: 100%;
@@ -589,27 +615,18 @@ footer {
     }
 
     /* Important: Table responsiveness for smaller screens */
-    /* Remove display: block from table elements and apply overflow-x to a wrapper if necessary */
-    .data-table, .performance-table, .all-branch-snapshot-table {
-        /* No longer display: block; on the table itself for mobile stacking */
+    /* All tables should be wrapped in a container that handles overflow-x on small screens */
+    .report-display .data-table-container,
+    .report-display .employee-performance-card > div[style*="overflow-x: auto"],
+    .report-display .performance-report > div[style*="overflow-x: auto"] {
         width: 100%;
-        border-collapse: collapse; /* Ensure collapse for mobile view */
-        /* overflow-x: auto; - moved to wrapper if needed, or handled by inner cells */
-    }
-
-    /* Container for tables that might overflow on desktop/tablet but need to stack on mobile */
-    .report-display > .data-table,
-    .report-display > .all-branch-snapshot-table {
-        /* This rule allows tables to scroll horizontally on larger mobile screens before fully stacking */
-        display: block;
         overflow-x: auto;
-        white-space: nowrap; /* Keep content in cells from wrapping prematurely */
+        -webkit-overflow-scrolling: touch; /* Smooth scrolling on iOS */
     }
 
     .data-table thead, .data-table tbody, .data-table th, .data-table td, .data-table tr,
     .all-branch-snapshot-table thead, .all-branch-snapshot-table tbody, .all-branch-snapshot-table th, .all-branch-snapshot-table td, .all-branch-snapshot-table tr {
-        /* These rules are for when the table fully stacks, overriding the above overflow-x for individual cells */
-        display: block;
+        display: block; /* Stack table parts */
     }
 
     .data-table thead tr, .all-branch-snapshot-table thead tr {
@@ -647,9 +664,9 @@ footer {
     /* Specific adjustments for performance tables on mobile */
     .performance-table {
         table-layout: auto; /* Reset fixed for mobile performance tables */
-        display: block; /* Make it block to enable scrolling */
-        overflow-x: auto; /* Allow horizontal scrolling */
-        white-space: nowrap; /* Prevent content within table cells from wrapping */
+        width: auto; /* Allow content to dictate width if needed for scrolling */
+        /* overflow-x: auto; - Handled by parent wrapper now */
+        white-space: normal; /* Allow text to wrap within cells */
     }
     .performance-table tbody {
         display: table-row-group; /* Reset to normal table flow within overflow */
@@ -659,13 +676,13 @@ footer {
     }
     .performance-table td {
         display: table-cell; /* Reset to normal table cell flow within overflow */
-        white-space: nowrap; /* Keep content in cells from wrapping prematurely for scrolling */
+        white-space: normal; /* Allow text wrapping */
     }
     .performance-table td:before {
         content: none; /* Hide data-label for this specific table on mobile */
     }
     .performance-table th {
-        white-space: nowrap;
+        white-space: normal; /* Allow header text to wrap */
     }
 
 
