@@ -17,6 +17,9 @@
     </header>
 
     <main>
+        <!-- NEW: Dedicated message area for temporary status messages -->
+        <div id="statusMessage" class="message-container"></div> 
+
         <section id="reportsSection" class="report-section">
             <div class="controls-panel">
                 <div class="dropdown-group">
@@ -34,21 +37,24 @@
                 </div>
 
                 <div id="viewOptions" class="view-options" style="display: none;">
-                    <button id="viewBranchSummaryBtn" class="btn">View All Staff Activity</button>
-                    <button id="viewBranchPerformanceReportBtn" class="btn">View All Staff Performance Report</button>
-                    <button id="viewEmployeeSummaryBtn" class="btn">View Employee Summary</button>
-                    <button id="viewAllEntriesBtn" class="btn">View All Entries</button>
-                    <button id="viewPerformanceReportBtn" class="btn">View Employee Performance Report</button>
+                    <button class="btn" id="viewBranchSummaryBtn">Branch Summary</button>
+                    <button class="btn" id="viewBranchPerformanceReportBtn">Branch Performance Report</button>
+                    <button class="btn" id="viewEmployeeSummaryBtn">Employee Summary (Current Month)</button>
+                    <button class="btn" id="viewAllEntriesBtn">View All Entries (Employee)</button>
+                    <button class="btn" id="viewPerformanceReportBtn">Employee Performance Report</button>
                 </div>
             </div>
+
             <div id="reportDisplay" class="report-display">
-                <p>Loading reports...</p>
+                <p>Select a branch and/or employee to view reports.</p>
             </div>
         </section>
 
-        <section id="employeeManagementSection" class="report-section" style="display:none;">
+        <section id="employeeManagementSection" class="employee-management-section" style="display: none;">
             <h2>Employee Management</h2>
-            <div id="employeeManagementMessage" class="message"></div> <div class="form-section">
+            <div id="employeeManagementMessage" class="message"></div>
+
+            <div class="form-section">
                 <h3>Add New Employee</h3>
                 <form id="addEmployeeForm" class="employee-form">
                     <div class="form-group">
@@ -64,7 +70,7 @@
                         <input type="text" id="newBranchName" required>
                     </div>
                     <div class="form-group">
-                        <label for="newDesignation">Designation (Optional):</label>
+                        <label for="newDesignation">Designation:</label>
                         <input type="text" id="newDesignation">
                     </div>
                     <button type="submit" class="btn">Add Employee</button>
@@ -72,7 +78,7 @@
             </div>
 
             <div class="form-section">
-                <h3>Add Bulk Employees</h3>
+                <h3>Bulk Add Employees</h3>
                 <form id="bulkAddEmployeeForm" class="employee-form">
                     <div class="form-group">
                         <label for="bulkEmployeeBranchName">Branch Name for Bulk Entry:</label>
