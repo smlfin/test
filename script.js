@@ -1,9 +1,11 @@
 document.addEventListener('DOMContentLoaded', () => {
     // *** Configuration ***
     // This URL is for your Canvassing Data sheet. Ensure it's correct and published as CSV.
-    const DATA_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTO7LujC4VSa2wGkJ2YEYSN7UeXR221ny3THaVegYfNfRm2JQGg7QR9Bxxh9SadXtK8Pi6-psl2tGsb/pub?gid=696550092&single=true&output=csv";
+    // NOTE: If you are still getting 404, this URL is the problem.
+    const DATA_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTO7LujC4VSa2wGkJ2YEYSN7UeXR221ny3THaVegYfRmV2JQGg7QR9Bxxh9SadXtK8Pi6-psl2tGsb/pub?gid=696550092&single=true&output=csv"; 
 
     // IMPORTANT: Replace this with YOUR DEPLOYED GOOGLE APPS SCRIPT WEB APP URL
+    // NOTE: If you are getting errors sending data, this URL is the problem.
     const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzEYf0CKgwP0O4-z1lup1lDZImD1dQVEveLWsHwa_7T5ltndfIuRWXVZqFDj03_proD/exec"; // <-- PASTE YOUR NEWLY DEPLOYED WEB APP URL HERE
 
     // We will IGNORE MasterEmployees sheet for data fetching and report generation
@@ -77,6 +79,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Main Report Display Area
     const reportDisplay = document.getElementById('reportDisplay');
+    // NEW: Dedicated message area element
+    const statusMessageDiv = document.getElementById('statusMessage');
+
 
     // Tab buttons for main navigation
     const allBranchSnapshotTabBtn = document.getElementById('allBranchSnapshotTabBtn');
@@ -120,14 +125,14 @@ document.addEventListener('DOMContentLoaded', () => {
         return date.toISOString().split('T')[0];
     };
 
-    // Helper to clear and display messages in a specific div
-    function displayMessage(message, type = 'info', targetDiv = reportDisplay) {
-        if (targetDiv) {
-            targetDiv.innerHTML = `<div class="message ${type}">${message}</div>`;
-            targetDiv.style.display = 'block';
+    // Helper to clear and display messages in a specific div (now targets statusMessageDiv)
+    function displayMessage(message, type = 'info') { 
+        if (statusMessageDiv) {
+            statusMessageDiv.innerHTML = `<div class="message ${type}">${message}</div>`;
+            statusMessageDiv.style.display = 'block';
             setTimeout(() => {
-                targetDiv.innerHTML = ''; // Clear message
-                targetDiv.style.display = 'none';
+                statusMessageDiv.innerHTML = ''; // Clear message
+                statusMessageDiv.style.display = 'none';
             }, 5000); // Hide after 5 seconds
         }
     }
@@ -217,7 +222,6 @@ document.addEventListener('DOMContentLoaded', () => {
     // Process fetched data to populate filters and prepare for reports
     async function processData() {
         // Only fetch canvassing data, ignoring MasterEmployees for front-end reports
-        // The EMPLOYEE_MASTER_DATA_URL is specifically UNUSED for this logic flow.
         await fetchCanvassingData(); 
 
         // Re-initialize allUniqueBranches from the predefined list
@@ -250,6 +254,9 @@ document.addEventListener('DOMContentLoaded', () => {
         console.log('Final Employee Code To Name Map (from Canvassing Data):', employeeCodeToNameMap);
         console.log('Final Employee Code To Designation Map (from Canvassing Data):', employeeCodeToDesignationMap);
         console.log('Final All Unique Employees (Codes from Canvassing Data):', allUniqueEmployees);
+
+        // After data is loaded and maps are populated, render the initial report
+        renderAllBranchSnapshot(); // Render the default "All Branch Snapshot" report
     }
 
     // Populate dropdown utility
@@ -714,9 +721,9 @@ document.addEventListener('DOMContentLoaded', () => {
                             ${employeeCodeEntries.map(entry => {
                                 const activityType = entry[HEADER_ACTIVITY_TYPE] ? entry[HEADER_ACTIVITY_TYPE].trim() : '';
                                 const isVisit = activityType === 'Visit';
-                                const isCall = activityType === 'Calls';
-                                const isReference = activityType === 'Referance';
-                                const isNewLead = activityType === 'New Lead';
+                                const isCall = activityType === 'Calls'; // Matches "Calls"
+                                const isReference = activityType === 'Referance'; // Matches "Referance"
+                                const isNewLead = activityType === 'New Lead'; // Matches "New Lead"
                                 return `
                                 <li>${formatDate(entry[HEADER_TIMESTAMP])}:
                                     V:${isVisit ? 1 : 0} |
