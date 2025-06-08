@@ -68,7 +68,7 @@ main {
     box-shadow: 0 0 10px rgba(0,0,0,0.1);
 }
 
-/* NEW: Style for the dedicated status message container */
+/* Dedicated message area for temporary status messages */
 .message-container {
     min-height: 40px; /* Give it some space */
     text-align: center;
@@ -80,8 +80,6 @@ main {
     font-weight: bold;
     display: none; /* Hidden by default, shown by JS */
 }
-/* Existing message styles are now specific to .message-container .message or employeeManagementMessage */
-
 
 .controls-panel {
     display: flex;
@@ -163,7 +161,7 @@ main {
     margin-bottom: 10px;
 }
 
-/* Updated .summary-list to be more flexible */
+/* Updated .summary-list to be more flexible (general purpose) */
 .summary-list {
     list-style: none;
     padding: 0;
@@ -212,10 +210,9 @@ main {
     margin-bottom: 10px;
 }
 
-/* Grid for Branch and Overall Staff Performance Reports */
+/* Grid for Branch and Overall Staff Performance Reports (cards) */
 .branch-performance-grid, .branch-summary-grid {
     display: grid;
-    /* Responsive grid: minmax(300px, 1fr) means each column will be at least 300px, but will grow to fill space */
     grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
     gap: 20px; /* Spacing between cards */
     margin-top: 20px;
@@ -240,7 +237,7 @@ main {
 }
 
 
-/* Data Table Styles */
+/* Data Table Styles (for detailed employee entries) */
 .data-table {
     width: 100%;
     border-collapse: collapse;
@@ -512,25 +509,26 @@ footer {
         width: 100%;
     }
 
-    .data-table, .performance-table {
+    .data-table, .performance-table, .all-branch-snapshot-table {
         display: block;
         overflow-x: auto;
         white-space: nowrap; /* Prevent text wrapping inside table cells */
     }
 
-    .data-table thead, .data-table tbody, .data-table th, .data-table td, .data-table tr {
+    .data-table thead, .data-table tbody, .data-table th, .data-table td, .data-table tr,
+    .all-branch-snapshot-table thead, .all-branch-snapshot-table tbody, .all-branch-snapshot-table th, .all-branch-snapshot-table td, .all-branch-snapshot-table tr {
         display: block;
     }
 
-    .data-table thead tr {
+    .data-table thead tr, .all-branch-snapshot-table thead tr {
         position: absolute;
         top: -9999px;
         left: -9999px;
     }
 
-    .data-table tr { border: 1px solid #ccc; margin-bottom: 10px; border-radius: 8px; }
+    .data-table tr, .all-branch-snapshot-table tr { border: 1px solid #ccc; margin-bottom: 10px; border-radius: 8px; }
 
-    .data-table td {
+    .data-table td, .all-branch-snapshot-table td {
         border: none;
         border-bottom: 1px solid #eee;
         position: relative;
@@ -538,7 +536,7 @@ footer {
         text-align: right;
     }
 
-    .data-table td:before {
+    .data-table td:before, .all-branch-snapshot-table td:before {
         content: attr(data-label);
         position: absolute;
         left: 6px;
@@ -583,6 +581,14 @@ footer {
         flex: 1 1 45%; /* Allow two items per row on small screens */
         max-width: 45%; /* Prevent them from becoming too wide */
     }
+
+    /* Adjust for specific table cell in mobile view for all branch snapshot */
+    .all-branch-snapshot-table td[data-label="Branch Name"] {
+        text-align: center; /* Center the branch name on mobile */
+        font-size: 1.1em;
+        padding-top: 15px;
+        padding-bottom: 15px;
+    }
 }
 
 /* No participation message style */
@@ -592,4 +598,18 @@ footer {
     font-size: 1.1em;
     margin: 10px 0;
     text-align: center;
+}
+.non-participating-branch-list {
+    list-style: decimal inside; /* Numbered list */
+    padding-left: 20px;
+    margin-top: 20px;
+}
+.non-participating-branch-list li {
+    background-color: #ffebee; /* Light red background */
+    border-left: 5px solid #ef5350; /* Red border */
+    margin-bottom: 8px;
+    padding: 10px 15px;
+    border-radius: 4px;
+    color: #333;
+    font-weight: bold;
 }
