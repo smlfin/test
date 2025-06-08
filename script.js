@@ -336,15 +336,19 @@ document.addEventListener('DOMContentLoaded', () => {
     // Helper to calculate total activity from a set of activity entries based on Activity Type
     function calculateTotalActivity(entries) {
         const totalActivity = { 'Visit': 0, 'Call': 0, 'Reference': 0, 'New Customer Leads': 0 }; // Initialize counters
-        console.log('Calculating total activity for entries:', entries); // Log entries being processed
-        entries.forEach(entry => {
+        console.log('Calculating total activity for entries:', entries.length); // Log entries being processed
+        entries.forEach((entry, index) => {
             let activityType = entry[HEADER_ACTIVITY_TYPE];
-            let typeOfCustomer = entry[HEADER_TYPE_OF_CUSTOMER]; // NEW: Get Type of Custome
+            let typeOfCustomer = entry[HEADER_TYPE_OF_CUSTOMER];
             
+            console.log(`--- Entry ${index + 1} Debug ---`);
+            console.log(`  Raw Activity Type: '${activityType}'`);
+            console.log(`  Raw Type of Customer: '${typeOfCustomer}'`);
+
             if (activityType) {
-                activityType = activityType.trim(); // Just trim spaces
+                activityType = activityType.trim();
             } else {
-                activityType = ''; // Handle undefined or null activity types
+                activityType = '';
             }
             
             if (typeOfCustomer) {
@@ -353,34 +357,33 @@ document.addEventListener('DOMContentLoaded', () => {
                 typeOfCustomer = '';
             }
 
-            console.log(`Processing raw activity type: '${activityType}' and customer type: '${typeOfCustomer}' for employee code: ${entry[HEADER_EMPLOYEE_CODE]}`);
+            console.log(`  Trimmed Activity Type: '${activityType}'`);
+            console.log(`  Trimmed Type of Customer: '${typeOfCustomer}'`);
 
-            // Direct matching to user's provided sheet values
+            // Direct matching to user's provided sheet values for Visit, Calls, Reference
             if (activityType === 'Visit') {
                 totalActivity['Visit']++;
-            } else if (activityType === 'Calls') { // Matches "Calls" from sheet
+                console.log(`  Counted as Visit. Current Visits: ${totalActivity['Visit']}`);
+            } else if (activityType === 'Calls') {
                 totalActivity['Call']++;
-            } else if (activityType === 'Referance') { // Matches "Referance" (with typo) from sheet
+                console.log(`  Counted as Call. Current Calls: ${totalActivity['Call']}`);
+            } else if (activityType === 'Referance') {
                 totalActivity['Reference']++;
-            } 
+                console.log(`  Counted as Reference. Current References: ${totalActivity['Reference']}`);
+            } else {
+                console.warn(`  Unknown or unhandled Activity Type encountered and skipped from direct counting: '${activityType}'.`);
+            }
             
-            // NEW LOGIC for 'New Customer Leads'
-            if ((activityType === 'Visit' || activityType === 'Calls') && typeOfCustomer === 'New') {
+            // Logic for 'New Customer Leads'
+            const isNewCustomerLead = (activityType === 'Visit' || activityType === 'Calls') && typeOfCustomer === 'New';
+            console.log(`  New Customer Lead condition check: (Activity Type is 'Visit' or 'Calls') && (Type of Customer is 'New') -> Result: ${isNewCustomerLead}`);
+            if (isNewCustomerLead) {
                 totalActivity['New Customer Leads']++;
+                console.log(`  Counted as New Customer Lead. Current New Customer Leads: ${totalActivity['New Customer Leads']}`);
             }
-            // Note: If 'New Lead' was a distinct Activity Type previously, it's now handled by the new logic.
-            // If there's an 'Activity Type' simply named 'New Lead' in your data, it will be skipped by the initial if/else if block
-            // unless you explicitly add a case for it here as a separate counter, or
-            // if you intend for it to directly count as a 'New Customer Lead' without
-            // requiring the 'Type of Custome = New' condition.
-            // Based on your latest request "New customer leads = Activity Type is Visit or Calls & Type of Customer = New",
-            // the above `if` condition correctly implements this.
-            
-            else {
-                console.warn(`Unknown or unhandled Activity Type encountered and skipped from direct counting: '${activityType}'. If this is a valid activity, please update script.js.`);
-            }
+            console.log(`--- End Entry ${index + 1} Debug ---`);
         });
-        console.log('Calculated Total Activity:', totalActivity); // Log final calculated activity
+        console.log('Calculated Total Activity Final:', totalActivity);
         return totalActivity;
     }
 
@@ -763,10 +766,11 @@ document.addEventListener('DOMContentLoaded', () => {
                         <ul class="summary-list">
                             ${employeeCodeEntries.map(entry => {
                                 const activityType = entry[HEADER_ACTIVITY_TYPE] ? entry[HEADER_ACTIVITY_TYPE].trim() : '';
+                                const typeOfCustomer = entry[HEADER_TYPE_OF_CUSTOMER] ? entry[HEADER_TYPE_OF_CUSTOMER].trim() : '';
                                 const isVisit = activityType === 'Visit';
-                                const isCall = activityType === 'Calls'; // Matches "Calls"
-                                const isReference = activityType === 'Referance'; // Matches "Referance"
-                                const isNewLead = ((activityType === 'Visit' || activityType === 'Calls') && (entry[HEADER_TYPE_OF_CUSTOMER] && entry[HEADER_TYPE_OF_CUSTOMER].trim() === 'New')); // Updated New Lead Logic
+                                const isCall = activityType === 'Calls';
+                                const isReference = activityType === 'Referance';
+                                const isNewLead = ((activityType === 'Visit' || activityType === 'Calls') && typeOfCustomer === 'New'); 
                                 return `
                                 <li>${formatDate(entry[HEADER_TIMESTAMP])}:
                                     V:${isVisit ? 1 : 0} |
@@ -829,8 +833,8 @@ document.addEventListener('DOMContentLoaded', () => {
                     renderAllBranchSnapshot();
                 } else if (activeTabButton.id === 'allStaffOverallPerformanceTabBtn') {
                     renderOverallStaffPerformanceReport();
-                } else if (activeTabButton.id === 'nonParticipatingBranchesTabBtn') { // NEW
-                    renderNonParticipatingBranches(); // NEW
+                } else if (activeTabButton.id === 'nonParticipatingBranchesTabBtn') {
+                    renderNonParticipatingBranches();
                 }
                 else if (branchSelect.value) { // If a branch is selected, try to re-render relevant reports
                     const lastViewedReportButton = document.querySelector('.view-options button.active');
