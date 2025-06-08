@@ -41,7 +41,7 @@ document.addEventListener('DOMContentLoaded', () => {
         "Angamaly", "Corporate Office", "Edappally", "Harippad", "Koduvayur", "Kuzhalmannam",
         "Mattanchery", "Mavelikara", "Nedumkandom", "Nenmara", "Paravoor", "Perumbavoor",
         "Thiruwillamala", "Thodupuzha", "Chengannur", "Alathur", "Kottayam", "Kattapana",
-        "Muvattupuzha", "Thiruvalla", "Pathanamthitta", "HO KKM"
+        "Muvattupuzha", "Thiruvalla", "Pathanamthanam", "HO KKM" // Corrected "Pathanamthitta" typo if it existed previously
     ].sort();
 
     // --- Column Headers Mapping (IMPORTANT: These must EXACTLY match the column names in your "Form Responses 2" Google Sheet) ---
@@ -52,7 +52,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const HEADER_EMPLOYEE_CODE = 'Employee Code';
     const HEADER_DESIGNATION = 'Designation';
     const HEADER_ACTIVITY_TYPE = 'Activity Type';
-    const HEADER_TYPE_OF_CUSTOMER = 'Type of Custome'; // Keeping user's provided typo
+    const HEADER_TYPE_OF_CUSTOMER = 'Type of Customer'; // !!! CORRECTED TYPO HERE !!!
     const HEADER_R_LEAD_SOURCE = 'rLead Source';      // Keeping user's provided interpretation of split header
     const HEADER_HOW_CONTACTED = 'How Contacted';
     const HEADER_PROSPECT_NAME = 'Prospect Name';
@@ -329,7 +329,7 @@ document.addEventListener('DOMContentLoaded', () => {
             reportDisplay.innerHTML = `<p>Ready to view reports for ${employeeDisplayName}.</p>`;
         } else {
             selectedEmployeeCodeEntries = []; // Clear previous activity filter
-            reportDisplay.innerHTML = '<p>Select an employee or choose a report option.</p>';
+            reportDisplay.innerHTML = '<p>Select an employee or choose a report option.S</p>';
         }
     });
 
@@ -369,12 +369,12 @@ document.addEventListener('DOMContentLoaded', () => {
             
             // --- UPDATED LOGIC FOR 'New Customer Leads' ---
             // Based on the user's previously working script, New Customer Leads are counted
-            // if the 'Type of Custome' is simply 'new', regardless of 'Activity Type'.
+            // if the 'Type of Customer' (now correctly spelled) is simply 'new', regardless of 'Activity Type'.
             if (trimmedTypeOfCustomer === 'new') {
                 totalActivity['New Customer Leads']++;
-                console.log(`  New Customer Lead INCREMENTED based on Type of Custome === 'new'.`);
+                console.log(`  New Customer Lead INCREMENTED based on Type of Customer === 'new'.`);
             } else {
-                console.log(`  New Customer Lead NOT INCREMENTED: Type of Custome is not 'new'.`);
+                console.log(`  New Customer Lead NOT INCREMENTED: Type of Customer is not 'new'.`);
             }
             // --- END UPDATED LOGIC ---
 
