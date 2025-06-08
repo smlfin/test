@@ -150,6 +150,11 @@ document.addEventListener('DOMContentLoaded', () => {
         displayMessage("Fetching activity data...", 'info');
         try {
             const response = await fetch(DATA_URL);
+            if (!response.ok) {
+                const errorText = await response.text();
+                console.error(`HTTP error! status: ${response.status}. Details: ${errorText}`);
+                throw new Error(`Failed to fetch canvassing data. Status: ${response.status}`);
+            }
             const csvText = await response.text();
             allCanvassingData = parseCSV(csvText);
             console.log('--- Fetched Canvassing Data: ---');
@@ -160,7 +165,7 @@ document.addEventListener('DOMContentLoaded', () => {
             displayMessage("Activity data loaded successfully!", 'success');
         } catch (error) {
             console.error('Error fetching canvassing data:', error);
-            displayMessage('Failed to load activity data. Please check the DATA_URL and your network connection.', 'error');
+            displayMessage(`Failed to load activity data: ${error.message}. Please check the DATA_URL and ensure the sheet is published correctly.`, 'error');
             allCanvassingData = [];
         }
     }
@@ -211,7 +216,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Process fetched data to populate filters and prepare for reports
     async function processData() {
-        await fetchCanvassingData(); // Only fetch canvassing data
+        // Only fetch canvassing data, ignoring MasterEmployees for front-end reports
+        // The EMPLOYEE_MASTER_DATA_URL is specifically UNUSED for this logic flow.
+        await fetchCanvassingData(); 
 
         // Re-initialize allUniqueBranches from the predefined list
         allUniqueBranches = [...PREDEFINED_BRANCHES].sort(); // Use the hardcoded list
@@ -226,7 +233,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
             if (employeeCode) {
                 // If an employee code exists in canvassing data, use its name/designation
-                // This will effectively override any prior master data if it were fetched
                 employeeCodeToNameMap[employeeCode] = employeeName || employeeCode;
                 employeeCodeToDesignationMap[employeeCode] = designation || 'Default';
             }
@@ -324,23 +330,34 @@ document.addEventListener('DOMContentLoaded', () => {
         const totalActivity = { 'Visit': 0, 'Call': 0, 'Reference': 0, 'New Customer Leads': 0 }; // Initialize counters
         console.log('Calculating total activity for entries:', entries); // Log entries being processed
         entries.forEach(entry => {
-            const activityType = entry[HEADER_ACTIVITY_TYPE];
-            console.log(`Processing activity type: '${activityType}' for employee code: ${entry[HEADER_EMPLOYEE_CODE]}`);
+            let activityType = entry[HEADER_ACTIVITY_TYPE];
+            if (activityType) {
+                // Normalize activity type: trim spaces, convert to lowercase, remove trailing 's'
+                activityType = activityType.trim().toLowerCase();
+                if (activityType.endsWith('s') && activityType.length > 1) { // Avoid 's' becoming ''
+                    activityType = activityType.slice(0, -1);
+                }
+            } else {
+                activityType = ''; // Handle undefined or null activity types
+            }
+            
+            console.log(`Processing normalized activity type: '${activityType}' for employee code: ${entry[HEADER_EMPLOYEE_CODE]}`);
+
             switch (activityType) {
-                case 'Visit': // These case values must EXACTLY match what's in your sheet
+                case 'visit':
                     totalActivity['Visit']++;
                     break;
-                case 'Call': // These case values must EXACTLY match what's in your sheet
+                case 'call':
                     totalActivity['Call']++;
                     break;
-                case 'Reference': // These case values must EXACTLY match what's in your sheet
+                case 'reference':
                     totalActivity['Reference']++;
                     break;
-                case 'New Customer Leads': // These case values must EXACTLY match what's in your sheet
+                case 'new customer lead': // Adjusted to singular form
                     totalActivity['New Customer Leads']++;
                     break;
                 default:
-                    console.warn(`Unknown Activity Type encountered and skipped: '${activityType}'. Please check your 'Activity Type' column values in Canvassing Data sheet.`);
+                    console.warn(`Unknown or unhandled normalized Activity Type encountered and skipped: '${activityType}'. Original: '${entry[HEADER_ACTIVITY_TYPE]}'. Please check your 'Activity Type' column values in Canvassing Data sheet.`);
             }
         });
         console.log('Calculated Total Activity:', totalActivity); // Log final calculated activity
@@ -542,7 +559,7 @@ document.addEventListener('DOMContentLoaded', () => {
             HEADER_DESIGNATION,
             HEADER_ACTIVITY_TYPE,
             HEADER_TYPE_OF_CUSTOMER,
-            HEADER_R_LEAD_SOURCE, // Changed to rLead Source
+            HEADER_R_LEAD_SOURCE,
             HEADER_HOW_CONTACTED,
             HEADER_PROSPECT_NAME,
             HEADER_PHONE_NUMBER_WHATSAPP,
@@ -704,10 +721,10 @@ document.addEventListener('DOMContentLoaded', () => {
                         <ul class="summary-list">
                             ${employeeCodeEntries.map(entry => `
                                 <li>${formatDate(entry[HEADER_TIMESTAMP])}:
-                                    V:${entry[HEADER_ACTIVITY_TYPE] === 'Visit' ? 1 : 0} |
-                                    C:${entry[HEADER_ACTIVITY_TYPE] === 'Call' ? 1 : 0} |
-                                    R:${entry[HEADER_ACTIVITY_TYPE] === 'Reference' ? 1 : 0} |
-                                    L:${entry[HEADER_ACTIVITY_TYPE] === 'New Customer Leads' ? 1 : 0}
+                                    V:${entry[HEADER_ACTIVITY_TYPE].toLowerCase().startsWith('visit') ? 1 : 0} |
+                                    C:${entry[HEADER_ACTIVITY_TYPE].toLowerCase().startsWith('call') ? 1 : 0} |
+                                    R:${entry[HEADER_ACTIVITY_TYPE].toLowerCase().startsWith('reference') ? 1 : 0} |
+                                    L:${entry[HEADER_ACTIVITY_TYPE].toLowerCase().startsWith('new customer lead') ? 1 : 0}
                                 </li>`).join('')}
                         </ul>
                     </div>
@@ -735,15 +752,9 @@ document.addEventListener('DOMContentLoaded', () => {
             });
 
             if (!response.ok) {
-                let errorDetails = `HTTP error! status: ${response.status}`;
-                try {
-                    const errorJson = await response.json();
-                    errorDetails += `, message: ${errorJson.message || JSON.stringify(errorJson)}`;
-                } catch {
-                    const errorText = await response.text();
-                    errorDetails += `, message: ${errorText}`;
-                }
-                throw new Error(errorDetails);
+                const errorText = await response.text();
+                console.error(`HTTP error from Apps Script! status: ${response.status}. Details: ${errorText}`);
+                throw new Error(`Failed to send data to Apps Script. Status: ${response.status}`);
             }
 
             const result = await response.json();
@@ -757,7 +768,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         } catch (error) {
             console.error('Error sending data to Apps Script:', error);
-            displayEmployeeManagementMessage(`Error sending data: ${error.message}`, true);
+            displayEmployeeManagementMessage(`Error sending data: ${error.message}. Please check WEB_APP_URL and Apps Script deployment.`, true);
             return false;
         } finally {
             // Re-fetch all data to ensure reports are up-to-date after any employee management action
@@ -769,18 +780,13 @@ document.addEventListener('DOMContentLoaded', () => {
                     renderAllBranchSnapshot();
                 } else if (activeTabButton.id === 'allStaffOverallPerformanceTabBtn') {
                     renderOverallStaffPerformanceReport();
-                } else if (branchSelect.value && employeeSelect.value) {
-                    // If a branch and employee are selected, try to re-render the last viewed employee report
+                } else if (branchSelect.value) { // If a branch is selected, try to re-render relevant reports
                     const lastViewedReportButton = document.querySelector('.view-options button.active');
                     if (lastViewedReportButton) {
                         lastViewedReportButton.click(); // Simulate click on the last active report button
+                    } else { // Default to branch summary if no specific report was active
+                        renderBranchSummary(allCanvassingData.filter(entry => entry[HEADER_BRANCH_NAME] === branchSelect.value));
                     }
-                } else if (branchSelect.value) {
-                    // If only branch is selected, try to re-render the last viewed branch report
-                     const lastViewedBranchReportButton = document.querySelector('#viewBranchSummaryBtn.active') || document.querySelector('#viewBranchPerformanceReportBtn.active');
-                     if (lastViewedBranchReportButton) {
-                        lastViewedBranchReportButton.click();
-                     }
                 }
             }
         }
