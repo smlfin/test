@@ -152,8 +152,8 @@ document.addEventListener('DOMContentLoaded', () => {
             const response = await fetch(DATA_URL);
             if (!response.ok) {
                 const errorText = await response.text();
-                console.error(`HTTP error! status: ${response.status}. Details: ${errorText}`);
-                throw new Error(`Failed to fetch canvassing data. Status: ${response.status}`);
+                console.error(`HTTP error fetching Canvassing Data! Status: ${response.status}. Details: ${errorText}`);
+                throw new Error(`Failed to fetch canvassing data. Status: ${response.status}. Please check DATA_URL.`);
             }
             const csvText = await response.text();
             allCanvassingData = parseCSV(csvText);
@@ -165,7 +165,7 @@ document.addEventListener('DOMContentLoaded', () => {
             displayMessage("Activity data loaded successfully!", 'success');
         } catch (error) {
             console.error('Error fetching canvassing data:', error);
-            displayMessage(`Failed to load activity data: ${error.message}. Please check the DATA_URL and ensure the sheet is published correctly.`, 'error');
+            displayMessage(`Failed to load activity data: ${error.message}. Please ensure the sheet is published correctly to CSV and the URL is accurate.`, 'error');
             allCanvassingData = [];
         }
     }
@@ -332,32 +332,24 @@ document.addEventListener('DOMContentLoaded', () => {
         entries.forEach(entry => {
             let activityType = entry[HEADER_ACTIVITY_TYPE];
             if (activityType) {
-                // Normalize activity type: trim spaces, convert to lowercase, remove trailing 's'
-                activityType = activityType.trim().toLowerCase();
-                if (activityType.endsWith('s') && activityType.length > 1) { // Avoid 's' becoming ''
-                    activityType = activityType.slice(0, -1);
-                }
+                activityType = activityType.trim(); // Just trim spaces
             } else {
                 activityType = ''; // Handle undefined or null activity types
             }
             
-            console.log(`Processing normalized activity type: '${activityType}' for employee code: ${entry[HEADER_EMPLOYEE_CODE]}`);
+            console.log(`Processing raw activity type: '${activityType}' for employee code: ${entry[HEADER_EMPLOYEE_CODE]}`);
 
-            switch (activityType) {
-                case 'visit':
-                    totalActivity['Visit']++;
-                    break;
-                case 'call':
-                    totalActivity['Call']++;
-                    break;
-                case 'reference':
-                    totalActivity['Reference']++;
-                    break;
-                case 'new customer lead': // Adjusted to singular form
-                    totalActivity['New Customer Leads']++;
-                    break;
-                default:
-                    console.warn(`Unknown or unhandled normalized Activity Type encountered and skipped: '${activityType}'. Original: '${entry[HEADER_ACTIVITY_TYPE]}'. Please check your 'Activity Type' column values in Canvassing Data sheet.`);
+            // Direct matching to user's provided sheet values
+            if (activityType === 'Visit') {
+                totalActivity['Visit']++;
+            } else if (activityType === 'Calls') { // Matches "Calls" from sheet
+                totalActivity['Call']++;
+            } else if (activityType === 'Referance') { // Matches "Referance" (with typo) from sheet
+                totalActivity['Reference']++;
+            } else if (activityType === 'New Lead') { // Matches "New Lead" from sheet
+                totalActivity['New Customer Leads']++;
+            } else {
+                console.warn(`Unknown or unhandled Activity Type encountered and skipped: '${activityType}'. Please standardize your 'Activity Type' column values in Canvassing Data sheet or update script.js.`);
             }
         });
         console.log('Calculated Total Activity:', totalActivity); // Log final calculated activity
@@ -719,13 +711,20 @@ document.addEventListener('DOMContentLoaded', () => {
                     <div>
                         <h4>Activity Breakdown by Date</h4>
                         <ul class="summary-list">
-                            ${employeeCodeEntries.map(entry => `
+                            ${employeeCodeEntries.map(entry => {
+                                const activityType = entry[HEADER_ACTIVITY_TYPE] ? entry[HEADER_ACTIVITY_TYPE].trim() : '';
+                                const isVisit = activityType === 'Visit';
+                                const isCall = activityType === 'Calls';
+                                const isReference = activityType === 'Referance';
+                                const isNewLead = activityType === 'New Lead';
+                                return `
                                 <li>${formatDate(entry[HEADER_TIMESTAMP])}:
-                                    V:${entry[HEADER_ACTIVITY_TYPE].toLowerCase().startsWith('visit') ? 1 : 0} |
-                                    C:${entry[HEADER_ACTIVITY_TYPE].toLowerCase().startsWith('call') ? 1 : 0} |
-                                    R:${entry[HEADER_ACTIVITY_TYPE].toLowerCase().startsWith('reference') ? 1 : 0} |
-                                    L:${entry[HEADER_ACTIVITY_TYPE].toLowerCase().startsWith('new customer lead') ? 1 : 0}
-                                </li>`).join('')}
+                                    V:${isVisit ? 1 : 0} |
+                                    C:${isCall ? 1 : 0} |
+                                    R:${isReference ? 1 : 0} |
+                                    L:${isNewLead ? 1 : 0}
+                                </li>`;
+                            }).join('')}
                         </ul>
                     </div>
                 </div>
@@ -753,8 +752,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
             if (!response.ok) {
                 const errorText = await response.text();
-                console.error(`HTTP error from Apps Script! status: ${response.status}. Details: ${errorText}`);
-                throw new Error(`Failed to send data to Apps Script. Status: ${response.status}`);
+                console.error(`HTTP error from Apps Script! Status: ${response.status}. Details: ${errorText}`);
+                throw new Error(`Failed to send data to Apps Script. Status: ${response.status}. Please check WEB_APP_URL and Apps Script deployment.`);
             }
 
             const result = await response.json();
