@@ -572,24 +572,30 @@ footer {
         width: 100%;
     }
 
+    /* Important: Table responsiveness for smaller screens */
     .data-table, .performance-table, .all-branch-snapshot-table {
-        display: block;
-        overflow-x: auto;
-        white-space: nowrap; /* Prevent text wrapping inside table cells */
+        display: block; /* Make tables act as block elements */
+        width: 100%; /* Take full width */
+        overflow-x: auto; /* Enable horizontal scrolling if content is too wide */
+        /* Removed white-space: nowrap here as it conflicts with stacking */
     }
 
     .data-table thead, .data-table tbody, .data-table th, .data-table td, .data-table tr,
     .all-branch-snapshot-table thead, .all-branch-snapshot-table tbody, .all-branch-snapshot-table th, .all-branch-snapshot-table td, .all-branch-snapshot-table tr {
-        display: block;
+        display: block; /* Stack table parts */
     }
 
     .data-table thead tr, .all-branch-snapshot-table thead tr {
         position: absolute;
         top: -9999px;
-        left: -9999px;
+        left: -9999px; /* Hide original headers */
     }
 
-    .data-table tr, .all-branch-snapshot-table tr { border: 1px solid #ccc; margin-bottom: 10px; border-radius: 8px; }
+    .data-table tr, .all-branch-snapshot-table tr {
+        border: 1px solid #ccc;
+        margin-bottom: 10px;
+        border-radius: 8px;
+    }
 
     .data-table td, .all-branch-snapshot-table td {
         border: none;
@@ -597,19 +603,21 @@ footer {
         position: relative;
         padding-left: 50%; /* Space for the pseudo-element label */
         text-align: right;
+        white-space: normal; /* Allow text to wrap within the cell */
     }
 
     .data-table td:before, .all-branch-snapshot-table td:before {
-        content: attr(data-label);
+        content: attr(data-label); /* Display header as label */
         position: absolute;
         left: 6px;
         width: 45%;
         padding-right: 10px;
-        white-space: nowrap;
+        white-space: nowrap; /* Keep label on one line */
         text-align: left;
         font-weight: bold;
     }
 
+    /* Specific adjustments for performance tables on mobile */
     .performance-table tbody tr {
         display: flex;
         flex-direction: column;
