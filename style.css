@@ -163,26 +163,38 @@ main {
     margin-bottom: 10px;
 }
 
+/* Updated .summary-list to be more flexible */
 .summary-list {
     list-style: none;
     padding: 0;
     margin: 0;
+    display: flex; /* Make it a flex container */
+    flex-wrap: wrap; /* Allow items to wrap to next line */
+    gap: 10px; /* Space between list items */
+    justify-content: flex-start; /* Align items to the start */
 }
 
 .summary-list li {
     background-color: #e8eaf6; /* Light blue-grey */
-    margin-bottom: 8px;
     padding: 10px 15px;
     border-left: 5px solid #3F51B5; /* Indigo */
-    border-radius: 44px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
+    border-radius: 4px;
+    flex: 1 1 auto; /* Allow items to grow and shrink, but maintain minimum content width */
+    min-width: 150px; /* Minimum width for each summary item */
+    box-sizing: border-box; /* Include padding in width calculation */
     font-size: 0.95em;
+    display: flex; /* For content within the li */
+    justify-content: space-between; /* Space out strong and value */
+    align-items: center;
 }
 
 .summary-list li strong {
     color: #3F51B5;
+}
+
+/* For the All Branch Snapshot layout */
+.report-display > h2 + .branch-snapshot:first-of-type {
+    margin-top: 20px; /* Add some space if the snapshot is directly after the main heading */
 }
 
 .branch-snapshot {
@@ -199,6 +211,34 @@ main {
     margin-top: 0;
     margin-bottom: 10px;
 }
+
+/* Grid for Branch and Overall Staff Performance Reports */
+.branch-performance-grid, .branch-summary-grid {
+    display: grid;
+    /* Responsive grid: minmax(300px, 1fr) means each column will be at least 300px, but will grow to fill space */
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 20px; /* Spacing between cards */
+    margin-top: 20px;
+}
+
+.employee-performance-card, .employee-summary-card {
+    background-color: #e8f5e9; /* Very light green */
+    border: 1px solid #c8e6c9;
+    border-radius: 8px;
+    padding: 15px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.08);
+    display: flex;
+    flex-direction: column; /* Stack content vertically within the card */
+}
+
+.employee-performance-card h3, .employee-summary-card h3 {
+    color: #388E3C;
+    margin-top: 0;
+    margin-bottom: 15px;
+    border-bottom: 1px solid #e0e0e0;
+    padding-bottom: 10px;
+}
+
 
 /* Data Table Styles */
 .data-table {
@@ -412,11 +452,23 @@ footer {
     margin-bottom: 15px;
 }
 
+/* Make detailed activity breakdown more horizontal */
+.summary-details-container ul.summary-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px; /* Smaller gap for compact display */
+}
+
 .summary-details-container ul.summary-list li {
     background-color: #c5e1ff; /* Lighter blue */
     border-left-color: #2196F3; /* Blue */
     color: #333;
+    padding: 8px 12px; /* More compact padding */
+    font-size: 0.85em; /* Smaller font size */
+    flex: 0 0 auto; /* Don't grow, don't shrink, take content width */
+    white-space: nowrap; /* Keep content on single line */
 }
+
 
 /* Responsive adjustments */
 @media (max-width: 768px) {
@@ -522,9 +574,14 @@ footer {
         margin-right: 10px;
     }
 
+    .summary-details-container ul.summary-list {
+        flex-direction: row; /* Keep horizontal for smaller screens if possible */
+        flex-wrap: wrap;
+        justify-content: center; /* Center items on smaller screens */
+    }
     .summary-details-container ul.summary-list li {
-        flex-direction: column;
-        align-items: flex-start;
+        flex: 1 1 45%; /* Allow two items per row on small screens */
+        max-width: 45%; /* Prevent them from becoming too wide */
     }
 }
 
