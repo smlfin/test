@@ -395,7 +395,8 @@ document.addEventListener('DOMContentLoaded', () => {
         
         const thead = table.createTHead();
         const headerRow = thead.insertRow();
-        ['Branch Name', 'Employees with Activity', 'Total Visits', 'Total Calls', 'Total References', 'Total New Customer Leads'].forEach(text => {
+        const headers = ['Branch Name', 'Employees with Activity', 'Total Visits', 'Total Calls', 'Total References', 'Total New Customer Leads'];
+        headers.forEach(text => {
             const th = document.createElement('th');
             th.textContent = text;
             headerRow.appendChild(th);
@@ -410,12 +411,24 @@ document.addEventListener('DOMContentLoaded', () => {
             const displayEmployeeCount = employeeCodesInBranch.length;
 
             const row = tbody.insertRow();
-            row.insertCell().textContent = branch;
-            row.insertCell().textContent = displayEmployeeCount;
-            row.insertCell().textContent = totalActivity['Visit'];
-            row.insertCell().textContent = totalActivity['Call'];
-            row.insertCell().textContent = totalActivity['Reference'];
-            row.insertCell().textContent = totalActivity['New Customer Leads'];
+            // Assign data-label for mobile view
+            row.insertCell().setAttribute('data-label', 'Branch Name');
+            row.lastChild.textContent = branch;
+
+            row.insertCell().setAttribute('data-label', 'Employees with Activity');
+            row.lastChild.textContent = displayEmployeeCount;
+
+            row.insertCell().setAttribute('data-label', 'Total Visits');
+            row.lastChild.textContent = totalActivity['Visit'];
+
+            row.insertCell().setAttribute('data-label', 'Total Calls');
+            row.lastChild.textContent = totalActivity['Call'];
+
+            row.insertCell().setAttribute('data-label', 'Total References');
+            row.lastChild.textContent = totalActivity['Reference'];
+
+            row.insertCell().setAttribute('data-label', 'Total New Customer Leads');
+            row.lastChild.textContent = totalActivity['New Customer Leads'];
         });
 
         reportDisplay.appendChild(table);
@@ -473,6 +486,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const employeeCard = document.createElement('div');
             employeeCard.className = 'employee-performance-card';
             employeeCard.innerHTML = `<h3>${employeeName} (${designation})</h3>
+                                    <div style="overflow-x: auto;"> <!-- Wrapper for table scroll -->
                                     <table class="performance-table">
                                         <thead>
                                             <tr><th>Metric</th><th>Actual</th><th>Target</th><th>% Achieved</th></tr>
@@ -481,26 +495,45 @@ document.addEventListener('DOMContentLoaded', () => {
                                             ${Object.keys(targets).map(metric => {
                                                 const actualValue = totalActivity[metric] || 0;
                                                 const targetValue = targets[metric];
-                                                const percentAchieved = performance[metric];
-                                                const progressBarClass = getProgressBarClass(percentAchieved);
-                                                const displayPercent = percentAchieved !== 'N/A' ? `${percentAchieved}%` : 'N/A';
-                                                const progressWidth = percentAchieved !== 'N/A' ? Math.min(100, parseFloat(percentAchieved)) : 0;
+                                                let percentValue = performance[metric]; // Raw numerical percentage
+                                                
+                                                let displayPercent;
+                                                let progressWidth;
+                                                let progressBarClass;
+
+                                                if (isNaN(percentValue)) { // Check for NaN (e.g., target is 0)
+                                                    displayPercent = 'N/A';
+                                                    progressWidth = 0;
+                                                    progressBarClass = 'no-activity';
+                                                } else {
+                                                    displayPercent = `${Math.round(percentValue)}%`; // Round to nearest whole number
+                                                    progressWidth = Math.min(100, Math.round(percentValue)); // Round for width
+                                                    progressBarClass = getProgressBarClass(percentValue); // Use original float for color
+                                                }
+
+                                                // Special handling for 0 actuals with positive targets
+                                                if (actualValue === 0 && targetValue > 0) {
+                                                    displayPercent = '0%';
+                                                    progressWidth = 0;
+                                                    progressBarClass = 'danger'; // Red if 0% and target exists
+                                                }
 
                                                 return `
                                                     <tr>
-                                                        <td>${metric}</td>
-                                                        <td>${actualValue}</td>
-                                                        <td>${targetValue}</td>
-                                                        <td>
+                                                        <td data-label="Metric">${metric}</td>
+                                                        <td data-label="Actual">${actualValue}</td>
+                                                        <td data-label="Target">${targetValue}</td>
+                                                        <td data-label="% Achieved">
                                                             <div class="progress-bar-container-small">
-                                                                <div class="progress-bar ${progressBarClass}" style="width: ${progressWidth}%">${displayPercent}</div>
+                                                                <div class="progress-bar ${progressBarClass}" style="width: ${progressWidth === 0 && displayPercent !== 'N/A' ? '30px' : progressWidth}%">${displayPercent}</div>
                                                             </div>
                                                         </td>
                                                     </tr>
                                                 `;
                                             }).join('')}
                                         </tbody>
-                                    </table>`;
+                                    </table>
+                                    </div>`; {/* Close wrapper */}
             performanceGrid.appendChild(employeeCard);
         });
     }
@@ -510,9 +543,9 @@ document.addEventListener('DOMContentLoaded', () => {
         const performance = {};
         for (const key in actual) {
             if (target[key] !== undefined && target[key] > 0) {
-                performance[key] = ((actual[key] / target[key]) * 100).toFixed(2);
+                performance[key] = (actual[key] / target[key]) * 100; // Return number, not fixed string
             } else {
-                performance[key] = 'N/A';
+                performance[key] = NaN; // Use NaN for "N/A" cases (e.g., target is 0 or undefined)
             }
         }
         return performance;
@@ -520,7 +553,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Helper for progress bar styling
     function getProgressBarClass(percentage) {
-        if (percentage === 'N/A') return '';
+        if (isNaN(percentage)) return 'no-activity'; // Check for NaN
         const p = parseFloat(percentage);
         if (p >= 100) return 'overachieved';
         if (p >= 75) return 'success';
@@ -578,6 +611,9 @@ document.addEventListener('DOMContentLoaded', () => {
         const employeeDisplayName = employeeCodeToNameMap[employeeCodeEntries[0][HEADER_EMPLOYEE_CODE]] || employeeCodeEntries[0][HEADER_EMPLOYEE_CODE];
         reportDisplay.innerHTML = `<h2>Detailed Entries for ${employeeDisplayName}</h2>`;
 
+        const tableContainer = document.createElement('div'); // NEW: Wrapper for scroll
+        tableContainer.className = 'data-table-container';
+
         const table = document.createElement('table');
         table.className = 'data-table';
         const thead = table.createTHead();
@@ -629,10 +665,13 @@ document.addEventListener('DOMContentLoaded', () => {
                 } else {
                     cell.textContent = entry[header];
                 }
+                // Add data-label attribute for mobile responsiveness
+                cell.setAttribute('data-label', header); 
             });
         });
 
-        reportDisplay.appendChild(table);
+        tableContainer.appendChild(table); // Append table to container
+        reportDisplay.appendChild(tableContainer); // Append container to display area
     }
 
     // Render Employee Summary (Current Month) - now includes Product Interested
@@ -669,7 +708,7 @@ document.addEventListener('DOMContentLoaded', () => {
         reportDisplay.innerHTML = `<h2>Employee Summary for ${employeeDisplayName} (Current Month)</h2>
                                    <ul class="summary-list">
                                        <li><strong>Total Visits:</strong> ${totalActivity['Visit']}</li>
-                                       <li><strong>Total Calls:</strong> ${totalActivity['Call']}</li>
+                                       <li><strong>Total Calls:</b> ${totalActivity['Call']}</li>
                                        <li><strong>Total References:</strong> ${totalActivity['Reference']}</li>
                                        <li><strong>Total New Customer Leads:</strong> ${totalActivity['New Customer Leads']}</li>
                                    </ul>
@@ -696,67 +735,63 @@ document.addEventListener('DOMContentLoaded', () => {
         const performanceDiv = document.createElement('div');
         performanceDiv.className = 'performance-report';
 
-        if (employeeCodeEntries.length === 0) {
-            performanceDiv.innerHTML = `<p class="no-participation-message">No activity data submitted for this employee, but showing targets.</p>
-                                        <table class="performance-table">
-                                            <thead>
-                                                <tr><th>Metric</th><th>Actual</th><th>Target</th><th>% Achieved</th></tr>
-                                            </thead>
-                                            <tbody>
-                                                ${Object.keys(targets).map(metric => {
-                                                    const actualValue = totalActivity[metric] || 0;
-                                                    const targetValue = targets[metric];
-                                                    const percentAchieved = performance[metric];
-                                                    const progressBarClass = getProgressBarClass(percentAchieved);
-                                                    const displayPercent = percentAchieved !== 'N/A' ? `${percentAchieved}%` : 'N/A';
-                                                    const progressWidth = percentAchieved !== 'N/A' ? Math.min(100, parseFloat(percentAchieved)) : 0;
+        const performanceTableHtml = `
+            <div style="overflow-x: auto;"> <!-- Wrapper for table scroll -->
+            <table class="performance-table">
+                <thead>
+                    <tr><th>Metric</th><th>Actual</th><th>Target</th><th>% Achieved</th></tr>
+                </thead>
+                <tbody>
+                    ${Object.keys(targets).map(metric => {
+                        const actualValue = totalActivity[metric] || 0;
+                        const targetValue = targets[metric];
+                        let percentValue = performance[metric]; // Raw numerical percentage
+                        
+                        let displayPercent;
+                        let progressWidth;
+                        let progressBarClass;
 
-                                                    return `
-                                                        <tr>
-                                                            <td>${metric}</td>
-                                                            <td>${actualValue}</td>
-                                                            <td>${targetValue}</td>
-                                                            <td>
-                                                                <div class="progress-bar-container">
-                                                                    <div class="progress-bar ${progressBarClass}" style="width: ${progressWidth}%">${displayPercent}</div>
-                                                            </div>
-                                                        </td>
-                                                    </tr>
-                                                `;
-                                                }).join('')}
-                                            </tbody>
-                                        </table>`;
+                        if (isNaN(percentValue)) { // Check for NaN (e.g., target is 0)
+                            displayPercent = 'N/A';
+                            progressWidth = 0;
+                            progressBarClass = 'no-activity';
+                        } else {
+                            displayPercent = `${Math.round(percentValue)}%`; // Round to nearest whole number
+                            progressWidth = Math.min(100, Math.round(percentValue)); // Round for width
+                            progressBarClass = getProgressBarClass(percentValue); // Use original float for color
+                        }
+
+                        // Special handling for 0 actuals with positive targets
+                        if (actualValue === 0 && targetValue > 0) {
+                            displayPercent = '0%';
+                            progressWidth = 0;
+                            progressBarClass = 'danger'; // Red if 0% and target exists
+                        }
+
+                        return `
+                            <tr>
+                                <td data-label="Metric">${metric}</td>
+                                <td data-label="Actual">${actualValue}</td>
+                                <td data-label="Target">${targetValue}</td>
+                                <td data-label="% Achieved">
+                                    <div class="progress-bar-container">
+                                        <div class="progress-bar ${progressBarClass}" style="width: ${progressWidth === 0 && displayPercent !== 'N/A' ? '30px' : progressWidth}%">${displayPercent}</div>
+                                    </div>
+                                </td>
+                            </tr>
+                        `;
+                    }).join('')}
+                </tbody>
+            </table>
+            </div>`; {/* Close wrapper */}
+
+
+        if (employeeCodeEntries.length === 0) {
+            performanceDiv.innerHTML = `<p class="no-participation-message">No activity data submitted for this employee, but showing targets.</p>` + performanceTableHtml;
         } else {
             performanceDiv.innerHTML = `
                 <h3>Overall Performance</h3>
-                <table class="performance-table">
-                    <thead>
-                        <tr><th>Metric</th><th>Actual</th><th>Target</th><th>% Achieved</th></tr>
-                    </thead>
-                    <tbody>
-                        ${Object.keys(targets).map(metric => {
-                            const actualValue = totalActivity[metric] || 0;
-                            const targetValue = targets[metric];
-                            const percentAchieved = performance[metric];
-                            const progressBarClass = getProgressBarClass(percentAchieved);
-                            const displayPercent = percentAchieved !== 'N/A' ? `${percentAchieved}%` : 'N/A';
-                            const progressWidth = percentAchieved !== 'N/A' ? Math.min(100, parseFloat(percentAchieved)) : 0;
-
-                            return `
-                                <tr>
-                                    <td>${metric}</td>
-                                    <td>${actualValue}</td>
-                                    <td>${targetValue}</td>
-                                    <td>
-                                        <div class="progress-bar-container">
-                                            <div class="progress-bar ${progressBarClass}" style="width: ${progressWidth}%">${displayPercent}</div>
-                                        </div>
-                                    </td>
-                                </tr>
-                            `;
-                        }).join('')}
-                    </tbody>
-                </table>
+                ${performanceTableHtml}
                 <div class="summary-details-container">
                     <div>
                         <h4>Activity Breakdown by Date</h4>
@@ -894,6 +929,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const employeeCard = document.createElement('div');
             employeeCard.className = 'employee-performance-card';
             employeeCard.innerHTML = `<h3>${employeeDisplayName} (${designation})</h3>
+                                    <div style="overflow-x: auto;"> <!-- Wrapper for table scroll -->
                                     <table class="performance-table">
                                         <thead>
                                             <tr><th>Metric</th><th>Actual</th><th>Target</th><th>% Achieved</th></tr>
@@ -902,26 +938,45 @@ document.addEventListener('DOMContentLoaded', () => {
                                             ${Object.keys(targets).map(metric => {
                                                 const actualValue = totalActivity[metric] || 0;
                                                 const targetValue = targets[metric];
-                                                const percentAchieved = performance[metric];
-                                                const progressBarClass = getProgressBarClass(percentAchieved);
-                                                const displayPercent = percentAchieved !== 'N/A' ? `${percentAchieved}%` : 'N/A';
-                                                const progressWidth = percentAchieved !== 'N/A' ? Math.min(100, parseFloat(percentAchieved)) : 0;
+                                                let percentValue = performance[metric]; // Raw numerical percentage
+                                                
+                                                let displayPercent;
+                                                let progressWidth;
+                                                let progressBarClass;
+
+                                                if (isNaN(percentValue)) { // Check for NaN (e.g., target is 0)
+                                                    displayPercent = 'N/A';
+                                                    progressWidth = 0;
+                                                    progressBarClass = 'no-activity';
+                                                } else {
+                                                    displayPercent = `${Math.round(percentValue)}%`; // Round to nearest whole number
+                                                    progressWidth = Math.min(100, Math.round(percentValue)); // Round for width
+                                                    progressBarClass = getProgressBarClass(percentValue); // Use original float for color
+                                                }
+
+                                                // Special handling for 0 actuals with positive targets
+                                                if (actualValue === 0 && targetValue > 0) {
+                                                    displayPercent = '0%';
+                                                    progressWidth = 0;
+                                                    progressBarClass = 'danger'; // Red if 0% and target exists
+                                                }
 
                                                 return `
                                                     <tr>
-                                                        <td>${metric}</td>
-                                                        <td>${actualValue}</td>
-                                                        <td>${targetValue}</td>
-                                                        <td>
+                                                        <td data-label="Metric">${metric}</td>
+                                                        <td data-label="Actual">${actualValue}</td>
+                                                        <td data-label="Target">${targetValue}</td>
+                                                        <td data-label="% Achieved">
                                                             <div class="progress-bar-container-small">
-                                                                <div class="progress-bar ${progressBarClass}" style="width: ${progressWidth}%">${displayPercent}</div>
+                                                                <div class="progress-bar ${progressBarClass}" style="width: ${progressWidth === 0 && displayPercent !== 'N/A' ? '30px' : progressWidth}%">${displayPercent}</div>
                                                             </div>
                                                         </td>
                                                     </tr>
                                                 `;
                                             }).join('')}
                                         </tbody>
-                                    </table>`;
+                                    </table>
+                                    </div>`; {/* Close wrapper */}
             performanceGrid.appendChild(employeeCard);
         });
     }
