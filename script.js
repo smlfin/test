@@ -2,7 +2,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // *** Configuration ***
     // This URL is for your Canvassing Data sheet. Ensure it's correct and published as CSV.
     // NOTE: If you are still getting 404, this URL is the problem.
-    const DATA_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTO7LujC4VSa2wGkJ2YEYSN7UeXR221ny3THaVegYfNfRm2JQGg7QR9Bxxh9SadXtK8Pi6-psl2tGsb/pub?gid=696550092&single=true&output=csv"; 
+    const DATA_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTO7LujC4VSa2wGkJ2YEYSN7UeXR221ny3THaVegYfRmV2JQGg7QR9Bxxh9SadXtK8Pi6-psl2tGsb/pub?gid=696550092&single=true&output=csv"; 
 
     // IMPORTANT: Replace this with YOUR DEPLOYED GOOGLE APPS SCRIPT WEB APP URL
     // NOTE: If you are getting errors sending data, this URL is the problem.
@@ -71,7 +71,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const employeeFilterPanel = document.getElementById('employeeFilterPanel');
     const employeeSelect = document.getElementById('employeeSelect');
     const viewOptions = document.getElementById('viewOptions');
-    const viewBranchSummaryBtn = document.getElementById('viewBranchSummaryBtn');
+    // const viewBranchSummaryBtn = document.getElementById('viewBranchSummaryBtn'); // Removed as per request
     const viewBranchPerformanceReportBtn = document.getElementById('viewBranchPerformanceReportBtn');
     const viewEmployeeSummaryBtn = document.getElementById('viewEmployeeSummaryBtn');
     const viewAllEntriesBtn = document.getElementById('viewAllEntriesBtn');
@@ -307,6 +307,10 @@ document.addEventListener('DOMContentLoaded', () => {
             employeeSelect.value = "";
             selectedEmployeeCodeEntries = []; // Clear previous activity filter
             reportDisplay.innerHTML = '<p>Select an employee or choose a report option.</p>';
+
+            // Deactivate all buttons in viewOptions and then reactivate the appropriate ones
+            document.querySelectorAll('.view-options .btn').forEach(btn => btn.classList.remove('active'));
+
         } else {
             employeeFilterPanel.style.display = 'none';
             viewOptions.style.display = 'none'; // Hide view options
@@ -327,9 +331,17 @@ document.addEventListener('DOMContentLoaded', () => {
             );
             const employeeDisplayName = employeeCodeToNameMap[selectedEmployeeCode] || selectedEmployeeCode;
             reportDisplay.innerHTML = `<p>Ready to view reports for ${employeeDisplayName}.</p>`;
+            
+            // Automatically trigger the Employee Summary (d4.PNG style)
+            document.querySelectorAll('.view-options .btn').forEach(btn => btn.classList.remove('active'));
+            viewEmployeeSummaryBtn.classList.add('active'); // Set Employee Summary as active
+            renderEmployeeSummary(selectedEmployeeCodeEntries); // Render the Employee Summary
+            
         } else {
             selectedEmployeeCodeEntries = []; // Clear previous activity filter
             reportDisplay.innerHTML = '<p>Select an employee or choose a report option.S</p>';
+            // Clear active button if employee selection is cleared
+            document.querySelectorAll('.view-options .btn').forEach(btn => btn.classList.remove('active'));
         }
     });
 
@@ -604,6 +616,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
     // Render Branch Activity Summary (consolidated branch totals, now a grid of employee cards for d2.PNG)
+    // This function will now be removed as the "Branch Summary" button is removed.
+    /*
     function renderBranchSummary() {
         const selectedBranch = branchSelect.value;
         if (!selectedBranch) {
@@ -658,6 +672,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         reportDisplay.appendChild(employeeSummaryGrid);
     }
+    */
 
     // Render Employee Detailed Entries (uses selectedEmployeeCodeEntries which are activity entries)
     function renderEmployeeDetailedEntries(employeeCodeEntries) {
@@ -750,7 +765,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const { totalActivity, productInterests } = calculateTotalActivity(currentMonthEntries); // Get both
 
-        reportDisplay.innerHTML = `<h2>Activity Summary for ${employeeDisplayName}</h2>`;
+        reportDisplay.innerHTML = `<h2>Activity Summary for ${employeeDisplayName}</h2>
+                                   <p><strong>Total Canvassing Entries:</strong> ${currentMonthEntries.length}</p>`; // Added total entries from d4.PNG
 
         const summaryBreakdownCard = document.createElement('div');
         summaryBreakdownCard.className = 'summary-breakdown-card'; // New class for this grid layout
@@ -767,6 +783,7 @@ document.addEventListener('DOMContentLoaded', () => {
         summaryBreakdownCard.appendChild(keyActivityDiv);
 
         // Activity Types Breakdown
+        const activityTypesDiv = document.createElement('div');
         const activityTypeCounts = {}; // Recalculate this specifically for current month entries
         currentMonthEntries.forEach(entry => {
             const type = entry[HEADER_ACTIVITY_TYPE] || 'Unknown';
@@ -779,6 +796,7 @@ document.addEventListener('DOMContentLoaded', () => {
         summaryBreakdownCard.appendChild(activityTypesDiv);
 
         // Customer Types Breakdown
+        const customerTypesDiv = document.createElement('div');
         const customerTypeCounts = {}; // Recalculate this specifically for current month entries
         currentMonthEntries.forEach(entry => {
             const type = entry[HEADER_TYPE_OF_CUSTOMER] || 'Unknown';
@@ -970,27 +988,20 @@ document.addEventListener('DOMContentLoaded', () => {
                 } else if (activeTabButton.id === 'nonParticipatingBranchesTabBtn') {
                     renderNonParticipatingBranches();
                 }
-                else if (branchSelect.value) { // If a branch is selected, try to re-render relevant reports
-                    const lastViewedReportButton = document.querySelector('.view-options button.active');
-                    if (lastViewedReportButton) {
-                        lastViewedReportButton.click(); // Simulate click on the last active report button
-                    } else { // Default to branch summary if no specific report was active
-                        renderBranchSummary(); // No argument needed now
-                    }
-                }
+                // No need to re-render Branch Summary now as it's removed
+                // No need to re-render employee specific reports here, as they are triggered by employeeSelect change
             }
         }
     }
 
 
     // Event Listeners for main report buttons
-    // Added active class logic to report buttons
-    viewBranchSummaryBtn.addEventListener('click', () => {
-        document.querySelectorAll('.view-options button').forEach(btn => btn.classList.remove('active'));
-        viewBranchSummaryBtn.classList.add('active');
-        // renderBranchSummary no longer needs an argument as it directly uses branchSelect.value
-        renderBranchSummary(); 
-    });
+    // viewBranchSummaryBtn.addEventListener('click', () => { // Removed as per request
+    //     document.querySelectorAll('.view-options button').forEach(btn => btn.classList.remove('active'));
+    //     viewBranchSummaryBtn.classList.add('active');
+    //     // renderBranchSummary no longer needs an argument as it directly uses branchSelect.value
+    //     renderBranchSummary(); 
+    // });
 
     viewBranchPerformanceReportBtn.addEventListener('click', () => {
         document.querySelectorAll('.view-options button').forEach(btn => btn.classList.remove('active'));
