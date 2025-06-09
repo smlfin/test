@@ -160,35 +160,31 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // Fetches data from the Google Sheet CSV
-    async function fetchData() {
+     // Function to fetch activity data from Google Sheet (Form Responses 2)
+    async function fetchCanvassingData() {
+        displayMessage("Fetching activity data...", 'info');
         try {
-            displayStatusMessage("Fetching data...", false);
             const response = await fetch(DATA_URL);
             if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
+                const errorText = await response.text();
+                console.error(`HTTP error fetching Canvassing Data! Status: ${response.status}. Details: ${errorText}`);
+                throw new Error(`Failed to fetch canvassing data. Status: ${response.status}. Please check DATA_URL.`);
             }
             const csvText = await response.text();
-            let parsedData = parseCSV(csvText);
-            canvassingData = processCanvassingData(parsedData); // Process data after parsing
-            console.log("Canvassing Data:", canvassingData); // Log for debugging
-
-            // Populate filters and render reports
-            populateBranchFilter(canvassingData);
-            populateEmployeeFilter(canvassingData);
-
-            // Re-render based on current active tab
-            const activeTabButton = document.querySelector('.tab-button.active');
-            if (activeTabButton) {
-                showTab(activeTabButton.id);
+            allCanvassingData = parseCSV(csvText);
+            console.log('--- Fetched Canvassing Data: ---');
+            console.log(allCanvassingData); // Log canvassing data for debugging
+            if (allCanvassingData.length > 0) {
+                console.log('Canvassing Data Headers (first entry):', Object.keys(allCanvassingData[0]));
             }
-            displayStatusMessage("Data loaded successfully!", false);
-
+            displayMessage("Activity data loaded successfully!", 'success');
         } catch (error) {
-            console.error("Error fetching or parsing data:", error);
-            displayStatusMessage("Error loading data. Please check console.", true);
+            console.error('Error fetching canvassing data:', error);
+            displayMessage(`Failed to load activity data: ${error.message}. Please ensure the sheet is published correctly to CSV and the URL is accurate.`, 'error');
+            allCanvassingData = [];
         }
     }
+
 
     // Populates the branch dropdown filter
     function populateBranchFilter(data) {
