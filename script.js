@@ -10,27 +10,32 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const MONTHLY_WORKING_DAYS = 22; // Common approximation for a month's working days
 
-    const TARGETS = {
+     const TARGETS = {
         'Branch Manager': {
             'Visit': 10,
             'Call': 3 * MONTHLY_WORKING_DAYS,
             'Reference': 1 * MONTHLY_WORKING_DAYS,
-            'New Customer Leads': 0 // This will be calculated, actual target might need adjustment
+            'New Customer Leads': 20
         },
-        'Cluster Manager': {
-            'Visit': 10,
+        'Investment Staff': { // Added Investment Staff with custom Visit target
+            'Visit': 30,
+            'Call': 5 * MONTHLY_WORKING_DAYS,
+            'Reference': 1 * MONTHLY_WORKING_DAYS,
+            'New Customer Leads': 20
+        },
+'Seniors': { // Added Investment Staff with custom Visit target
+            'Visit': 30,
+            'Call': 5 * MONTHLY_WORKING_DAYS,
+            'Reference': 1 * MONTHLY_WORKING_DAYS,
+            'New Customer Leads': 20
+        },
+        'Default': { // For all other designations not explicitly defined
+            'Visit': 5,
             'Call': 3 * MONTHLY_WORKING_DAYS,
             'Reference': 1 * MONTHLY_WORKING_DAYS,
-            'New Customer Leads': 0
-        },
-        'Employee': {
-            'Visit': 10,
-            'Call': 3 * MONTHLY_WORKING_DAYS,
-            'Reference': 1 * MONTHLY_WORKING_DAYS,
-            'New Customer Leads': 0
+            'New Customer Leads': 20
         }
     };
-
     // CSV Column Headers (Ensure these exactly match your Google Sheet headers)
     const HEADER_TIMESTAMP = "Timestamp";
     const HEADER_BRANCH_NAME = "Branch Name";
