@@ -6,7 +6,75 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // IMPORTANT: Replace this with YOUR DEPLOYED GOOGLE APPS SCRIPT WEB APP URL
     // NOTE: If you are getting errors sending data, this URL is the problem.
-    const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzEYf0CKgwP0O4-z1lup1lDZImD1dQVEveLWsHwa_7T5ltndfIuRWXVZqFDj03_proD/exec"; // <-- PASTE YOUR NEWLY DEPLOYED WEB APP URL HERE
+    const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzEYf0CKgwP0O4-z1lup1lDZImD1dQVEveLWsHwa_7T5ltndfIuRWXVZqFDj03_proD/exec";
+
+    
+
+    
+
+    // --- Headers for Master Employee Data (from Liv).xlsx - Sheet1.csv) ---
+    const MASTER_HEADER_EMPLOYEE_CODE = 'Employee Code';
+    const MASTER_HEADER_EMPLOYEE_NAME = 'Employee Name';
+    const MASTER_HEADER_BRANCH_NAME_MASTER = 'Branch Name'; // Renamed to avoid conflict with activity data branch name
+
+    // Function to fetch and parse Master Employee Data
+    async function fetchMasterEmployeeData() {
+        try {
+            const response = await fetch(MASTER_EMPLOYEE_DATA_URL);
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            const csvText = await response.text();
+            allMasterEmployees = parseCSV(csvText);
+            console.log('Master Employee Data loaded:', allMasterEmployees);
+        } catch (error) {
+            console.error('Error fetching master employee data:', error);
+            displayStatusMessage('Failed to load master employee data. Please check console.', true);
+        }
+    }
+
+    // Function to generate Non-Participating Staff Report
+    function generateNonParticipatingStaffReport(filteredCanvassingData) {
+        const nonParticipatingStaffList = document.getElementById('nonParticipatingStaffList');
+        nonParticipatingStaffList.innerHTML = ''; // Clear previous list
+
+        if (allMasterEmployees.length === 0) {
+            nonParticipatingStaffList.innerHTML = '<p class="no-participation-message">Master employee data not loaded. Please ensure the MASTER_EMPLOYEE_DATA_URL is correct and the sheet is published.</p>';
+            return;
+        }
+
+        const participatingEmployeeCodes = new Set(filteredCanvassingData.map(d => String(d[HEADER_EMPLOYEE_CODE]).trim()));
+        
+        const nonParticipatingStaff = [];
+        const uniqueNonParticipatingCodes = new Set(); // To prevent duplicate names from master list if employee code appears multiple times
+
+        allMasterEmployees.forEach(masterEmp => {
+            const employeeCode = String(masterEmp[MASTER_HEADER_EMPLOYEE_CODE]).trim();
+            if (employeeCode && !participatingEmployeeCodes.has(employeeCode) && !uniqueNonParticipatingCodes.has(employeeCode)) {
+                nonParticipatingStaff.push({
+                    code: employeeCode,
+                    name: masterEmp[MASTER_HEADER_EMPLOYEE_NAME]
+                });
+                uniqueNonParticipatingCodes.add(employeeCode);
+            }
+        });
+
+        if (nonParticipatingStaff.length > 0) {
+            // Sort by employee name for display
+            nonParticipatingStaff.sort((a, b) => a.name.localeCompare(b.name));
+
+            nonParticipatingStaff.forEach(staff => {
+                const li = document.createElement('li');
+                li.textContent = `${staff.name} (${staff.code})`; // Display name and code for clarity
+                nonParticipatingStaffList.appendChild(li);
+            });
+            nonParticipatingStaffList.classList.add('non-participating-staff-list'); // Add class for styling
+        } else {
+            nonParticipatingStaffList.innerHTML = '<p class="all-participating-message">All employees from the master list have participated in activities for the selected period.</p>';
+        }
+    }
+
+ // <-- PASTE YOUR NEWLY DEPLOYED WEB APP URL HERE
 
     // We will IGNORE MasterEmployees sheet for data fetching and report generation
     // Employee management functions in Apps Script still use the MASTER_SHEET_ID you've set up in code.gs
@@ -22,6 +90,145 @@ document.addEventListener('DOMContentLoaded', () => {
             'Reference': 1 * MONTHLY_WORKING_DAYS,
             'New Customer Leads': 20
         },
+
+    // --- Master Employee Data (Hardcoded from Liv).xlsx - Sheet1.csv) ---
+    // Employee Code is used for unique identification, Employee Name for display.
+    let allMasterEmployees = [
+        { 'Employee Code': '4498', 'Employee Name': 'SAGEESH KUMAR S' },
+        { 'Employee Code': '4560', 'Employee Name': 'DHANYA K' },
+        { 'Employee Code': '4561', 'Employee Name': 'MANJULA B' },
+        { 'Employee Code': '4528', 'Employee Name': 'ELIZABETH JANCY P M' },
+        { 'Employee Code': '4604', 'Employee Name': 'LIVIN VARGHESE' },
+        { 'Employee Code': '4599', 'Employee Name': 'Sangeeth Das' },
+        { 'Employee Code': '4416', 'Employee Name': 'Renju Unnikrishnan' },
+        { 'Employee Code': '4431', 'Employee Name': 'VEENA KRISHNAN' },
+        { 'Employee Code': '4450', 'Employee Name': 'Renjini G' },
+        { 'Employee Code': '1028', 'Employee Name': 'NISSY DANIEL' },
+        { 'Employee Code': '1222', 'Employee Name': 'SIVAKALA DILEEP' },
+        { 'Employee Code': '4253', 'Employee Name': 'Anitha N S' },
+        { 'Employee Code': '4437', 'Employee Name': 'Sayishkumar E S' },
+        { 'Employee Code': '4551', 'Employee Name': 'Athira' },
+        { 'Employee Code': '4630', 'Employee Name': 'Shabnam' },
+        { 'Employee Code': '4272', 'Employee Name': 'Kiran K Balan' },
+        { 'Employee Code': '4425', 'Employee Name': 'ASWATHY K' },
+        { 'Employee Code': '4526', 'Employee Name': 'AMPILI P V' },
+        { 'Employee Code': '4420', 'Employee Name': 'Lishamol K Kudakkachira' },
+        { 'Employee Code': '4608', 'Employee Name': 'JINCY K RAJU' },
+        { 'Employee Code': '4589', 'Employee Name': 'BENCY JOSEPH' },
+        { 'Employee Code': '4385', 'Employee Name': 'MINI JAYAN NAIR' },
+        { 'Employee Code': '4569', 'Employee Name': 'ASWATHI H' },
+        { 'Employee Code': '4581', 'Employee Name': 'SARATH M R' },
+        { 'Employee Code': '4588', 'Employee Name': 'SANJITH K' },
+        { 'Employee Code': '4432', 'Employee Name': 'SIJO PHILIP' },
+        { 'Employee Code': '4501', 'Employee Name': 'DHANYAMOL  K A' },
+        { 'Employee Code': '4532', 'Employee Name': 'MANJU B NAIR' },
+        { 'Employee Code': '4602', 'Employee Name': 'SWATHY P P' },
+        { 'Employee Code': '4366', 'Employee Name': 'Supriya P' },
+        { 'Employee Code': '4512', 'Employee Name': 'PUSHYA U' },
+        { 'Employee Code': '4308', 'Employee Name': 'Anuprsad' },
+        { 'Employee Code': '4626', 'Employee Name': 'Abhay B' },
+        { 'Employee Code': '2733', 'Employee Name': 'NITHIN T D' },
+        { 'Employee Code': '4612', 'Employee Name': 'Mary V A' },
+        { 'Employee Code': '3982', 'Employee Name': 'Rinu' },
+        { 'Employee Code': '4620', 'Employee Name': 'safa' },
+        { 'Employee Code': '4503', 'Employee Name': 'SMITHA M' },
+        { 'Employee Code': '4514', 'Employee Name': 'GREESHMA VIJAYAN' },
+        { 'Employee Code': '4511', 'Employee Name': 'RENJITH V' },
+        { 'Employee Code': '4527', 'Employee Name': 'MAHESH KUMAR M' },
+        { 'Employee Code': '4544', 'Employee Name': 'SREEKALA P R' },
+        { 'Employee Code': '1659', 'Employee Name': 'MINI PAUL' },
+        { 'Employee Code': '1838', 'Employee Name': 'PRAJESH P P' },
+        { 'Employee Code': '4443', 'Employee Name': 'K K Vishnumaya' },
+        { 'Employee Code': '4592', 'Employee Name': 'SYAM KUMAR M S' },
+        { 'Employee Code': '4603', 'Employee Name': 'SIJO K CHERIAN' },
+        { 'Employee Code': '4423', 'Employee Name': 'Harikrishnan R' },
+        { 'Employee Code': '4496', 'Employee Name': 'RESHMA R' },
+        { 'Employee Code': '4573', 'Employee Name': 'AMBIKA KUMARY K B' },
+        { 'Employee Code': '4391', 'Employee Name': 'VIDYA V' },
+        { 'Employee Code': '4392', 'Employee Name': 'RIYAS A' },
+        { 'Employee Code': '4531', 'Employee Name': 'SOWRAV KRISHNA' },
+        { 'Employee Code': '4627', 'Employee Name': 'Chinju' },
+        { 'Employee Code': '1109', 'Employee Name': 'RADHIKA C S' },
+        { 'Employee Code': '1610', 'Employee Name': 'SARITHA M S' },
+        { 'Employee Code': '1130', 'Employee Name': 'SWAPNA PRASANTH' },
+        { 'Employee Code': '2055', 'Employee Name': 'ABHILASH K A' },
+        { 'Employee Code': '4547', 'Employee Name': 'SANTHI KRISHNA' },
+        { 'Employee Code': '1299', 'Employee Name': 'JIBI BIJI' },
+        { 'Employee Code': '1175', 'Employee Name': 'MARIYAMMA GEORGE' },
+        { 'Employee Code': '3115', 'Employee Name': 'ABISH THOMAS' },
+        { 'Employee Code': '3705', 'Employee Name': 'ANISHA S NADHAN' },
+        { 'Employee Code': '4369', 'Employee Name': 'Aju M D' },
+        { 'Employee Code': '4451', 'Employee Name': 'Vindhya K R' },
+        { 'Employee Code': '4101', 'Employee Name': 'Akhil Ambadan' },
+        { 'Employee Code': '4507', 'Employee Name': 'Priyesh' },
+        { 'Employee Code': '1032', 'Employee Name': 'AMMINI JACOB' },
+        { 'Employee Code': '1218', 'Employee Name': 'BIJI REJI' },
+        { 'Employee Code': '1051', 'Employee Name': 'JAIMOL BENNY' },
+        { 'Employee Code': '4612', 'Employee Name': 'Sruthy N S' },
+        { 'Employee Code': '3966', 'Employee Name': 'RATHEESH KUMAR N R' },
+        { 'Employee Code': '4080', 'Employee Name': 'KARTHIK K' },
+        { 'Employee Code': '4086', 'Employee Name': 'VISHNU T R' },
+        { 'Employee Code': '4365', 'Employee Name': 'Maneesh Purushothaman' },
+        { 'Employee Code': '4362', 'Employee Name': 'SONIA S' },
+        { 'Employee Code': '4361', 'Employee Name': 'NAVEEN P' },
+        { 'Employee Code': '4515', 'Employee Name': 'REMYA N' },
+        { 'Employee Code': '1185', 'Employee Name': 'AKHIL RAJ M' },
+        { 'Employee Code': '1055', 'Employee Name': 'ULLAS A N' },
+        { 'Employee Code': '2949', 'Employee Name': 'ASHA RAJESH' },
+        { 'Employee Code': '4344', 'Employee Name': 'Shainy Santhosh' },
+        { 'Employee Code': '4482', 'Employee Name': 'ROOPESH V P' },
+        { 'Employee Code': '2518', 'Employee Name': 'Sunny K D' },
+        { 'Employee Code': '3717', 'Employee Name': 'JISHNU BALAN' }
+    ];
+
+    // --- Headers for Master Employee Data (from Liv).xlsx - Sheet1.csv) ---
+    const MASTER_HEADER_EMPLOYEE_CODE = 'Employee Code';
+    const MASTER_HEADER_EMPLOYEE_NAME = 'Employee Name';
+    // Removed MASTER_HEADER_BRANCH_NAME_MASTER as it's not used in non-participation logic directly here
+
+    // Function to generate Non-Participating Staff Report
+    function generateNonParticipatingStaffReport(filteredCanvassingData) {
+        const nonParticipatingStaffList = document.getElementById('nonParticipatingStaffList');
+        nonParticipatingStaffList.innerHTML = ''; // Clear previous list
+
+        if (allMasterEmployees.length === 0) {
+            nonParticipatingStaffList.innerHTML = '<p class="no-participation-message">Master employee data not loaded. Please ensure the employee data is correctly embedded in script.js.</p>';
+            return;
+        }
+
+        // Get unique employee codes from the filtered canvassing data
+        const participatingEmployeeCodes = new Set(filteredCanvassingData.map(d => String(d[HEADER_EMPLOYEE_CODE]).trim()));
+        
+        const nonParticipatingStaff = [];
+        const uniqueNonParticipatingCodes = new Set(); // To prevent duplicate names from master list if employee code appears multiple times
+
+        allMasterEmployees.forEach(masterEmp => {
+            const employeeCode = String(masterEmp[MASTER_HEADER_EMPLOYEE_CODE]).trim();
+            if (employeeCode && !participatingEmployeeCodes.has(employeeCode) && !uniqueNonParticipatingCodes.has(employeeCode)) {
+                nonParticipatingStaff.push({
+                    code: employeeCode,
+                    name: masterEmp[MASTER_HEADER_EMPLOYEE_NAME]
+                });
+                uniqueNonParticipatingCodes.add(employeeCode);
+            }
+        });
+
+        if (nonParticipatingStaff.length > 0) {
+            // Sort by employee name for display
+            nonParticipatingStaff.sort((a, b) => a.name.localeCompare(b.name));
+
+            nonParticipatingStaff.forEach(staff => {
+                const li = document.createElement('li');
+                li.textContent = `${staff.name} (Code: ${staff.code})`; // Display name and code for clarity
+                nonParticipatingStaffList.appendChild(li);
+            });
+            nonParticipatingStaffList.classList.add('non-participating-staff-list'); // Add class for styling
+        } else {
+            nonParticipatingStaffList.innerHTML = '<p class="all-participating-message">All employees from the master list have participated in activities for the selected period.</p>';
+        }
+    }
+
+
         'Investment Staff': { // Added Investment Staff with custom Visit target
             'Visit': 30,
             'Call': 5 * MONTHLY_WORKING_DAYS,
@@ -221,7 +428,16 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
     // Process fetched data to populate filters and prepare for reports
+    
     async function processData() {
+
+        await fetchCanvassingData(); // Fetch canvassing data
+                updateReportDisplay();
+        // The following lines will be replaced by the updated processData function
+        // updateDropdowns();
+        updateDropdowns();
+    }
+sync function processData() {
         // Only fetch canvassing data, ignoring MasterEmployees for front-end reports
         await fetchCanvassingData(); 
 
