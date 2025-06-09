@@ -813,3 +813,51 @@ footer {
     color: #333;
     font-weight: bold;
 }
+
+.all-participating-message {
+    color: #4CAF50; /* Green */
+    font-weight: bold;
+    font-size: 1.1em;
+    margin: 10px 0;
+    text-align: center;
+}
+.non-participating-staff-list {
+    list-style: decimal inside; /* Numbered list */
+    padding-left: 20px;
+    margin-top: 20px;
+    text-align: left; /* Align list items to the left */
+    max-width: 600px; /* Limit width for better readability */
+    margin-left: auto;
+    margin-right: auto;
+}
+.non-participating-staff-list li {
+    padding: 8px 0;
+    border-bottom: 1px solid #eee;
+}
+.non-participating-staff-list li:last-child {
+    border-bottom: none;
+}
+
+.all-participating-message {
+    color: #4CAF50; /* Green */
+    font-weight: bold;
+    font-size: 1.1em;
+    margin: 10px 0;
+    text-align: center;
+}
+.non-participating-staff-list {
+    list-style: decimal inside; /* Numbered list */
+    padding-left: 20px;
+    margin-top: 20px;
+    text-align: left; /* Align list items to the left */
+    max-width: 600px; /* Limit width for better readability */
+    margin-left: auto;
+    margin-right: auto;
+}
+.non-participating-staff-list li {
+    padding: 8px 0;
+    border-bottom: 1px solid #eee;
+}
+.non-participating-staff-list li:last-child {
+    border-bottom: none;
+}
