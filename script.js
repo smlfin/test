@@ -49,14 +49,16 @@ document.addEventListener('DOMContentLoaded', () => {
     const HEADER_EMPLOYEE_NAME = 'Employee Name';
     const HEADER_EMPLOYEE_CODE = 'Employee Code';
     const HEADER_DESIGNATION = 'Designation';
-    const HEADER_VISIT = 'Visit';
-    const HEADER_CALL = 'Call';
-    const HEADER_REFERENCE = 'Referance'; // Changed to match your spelling
+    // Removed direct headers for Visit, Call, Referance as they are derived from Activity Type
+    // const HEADER_VISIT = 'Visit';
+    // const HEADER_CALL = 'Call';
+    // const HEADER_REFERENCE = 'Referance';
     const HEADER_NEW_CUSTOMER_LEADS = 'New Customer Leads'; // This will be calculated in JS
     const HEADER_REMARKS = 'Remarks';
 
-    // *** NEW HEADERS FOR CALCULATION ***
-    const HEADER_ACTIVITY_TYPE = 'Activity Type'; // Make sure this matches your actual column name
+    // *** NEW HEADERS FOR CALCULATION (MUST MATCH YOUR CSV COLUMN NAMES EXACTLY) ***
+    // Based on your clarification that 'Activity Type' column exists.
+    const HEADER_ACTIVITY_TYPE = 'Activity Type'; // Make sure this matches your actual column name (e.g., 'ActivityType', 'Activity_Type')
     const HEADER_TYPE_OF_CUSTOMER = 'Type of Customer'; // Make sure this matches your actual column name
 
     // --- Headers for Master Employee Data (from Liv).xlsx - Sheet1.csv) ---
@@ -90,7 +92,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const employeeBranchInput = document.getElementById('employeeBranch');
     const employeeDesignationInput = document.getElementById('employeeDesignation');
     const bulkAddEmployeeForm = document.getElementById('bulkAddEmployeeForm');
-    const bulkEmployeeBranchNameInput = document.getElementById('bulkEmployeeBranchName');
+    const bulkEmployeeBranchNameInput = document = document.getElementById('bulkEmployeeBranchName');
     const bulkEmployeeDetailsInput = document.getElementById('bulkEmployeeDetails');
     const deleteEmployeeForm = document.getElementById('deleteEmployeeForm');
     const deleteEmployeeCodeInput = document.getElementById('deleteEmployeeCode');
@@ -360,6 +362,7 @@ document.addEventListener('DOMContentLoaded', () => {
         data.forEach(row => {
             const branchName = row[HEADER_BRANCH_NAME];
             const employeeCode = row[HEADER_EMPLOYEE_CODE];
+            const activityType = row[HEADER_ACTIVITY_TYPE]; // Get activity type from row
 
             if (!branchSummary[branchName]) {
                 branchSummary[branchName] = {
@@ -371,21 +374,23 @@ document.addEventListener('DOMContentLoaded', () => {
                 };
             }
             branchSummary[branchName].employees.add(employeeCode);
-            branchSummary[branchName].calls += parseInt(row[HEADER_CALL] || 0);
-            branchSummary[branchName].visits += parseInt(row[HEADER_VISIT] || 0);
-            // The original script was parsing HEADER_REFERENCE here.
-            // Since you clarified the spelling, it should be HEADER_REFERENCE which is 'Referance'
-            branchSummary[branchName].references += parseInt(row[HEADER_REFERENCE] || 0);
 
-            // *** Calculate New Customer Leads here for Branch Snapshot ***
-            // This assumes 'Activity Type' and 'Type of Customer' columns exist in your CSV
-            const activityType = row[HEADER_ACTIVITY_TYPE];
+            // *** NEW LOGIC: Increment based on Activity Type ***
+            if (activityType === 'Calls') {
+                branchSummary[branchName].calls += 1;
+            } else if (activityType === 'Visit') {
+                branchSummary[branchName].visits += 1;
+            } else if (activityType === 'Referance') { // Uses your spelling
+                branchSummary[branchName].references += 1;
+            }
+            // *** End NEW LOGIC ***
+
+
+            // Calculate New Customer Leads (existing logic, confirmed working)
             const customerType = row[HEADER_TYPE_OF_CUSTOMER];
-
             if ((activityType === 'Visit' || activityType === 'Calls') && customerType === 'New') {
                 branchSummary[branchName].newCustomerLeads += 1;
             }
-            // *** End Calculation ***
 
             employeeSet.add(employeeCode);
         });
@@ -426,6 +431,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
         data.forEach(row => {
             const employeeCode = row[HEADER_EMPLOYEE_CODE];
+            const activityType = row[HEADER_ACTIVITY_TYPE]; // Get activity type from row
+
             if (!employeePerformance[employeeCode]) {
                 // Find employee details from the 'employees' global array (which includes master data)
                 const employeeDetail = employees.find(emp => emp.code === employeeCode);
@@ -439,19 +446,22 @@ document.addEventListener('DOMContentLoaded', () => {
                     newCustomerLeads: 0 // Initialize to 0 for calculation
                 };
             }
-            employeePerformance[employeeCode].calls += parseInt(row[HEADER_CALL] || 0);
-            employeePerformance[employeeCode].visits += parseInt(row[HEADER_VISIT] || 0);
-            employeePerformance[employeeCode].references += parseInt(row[HEADER_REFERENCE] || 0); // Uses your spelling
 
-            // *** Calculate New Customer Leads here for All Staff Performance ***
-            // This assumes 'Activity Type' and 'Type of Customer' columns exist in your CSV
-            const activityType = row[HEADER_ACTIVITY_TYPE];
+            // *** NEW LOGIC: Increment based on Activity Type ***
+            if (activityType === 'Calls') {
+                employeePerformance[employeeCode].calls += 1;
+            } else if (activityType === 'Visit') {
+                employeePerformance[employeeCode].visits += 1;
+            } else if (activityType === 'Referance') { // Uses your spelling
+                employeePerformance[employeeCode].references += 1;
+            }
+            // *** End NEW LOGIC ***
+
+            // Calculate New Customer Leads (existing logic, confirmed working)
             const customerType = row[HEADER_TYPE_OF_CUSTOMER];
-
             if ((activityType === 'Visit' || activityType === 'Calls') && customerType === 'New') {
                 employeePerformance[employeeCode].newCustomerLeads += 1;
             }
-            // *** End Calculation ***
         });
 
         allStaffPerformanceTableBody.innerHTML = '';
@@ -490,12 +500,36 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function renderSingleEmployeePerformance(data, employeeCode) {
-        // Filter data for the specific employee and also calculate New Customer Leads for each row
-        const employeeDataWithLeads = data.filter(row => row[HEADER_EMPLOYEE_CODE] === employeeCode).map(row => {
-            const newCustomerLead = ((row[HEADER_ACTIVITY_TYPE] === 'Visit' || row[HEADER_ACTIVITY_TYPE] === 'Calls') && row[HEADER_TYPE_OF_CUSTOMER] === 'New') ? 1 : 0;
+        // Filter data for the specific employee and also calculate all metrics for each row
+        const employeeDataWithMetrics = data.filter(row => row[HEADER_EMPLOYEE_CODE] === employeeCode).map(row => {
+            const activityType = row[HEADER_ACTIVITY_TYPE];
+            const customerType = row[HEADER_TYPE_OF_CUSTOMER];
+
+            let calculatedCalls = 0;
+            let calculatedVisits = 0;
+            let calculatedReferences = 0;
+            let calculatedNewCustomerLead = 0;
+
+            // Increment based on Activity Type for individual rows
+            if (activityType === 'Calls') {
+                calculatedCalls = 1;
+            } else if (activityType === 'Visit') {
+                calculatedVisits = 1;
+            } else if (activityType === 'Referance') { // Uses your spelling
+                calculatedReferences = 1;
+            }
+
+            // Calculate New Customer Leads for individual rows (existing logic)
+            if ((activityType === 'Visit' || activityType === 'Calls') && customerType === 'New') {
+                calculatedNewCustomerLead = 1;
+            }
+
             return {
                 ...row, // Keep all original row data
-                calculatedNewCustomerLead: newCustomerLead // Add the calculated lead
+                calculatedCalls: calculatedCalls,
+                calculatedVisits: calculatedVisits,
+                calculatedReferences: calculatedReferences,
+                calculatedNewCustomerLead: calculatedNewCustomerLead
             };
         });
 
@@ -516,14 +550,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
         singleEmployeePerformanceTableBody.innerHTML = '';
         // Sort by date descending, using the new array with calculated leads
-        employeeDataWithLeads.sort((a, b) => new Date(b[HEADER_TIMESTAMP]) - new Date(a[HEADER_TIMESTAMP]));
+        employeeDataWithMetrics.sort((a, b) => new Date(b[HEADER_TIMESTAMP]) - new Date(a[HEADER_TIMESTAMP]));
 
-        employeeDataWithLeads.forEach(row => {
+        employeeDataWithMetrics.forEach(row => {
             const rowElement = singleEmployeePerformanceTableBody.insertRow();
             rowElement.insertCell().textContent = new Date(row[HEADER_TIMESTAMP]).toLocaleDateString();
-            rowElement.insertCell().textContent = row[HEADER_CALL] || 0;
-            rowElement.insertCell().textContent = row[HEADER_VISIT] || 0;
-            rowElement.insertCell().textContent = row[HEADER_REFERENCE] || 0; // Uses your spelling
+            rowElement.insertCell().textContent = row.calculatedCalls;
+            rowElement.insertCell().textContent = row.calculatedVisits;
+            rowElement.insertCell().textContent = row.calculatedReferences;
             rowElement.insertCell().textContent = row.calculatedNewCustomerLead; // Display the calculated value
             rowElement.insertCell().textContent = row[HEADER_REMARKS] || 'N/A';
         });
