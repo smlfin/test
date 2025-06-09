@@ -50,9 +50,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const HEADER_EMPLOYEE_CODE = 'Employee Code';
     const HEADER_DESIGNATION = 'Designation';
     // Removed direct headers for Visit, Call, Referance as they are derived from Activity Type
-    // const HEADER_VISIT = 'Visit';
-    // const HEADER_CALL = 'Call';
-    // const HEADER_REFERENCE = 'Referance';
     const HEADER_NEW_CUSTOMER_LEADS = 'New Customer Leads'; // This will be calculated in JS
     const HEADER_REMARKS = 'Remarks';
 
@@ -92,7 +89,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const employeeBranchInput = document.getElementById('employeeBranch');
     const employeeDesignationInput = document.getElementById('employeeDesignation');
     const bulkAddEmployeeForm = document.getElementById('bulkAddEmployeeForm');
-    const bulkEmployeeBranchNameInput = document = document.getElementById('bulkEmployeeBranchName');
+    const bulkEmployeeBranchNameInput = document.getElementById('bulkEmployeeBranchName');
     const bulkEmployeeDetailsInput = document.getElementById('bulkEmployeeDetails');
     const deleteEmployeeForm = document.getElementById('deleteEmployeeForm');
     const deleteEmployeeCodeInput = document.getElementById('deleteEmployeeCode');
@@ -227,42 +224,55 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function processData() {
-        // Collect unique branches and employees from combined data (canvassing + master)
+        // --- Process Branches for Uniqueness and Normalization ---
         const uniqueBranches = new Set();
-        const uniqueEmployees = new Set(); // Stores Employee Code for uniqueness
+        // Use a Map to store canonical employee details, keyed by Employee Code
+        const employeeMap = new Map();
 
-        // Add from canvassing data
-        canvassingData.forEach(row => {
-            if (row[HEADER_BRANCH_NAME]) {
-                uniqueBranches.add(row[HEADER_BRANCH_NAME]);
-            }
-            if (row[HEADER_EMPLOYEE_CODE] && row[HEADER_EMPLOYEE_NAME] && row[HEADER_BRANCH_NAME] && row[HEADER_DESIGNATION]) {
-                uniqueEmployees.add(JSON.stringify({
-                    code: row[HEADER_EMPLOYEE_CODE],
-                    name: row[HEADER_EMPLOYEE_NAME],
-                    branch: row[HEADER_BRANCH_NAME],
-                    designation: row[HEADER_DESIGNATION]
-                }));
-            }
-        });
-
-        // Add from master employee data
+        // 1. Populate employeeMap with master data first (highest priority)
         masterEmployeeData.forEach(emp => {
-            if (emp[MASTER_HEADER_BRANCH_NAME_MASTER]) {
-                uniqueBranches.add(emp[MASTER_HEADER_BRANCH_NAME_MASTER]);
-            }
-            if (emp[MASTER_HEADER_EMPLOYEE_CODE] && emp[MASTER_HEADER_EMPLOYEE_NAME] && emp[MASTER_HEADER_BRANCH_NAME_MASTER]) {
-                uniqueEmployees.add(JSON.stringify({
-                    code: emp[MASTER_HEADER_EMPLOYEE_CODE],
-                    name: emp[MASTER_HEADER_EMPLOYEE_NAME],
-                    branch: emp[MASTER_HEADER_BRANCH_NAME_MASTER],
+            const employeeCode = emp[MASTER_HEADER_EMPLOYEE_CODE];
+            if (employeeCode) {
+                // Normalize branch name from master data before adding to uniqueBranches
+                if (emp[MASTER_HEADER_BRANCH_NAME_MASTER]) {
+                    uniqueBranches.add(emp[MASTER_HEADER_BRANCH_NAME_MASTER].trim().toLowerCase());
+                }
+
+                employeeMap.set(employeeCode, {
+                    code: employeeCode,
+                    name: emp[MASTER_HEADER_EMPLOYEE_NAME] || 'Unknown',
+                    branch: emp[MASTER_HEADER_BRANCH_NAME_MASTER] || 'Unknown',
                     designation: emp.Designation || 'Other' // Master data should ideally have designation
-                }));
+                });
             }
         });
 
+        // 2. Process canvassing data
+        canvassingData.forEach(row => {
+            // Normalize branch name from canvassing data before adding to uniqueBranches
+            if (row[HEADER_BRANCH_NAME]) {
+                uniqueBranches.add(row[HEADER_BRANCH_NAME].trim().toLowerCase());
+            }
+
+            const employeeCode = row[HEADER_EMPLOYEE_CODE];
+            if (employeeCode) {
+                // If employee code already in map (from master data), don't overwrite name/branch/designation
+                if (!employeeMap.has(employeeCode)) {
+                    employeeMap.set(employeeCode, {
+                        code: employeeCode,
+                        name: row[HEADER_EMPLOYEE_NAME] || 'Unknown',
+                        branch: row[HEADER_BRANCH_NAME] || 'Unknown',
+                        designation: row[HEADER_DESIGNATION] || 'Other'
+                    });
+                }
+            }
+        });
+
+        // Convert normalized branch names back to proper casing for display if needed
+        // For simplicity, we will just use the normalized (lowercase) branch names for display now.
+        // If original casing is critical, a mapping from normalized to original would be needed.
         branches = Array.from(uniqueBranches).sort();
-        employees = Array.from(uniqueEmployees).map(empStr => JSON.parse(empStr)).sort((a, b) => a.name.localeCompare(b.name));
+        employees = Array.from(employeeMap.values()).sort((a, b) => a.name.localeCompare(b.name));
 
         populateFilters();
         renderReports();
@@ -272,10 +282,11 @@ document.addEventListener('DOMContentLoaded', () => {
     function populateFilters() {
         // Populate Branch Select
         branchSelect.innerHTML = '<option value="">-- Select a Branch --</option>';
+        // The 'branches' array now contains normalized (lowercase) names
         branches.forEach(branch => {
             const option = document.createElement('option');
             option.value = branch;
-            option.textContent = branch;
+            option.textContent = branch; // Display normalized name
             branchSelect.appendChild(option);
         });
 
@@ -288,6 +299,7 @@ document.addEventListener('DOMContentLoaded', () => {
         employeesToFilter.forEach(employee => {
             const option = document.createElement('option');
             option.value = employee.code;
+            // Use the canonical name and branch from the 'employees' array
             option.textContent = `${employee.name} (${employee.branch})`;
             employeeSelect.appendChild(option);
         });
@@ -295,7 +307,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- Report Rendering ---
     function renderReports() {
-        const currentBranch = branchSelect.value;
+        const currentBranch = branchSelect.value; // This will be the normalized lowercase name
         const currentEmployeeCode = employeeSelect.value;
         const startDate = dateFilterStart.value ? new Date(dateFilterStart.value) : null;
         const endDate = dateFilterEnd.value ? new Date(dateFilterEnd.value) : null;
@@ -306,7 +318,8 @@ document.addEventListener('DOMContentLoaded', () => {
             let matchesEmployee = true;
             let matchesDate = true;
 
-            if (currentBranch && row[HEADER_BRANCH_NAME] !== currentBranch) {
+            // Compare filtered branch (normalized) with row's branch (normalized)
+            if (currentBranch && row[HEADER_BRANCH_NAME].trim().toLowerCase() !== currentBranch) {
                 matchesBranch = false;
             }
 
@@ -360,12 +373,15 @@ document.addEventListener('DOMContentLoaded', () => {
         const employeeSet = new Set(); // To count unique employees overall
 
         data.forEach(row => {
-            const branchName = row[HEADER_BRANCH_NAME];
+            const branchName = row[HEADER_BRANCH_NAME].trim().toLowerCase(); // Use normalized name for grouping
             const employeeCode = row[HEADER_EMPLOYEE_CODE];
             const activityType = row[HEADER_ACTIVITY_TYPE]; // Get activity type from row
 
             if (!branchSummary[branchName]) {
+                // When initializing, use the original branch name if available, or just the normalized one for display.
+                // For simplicity here, we'll use the normalized one for the key and a consistent display.
                 branchSummary[branchName] = {
+                    displayBranchName: row[HEADER_BRANCH_NAME] || branchName, // Keep original casing for display if possible, else normalized
                     employees: new Set(),
                     calls: 0,
                     visits: 0,
@@ -375,7 +391,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
             branchSummary[branchName].employees.add(employeeCode);
 
-            // *** NEW LOGIC: Increment based on Activity Type ***
+            // Increment based on Activity Type
             if (activityType === 'Calls') {
                 branchSummary[branchName].calls += 1;
             } else if (activityType === 'Visit') {
@@ -383,10 +399,8 @@ document.addEventListener('DOMContentLoaded', () => {
             } else if (activityType === 'Referance') { // Uses your spelling
                 branchSummary[branchName].references += 1;
             }
-            // *** End NEW LOGIC ***
 
-
-            // Calculate New Customer Leads (existing logic, confirmed working)
+            // Calculate New Customer Leads
             const customerType = row[HEADER_TYPE_OF_CUSTOMER];
             if ((activityType === 'Visit' || activityType === 'Calls') && customerType === 'New') {
                 branchSummary[branchName].newCustomerLeads += 1;
@@ -402,10 +416,10 @@ document.addEventListener('DOMContentLoaded', () => {
         let overallNewCustomerLeads = 0;
 
         allBranchSnapshotTableBody.innerHTML = '';
-        for (const branchName of Object.keys(branchSummary).sort()) {
-            const summary = branchSummary[branchName];
+        for (const branchNameKey of Object.keys(branchSummary).sort()) { // Sort by normalized key
+            const summary = branchSummary[branchNameKey];
             const row = allBranchSnapshotTableBody.insertRow();
-            row.insertCell().textContent = branchName;
+            row.insertCell().textContent = summary.displayBranchName; // Display the original/preferred name
             row.insertCell().textContent = summary.employees.size;
             row.insertCell().textContent = summary.calls;
             row.insertCell().textContent = summary.visits;
@@ -434,7 +448,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const activityType = row[HEADER_ACTIVITY_TYPE]; // Get activity type from row
 
             if (!employeePerformance[employeeCode]) {
-                // Find employee details from the 'employees' global array (which includes master data)
+                // Find employee details from the 'employees' global array (which now has canonical data)
                 const employeeDetail = employees.find(emp => emp.code === employeeCode);
                 employeePerformance[employeeCode] = {
                     name: employeeDetail ? employeeDetail.name : row[HEADER_EMPLOYEE_NAME] || 'Unknown',
@@ -447,7 +461,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 };
             }
 
-            // *** NEW LOGIC: Increment based on Activity Type ***
+            // Increment based on Activity Type
             if (activityType === 'Calls') {
                 employeePerformance[employeeCode].calls += 1;
             } else if (activityType === 'Visit') {
@@ -455,9 +469,8 @@ document.addEventListener('DOMContentLoaded', () => {
             } else if (activityType === 'Referance') { // Uses your spelling
                 employeePerformance[employeeCode].references += 1;
             }
-            // *** End NEW LOGIC ***
 
-            // Calculate New Customer Leads (existing logic, confirmed working)
+            // Calculate New Customer Leads
             const customerType = row[HEADER_TYPE_OF_CUSTOMER];
             if ((activityType === 'Visit' || activityType === 'Calls') && customerType === 'New') {
                 employeePerformance[employeeCode].newCustomerLeads += 1;
@@ -519,7 +532,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 calculatedReferences = 1;
             }
 
-            // Calculate New Customer Leads for individual rows (existing logic)
+            // Calculate New Customer Leads for individual rows
             if ((activityType === 'Visit' || activityType === 'Calls') && customerType === 'New') {
                 calculatedNewCustomerLead = 1;
             }
@@ -534,6 +547,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
 
         // Find the employee's full details (name, branch, designation) from the global employees array
+        // This 'employees' array now contains the canonical details.
         const employeeDetail = employees.find(emp => emp.code === employeeCode);
         if (employeeDetail) {
             employeeNameDisplay.textContent = employeeDetail.name;
@@ -541,7 +555,7 @@ document.addEventListener('DOMContentLoaded', () => {
             employeeBranchDisplay.textContent = employeeDetail.branch;
             employeeDesignationDisplay.textContent = employeeDetail.designation || 'N/A';
         } else {
-            // Fallback if employee detail not found in global list
+            // Fallback if employee detail not found (should be rare with new logic)
             employeeNameDisplay.textContent = 'Unknown Employee';
             employeeCodeDisplay.textContent = employeeCode;
             employeeBranchDisplay.textContent = 'N/A';
@@ -564,15 +578,16 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function renderNonParticipatingBranches(allCanvassingData) {
-        const participatingBranches = new Set();
+        const participatingBranchesNormalized = new Set();
         allCanvassingData.forEach(row => {
             if (row[HEADER_BRANCH_NAME]) {
-                participatingBranches.add(row[HEADER_BRANCH_NAME]);
+                participatingBranchesNormalized.add(row[HEADER_BRANCH_NAME].trim().toLowerCase());
             }
         });
 
-        const allBranches = new Set(branches); // Use the globally collected branches
-        const nonParticipating = Array.from(allBranches).filter(branch => !participatingBranches.has(branch)).sort();
+        // Use the globally collected and normalized branches for comparison
+        const allBranchesNormalized = new Set(branches.map(b => b.toLowerCase())); // Ensure comparison is normalized
+        const nonParticipating = Array.from(allBranchesNormalized).filter(branch => !participatingBranchesNormalized.has(branch)).sort();
 
         nonParticipatingBranchesList.innerHTML = '';
         if (nonParticipating.length > 0) {
@@ -580,7 +595,7 @@ document.addEventListener('DOMContentLoaded', () => {
             document.getElementById('noParticipationMessage').textContent = 'The following branches have no participation records:';
             nonParticipating.forEach(branch => {
                 const li = document.createElement('li');
-                li.textContent = branch;
+                li.textContent = branch; // Display the normalized name
                 nonParticipatingBranchesList.appendChild(li);
             });
         } else {
@@ -690,9 +705,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Filter change events
     branchSelect.addEventListener('change', () => {
-        const selectedBranch = branchSelect.value;
-        if (selectedBranch) {
-            const employeesInBranch = employees.filter(emp => emp.branch === selectedBranch);
+        const selectedBranchNormalized = branchSelect.value; // This is already normalized
+        if (selectedBranchNormalized) {
+            // Filter employees based on their normalized branch name
+            const employeesInBranch = employees.filter(emp => emp.branch.trim().toLowerCase() === selectedBranchNormalized);
             populateEmployeeFilter(employeesInBranch);
         } else {
             populateEmployeeFilter(employees); // Show all employees if no branch selected
