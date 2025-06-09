@@ -2,7 +2,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // *** Configuration ***
     // This URL is for your Canvassing Data sheet. Ensure it's correct and published as CSV.
     // NOTE: If you are still getting 404, this URL is the problem.
-    const DATA_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTO7LujC4VSa2wGkJ2YEYSN7UeXR221ny3THaVegYfNfRm2JQGg7QR9Bxxh9SadXtK8Pi6-psl2tGsb/pub?gid=696550092&single=true&output=csv";
+    const DATA_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTO7LujC4VSa2wGkJ2YEYSN7UeXR221ny3THaVegYfNfRm2JQGg7QR9Bxxh9SadXtK8Pi6-psl2tGsb/pub?gid=696550092&single=true&output=csv"; 
 
     // IMPORTANT: Replace this with YOUR DEPLOYED GOOGLE APPS SCRIPT WEB APP URL
     // NOTE: If you are getting errors sending data, this URL is the problem.
@@ -62,12 +62,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const MASTER_HEADER_EMPLOYEE_CODE = 'Employee Code';
     const MASTER_HEADER_EMPLOYEE_NAME = 'Employee Name';
     const MASTER_HEADER_BRANCH_NAME_MASTER = 'Branch Name'; // Renamed to avoid conflict with activity data branch name
-
-    // Function to fetch and parse Master Employee Data
-    // We will IGNORE MasterEmployees sheet for data fetching and report generation
-    // Employee management functions in Apps Script still use the MASTER_SHEET_ID you've set up in code.gs
-    // For front-end reporting, all employee and branch data will come from Canvassing Data and predefined list.
-    const EMPLOYEE_MASTER_DATA_URL = "UNUSED_FOR_FRONTEND_REPORTING";
+    const MASTER_HEADER_DESIGNATION = 'Designation'; // Assuming master data also has designation
 
 
     // --- Elements ---
@@ -107,9 +102,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- Global Data Storage ---
     let canvassingData = [];
-    let masterEmployeeData = []; // Will be populated from Apps Script or a predefined list
-    let branches = [];
-    let employees = [];
+    let masterEmployeeData = [];
+    let branches = []; // Array of normalized branch names
+    let employees = []; // Array of canonical employee objects (unique by code)
 
     // --- Tab Navigation ---
     const allBranchSnapshotTabBtn = document.getElementById('allBranchSnapshotTabBtn');
@@ -224,54 +219,59 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function processData() {
-        // --- Process Branches for Uniqueness and Normalization ---
-        const uniqueBranches = new Set();
+        // Use a Set for unique branch names (normalized)
+        const uniqueBranchesSet = new Set();
         // Use a Map to store canonical employee details, keyed by Employee Code
         const employeeMap = new Map();
 
-        // 1. Populate employeeMap with master data first (highest priority)
+        // 1. Populate employeeMap with master data first (highest priority for employee details)
         masterEmployeeData.forEach(emp => {
             const employeeCode = emp[MASTER_HEADER_EMPLOYEE_CODE];
-            if (employeeCode) {
-                // Normalize branch name from master data before adding to uniqueBranches
-                if (emp[MASTER_HEADER_BRANCH_NAME_MASTER]) {
-                    uniqueBranches.add(emp[MASTER_HEADER_BRANCH_NAME_MASTER].trim().toLowerCase());
-                }
+            const employeeName = emp[MASTER_HEADER_EMPLOYEE_NAME];
+            const branchName = emp[MASTER_HEADER_BRANCH_NAME_MASTER];
+            const designation = emp[MASTER_HEADER_DESIGNATION] || 'Other'; // Assuming master data has Designation
 
+            if (branchName) {
+                uniqueBranchesSet.add(branchName.trim().toLowerCase()); // Normalize branch name
+            }
+
+            if (employeeCode) {
                 employeeMap.set(employeeCode, {
                     code: employeeCode,
-                    name: emp[MASTER_HEADER_EMPLOYEE_NAME] || 'Unknown',
-                    branch: emp[MASTER_HEADER_BRANCH_NAME_MASTER] || 'Unknown',
-                    designation: emp.Designation || 'Other' // Master data should ideally have designation
+                    name: employeeName || 'Unknown',
+                    branch: branchName || 'Unknown',
+                    designation: designation
                 });
             }
         });
 
         // 2. Process canvassing data
         canvassingData.forEach(row => {
-            // Normalize branch name from canvassing data before adding to uniqueBranches
-            if (row[HEADER_BRANCH_NAME]) {
-                uniqueBranches.add(row[HEADER_BRANCH_NAME].trim().toLowerCase());
+            const branchName = row[HEADER_BRANCH_NAME];
+            const employeeCode = row[HEADER_EMPLOYEE_CODE];
+            const employeeName = row[HEADER_EMPLOYEE_NAME];
+            const designation = row[HEADER_DESIGNATION] || 'Other';
+
+            if (branchName) {
+                uniqueBranchesSet.add(branchName.trim().toLowerCase()); // Normalize branch name
             }
 
-            const employeeCode = row[HEADER_EMPLOYEE_CODE];
             if (employeeCode) {
-                // If employee code already in map (from master data), don't overwrite name/branch/designation
+                // If employee code already in map (from master data), do not overwrite details
                 if (!employeeMap.has(employeeCode)) {
                     employeeMap.set(employeeCode, {
                         code: employeeCode,
-                        name: row[HEADER_EMPLOYEE_NAME] || 'Unknown',
-                        branch: row[HEADER_BRANCH_NAME] || 'Unknown',
-                        designation: row[HEADER_DESIGNATION] || 'Other'
+                        name: employeeName || 'Unknown',
+                        branch: branchName || 'Unknown',
+                        designation: designation
                     });
                 }
             }
         });
 
-        // Convert normalized branch names back to proper casing for display if needed
-        // For simplicity, we will just use the normalized (lowercase) branch names for display now.
-        // If original casing is critical, a mapping from normalized to original would be needed.
-        branches = Array.from(uniqueBranches).sort();
+        // Convert the Set of normalized branches to a sorted Array
+        branches = Array.from(uniqueBranchesSet).sort();
+        // Convert the Map values to a sorted Array of canonical employee objects
         employees = Array.from(employeeMap.values()).sort((a, b) => a.name.localeCompare(b.name));
 
         populateFilters();
@@ -286,7 +286,7 @@ document.addEventListener('DOMContentLoaded', () => {
         branches.forEach(branch => {
             const option = document.createElement('option');
             option.value = branch;
-            option.textContent = branch; // Display normalized name
+            option.textContent = branch.split(' ').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' '); // Capitalize for display
             branchSelect.appendChild(option);
         });
 
@@ -373,15 +373,12 @@ document.addEventListener('DOMContentLoaded', () => {
         const employeeSet = new Set(); // To count unique employees overall
 
         data.forEach(row => {
-            const branchName = row[HEADER_BRANCH_NAME].trim().toLowerCase(); // Use normalized name for grouping
+            const branchNameNormalized = row[HEADER_BRANCH_NAME].trim().toLowerCase(); // Use normalized name for grouping
             const employeeCode = row[HEADER_EMPLOYEE_CODE];
-            const activityType = row[HEADER_ACTIVITY_TYPE]; // Get activity type from row
+            const activityType = row[HEADER_ACTIVITY_TYPE];
 
-            if (!branchSummary[branchName]) {
-                // When initializing, use the original branch name if available, or just the normalized one for display.
-                // For simplicity here, we'll use the normalized one for the key and a consistent display.
-                branchSummary[branchName] = {
-                    displayBranchName: row[HEADER_BRANCH_NAME] || branchName, // Keep original casing for display if possible, else normalized
+            if (!branchSummary[branchNameNormalized]) {
+                branchSummary[branchNameNormalized] = {
                     employees: new Set(),
                     calls: 0,
                     visits: 0,
@@ -389,21 +386,21 @@ document.addEventListener('DOMContentLoaded', () => {
                     newCustomerLeads: 0
                 };
             }
-            branchSummary[branchName].employees.add(employeeCode);
+            branchSummary[branchNameNormalized].employees.add(employeeCode);
 
             // Increment based on Activity Type
             if (activityType === 'Calls') {
-                branchSummary[branchName].calls += 1;
+                branchSummary[branchNameNormalized].calls += 1;
             } else if (activityType === 'Visit') {
-                branchSummary[branchName].visits += 1;
-            } else if (activityType === 'Referance') { // Uses your spelling
-                branchSummary[branchName].references += 1;
+                branchSummary[branchNameNormalized].visits += 1;
+            } else if (activityType === 'Referance') {
+                branchSummary[branchNameNormalized].references += 1;
             }
 
             // Calculate New Customer Leads
             const customerType = row[HEADER_TYPE_OF_CUSTOMER];
             if ((activityType === 'Visit' || activityType === 'Calls') && customerType === 'New') {
-                branchSummary[branchName].newCustomerLeads += 1;
+                branchSummary[branchNameNormalized].newCustomerLeads += 1;
             }
 
             employeeSet.add(employeeCode);
@@ -419,7 +416,8 @@ document.addEventListener('DOMContentLoaded', () => {
         for (const branchNameKey of Object.keys(branchSummary).sort()) { // Sort by normalized key
             const summary = branchSummary[branchNameKey];
             const row = allBranchSnapshotTableBody.insertRow();
-            row.insertCell().textContent = summary.displayBranchName; // Display the original/preferred name
+            // Display the branch name with capitalized first letters for better readability
+            row.insertCell().textContent = branchNameKey.split(' ').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
             row.insertCell().textContent = summary.employees.size;
             row.insertCell().textContent = summary.calls;
             row.insertCell().textContent = summary.visits;
@@ -445,7 +443,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         data.forEach(row => {
             const employeeCode = row[HEADER_EMPLOYEE_CODE];
-            const activityType = row[HEADER_ACTIVITY_TYPE]; // Get activity type from row
+            const activityType = row[HEADER_ACTIVITY_TYPE];
 
             if (!employeePerformance[employeeCode]) {
                 // Find employee details from the 'employees' global array (which now has canonical data)
@@ -457,7 +455,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     calls: 0,
                     visits: 0,
                     references: 0,
-                    newCustomerLeads: 0 // Initialize to 0 for calculation
+                    newCustomerLeads: 0
                 };
             }
 
@@ -466,7 +464,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 employeePerformance[employeeCode].calls += 1;
             } else if (activityType === 'Visit') {
                 employeePerformance[employeeCode].visits += 1;
-            } else if (activityType === 'Referance') { // Uses your spelling
+            } else if (activityType === 'Referance') {
                 employeePerformance[employeeCode].references += 1;
             }
 
@@ -504,10 +502,10 @@ document.addEventListener('DOMContentLoaded', () => {
             row.insertCell().textContent = performance.calls;
             row.insertCell().textContent = performance.visits;
             row.insertCell().textContent = performance.references;
-            row.insertCell().textContent = performance.newCustomerLeads; // Display calculated value
+            row.insertCell().textContent = performance.newCustomerLeads;
             row.insertCell().textContent = targets.Call;
             row.insertCell().textContent = targets.Visit;
-            row.insertCell().textContent = targets.Referance; // Uses your spelling
+            row.insertCell().textContent = targets.Referance;
             row.insertCell().textContent = targets['New Customer Leads'];
         });
     }
@@ -528,7 +526,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 calculatedCalls = 1;
             } else if (activityType === 'Visit') {
                 calculatedVisits = 1;
-            } else if (activityType === 'Referance') { // Uses your spelling
+            } else if (activityType === 'Referance') {
                 calculatedReferences = 1;
             }
 
@@ -586,7 +584,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
 
         // Use the globally collected and normalized branches for comparison
-        const allBranchesNormalized = new Set(branches.map(b => b.toLowerCase())); // Ensure comparison is normalized
+        const allBranchesNormalized = new Set(branches); // 'branches' already contains normalized names
         const nonParticipating = Array.from(allBranchesNormalized).filter(branch => !participatingBranchesNormalized.has(branch)).sort();
 
         nonParticipatingBranchesList.innerHTML = '';
@@ -595,7 +593,7 @@ document.addEventListener('DOMContentLoaded', () => {
             document.getElementById('noParticipationMessage').textContent = 'The following branches have no participation records:';
             nonParticipating.forEach(branch => {
                 const li = document.createElement('li');
-                li.textContent = branch; // Display the normalized name
+                li.textContent = branch.split(' ').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' '); // Capitalize for display
                 nonParticipatingBranchesList.appendChild(li);
             });
         } else {
