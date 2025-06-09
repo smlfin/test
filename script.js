@@ -42,11 +42,13 @@ document.addEventListener('DOMContentLoaded', () => {
     const HEADER_REFERENCES = 'References';
     const HEADER_NEW_CUSTOMER_LEADS = 'New Customer Leads';
 
-    // Define all possible branches statically. This list should be exhaustive.
+    // *** IMPORTANT: UPDATE THIS LIST WITH YOUR ACTUAL BRANCH NAMES FROM LIV).XLSX - SHEET1.CSV ***
+    // This list should contain ALL expected branch names for non-participation reporting.
     const allBranches = [
-        "Main Branch", "East Coast Branch", "West Coast Branch", "Central Branch",
-        "North Branch", "South Branch", "Riverside Branch", "Hilltop Branch",
-        "Downtown Branch", "Uptown Branch", "Village Branch", "Metro Branch"
+        "Your Actual Branch Name 1", 
+        "Your Actual Branch Name 2", 
+        "Your Actual Branch Name 3",
+        // ... add all other unique branch names here, exactly as they appear in your CSV
     ]; 
 
     let canvassingData = []; // Raw data from CSV
