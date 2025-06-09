@@ -2,7 +2,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // *** Configuration ***
     // This URL is for your Canvassing Data sheet. Ensure it's correct and published as CSV.
     // NOTE: If you are still getting 404, this URL is the problem.
-    const DATA_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTO7LujC4VSa2wGkJ2YEYSN7UeXR221ny3THaVegYfNfRm2JQGg7QR9Bxxh9SadXtK8Pi6-psl2tGsb/pub?gid=696550092&single=true&output=csv"; 
+    const DATA_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTO7LujC4VSa2wGkJ2YEYSN7UeXR221ny3THaVegYfNfRm2JQGg7QR9Bxxh9SadXtK8Pi6-psl2tGsb/pub?gid=696550092&single=true&output=csv";
 
     // IMPORTANT: Replace this with YOUR DEPLOYED GOOGLE APPS SCRIPT WEB APP URL
     // NOTE: If you are getting errors sending data, this URL is the problem.
@@ -44,28 +44,25 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     // --- Headers for Canvassing Data Sheet ---
+    // !!! IMPORTANT: Ensure these match your actual Google Sheet column headers EXACTLY (case-sensitive) !!!
     const HEADER_TIMESTAMP = 'Timestamp';
     const HEADER_BRANCH_NAME = 'Branch Name';
     const HEADER_EMPLOYEE_NAME = 'Employee Name';
     const HEADER_EMPLOYEE_CODE = 'Employee Code';
     const HEADER_DESIGNATION = 'Designation';
-    // Removed direct headers for Visit, Call, Referance as they are derived from Activity Type
-    const HEADER_NEW_CUSTOMER_LEADS = 'New Customer Leads'; // This will be calculated in JS
+    const HEADER_NEW_CUSTOMER_LEADS = 'New Customer Leads';
     const HEADER_REMARKS = 'Remarks';
+    const HEADER_ACTIVITY_TYPE = 'Activity Type';
+    const HEADER_TYPE_OF_CUSTOMER = 'Type of Customer';
 
-    // *** NEW HEADERS FOR CALCULATION (MUST MATCH YOUR CSV COLUMN NAMES EXACTLY) ***
-    // Based on your clarification that 'Activity Type' column exists.
-    const HEADER_ACTIVITY_TYPE = 'Activity Type'; // Make sure this matches your actual column name (e.g., 'ActivityType', 'Activity_Type')
-    const HEADER_TYPE_OF_CUSTOMER = 'Type of Customer'; // Make sure this matches your actual column name
-
-    // --- Headers for Master Employee Data (from Liv).xlsx - Sheet1.csv) ---
+    // --- Headers for Master Employee Data (fetched via Apps Script) ---
+    // !!! IMPORTANT: Ensure these match your actual Master Employee Google Sheet column headers EXACTLY (case-sensitive) !!!
     const MASTER_HEADER_EMPLOYEE_CODE = 'Employee Code';
     const MASTER_HEADER_EMPLOYEE_NAME = 'Employee Name';
-    const MASTER_HEADER_BRANCH_NAME_MASTER = 'Branch Name'; // Renamed to avoid conflict with activity data branch name
-    const MASTER_HEADER_DESIGNATION = 'Designation'; // Assuming master data also has designation
+    const MASTER_HEADER_BRANCH_NAME_MASTER = 'Branch Name';
+    const MASTER_HEADER_DESIGNATION = 'Designation'; // This should exist in your master data sheet
 
-
-    // --- Elements ---
+    // --- Elements (no changes needed here) ---
     const statusMessageElement = document.getElementById('statusMessage');
     const allBranchSnapshotTableBody = document.getElementById('allBranchSnapshotTableBody');
     const allStaffPerformanceTableBody = document.getElementById('allStaffPerformanceTableBody');
@@ -99,14 +96,13 @@ document.addEventListener('DOMContentLoaded', () => {
     const selectedDateRange = document.getElementById('selectedDateRange');
     const clearDateFilterBtn = document.getElementById('clearDateFilterBtn');
 
-
     // --- Global Data Storage ---
     let canvassingData = [];
     let masterEmployeeData = [];
     let branches = []; // Array of normalized branch names
     let employees = []; // Array of canonical employee objects (unique by code)
 
-    // --- Tab Navigation ---
+    // --- Tab Navigation (no changes needed here) ---
     const allBranchSnapshotTabBtn = document.getElementById('allBranchSnapshotTabBtn');
     const allStaffOverallPerformanceTabBtn = document.getElementById('allStaffOverallPerformanceTabBtn');
     const employeeManagementTabBtn = document.getElementById('employeeManagementTabBtn');
@@ -118,19 +114,16 @@ document.addEventListener('DOMContentLoaded', () => {
     const nonParticipatingBranchesContainer = document.getElementById('nonParticipatingBranchesContainer');
 
     function showTab(tabButtonId) {
-        // Hide all content sections
         allBranchSnapshotContainer.style.display = 'none';
         allStaffOverallPerformanceContainer.style.display = 'none';
         employeeManagementSection.style.display = 'none';
-        singleEmployeePerformanceContainer.style.display = 'none'; // Ensure single employee view is hidden
+        singleEmployeePerformanceContainer.style.display = 'none';
         nonParticipatingBranchesContainer.style.display = 'none';
 
-        // Deactivate all tab buttons
         document.querySelectorAll('.tab-button').forEach(button => {
             button.classList.remove('active');
         });
 
-        // Show the selected section and activate its button
         let targetContainer;
         if (tabButtonId === 'allBranchSnapshotTabBtn') {
             targetContainer = allBranchSnapshotContainer;
@@ -142,10 +135,9 @@ document.addEventListener('DOMContentLoaded', () => {
             employeeFilterPanel.style.display = 'flex';
         } else if (tabButtonId === 'employeeManagementTabBtn') {
             targetContainer = employeeManagementSection;
-            viewOptions.style.display = 'none'; // Hide date filters for employee management
+            viewOptions.style.display = 'none';
             employeeFilterPanel.style.display = 'none';
             dateRangeDisplay.style.display = 'none';
-            // Clear selections if coming from a report view
             branchSelect.value = '';
             employeeSelect.value = '';
         } else if (tabButtonId === 'nonParticipatingBranchesTabBtn') {
@@ -158,11 +150,10 @@ document.addEventListener('DOMContentLoaded', () => {
         if (targetContainer) {
             targetContainer.style.display = 'block';
             document.getElementById(tabButtonId).classList.add('active');
-            // Re-render reports based on current filters when tab is shown
             if (tabButtonId !== 'employeeManagementTabBtn') {
                 renderReports();
             } else {
-                displayEmployeeManagementMessage(''); // Clear any messages when switching to management
+                displayEmployeeManagementMessage('');
             }
         }
     }
@@ -177,17 +168,17 @@ document.addEventListener('DOMContentLoaded', () => {
             }
             const csvText = await response.text();
             canvassingData = parseCSV(csvText);
-            console.log('Canvassing Data:', canvassingData);
+            console.log('Canvassing Data (Raw):', canvassingData); // Debugging output
 
             // Fetch master employee data from Apps Script
             const masterDataResponse = await sendDataToGoogleAppsScript('get_master_employees', {});
             if (masterDataResponse && masterDataResponse.status === 'success') {
                 masterEmployeeData = masterDataResponse.data;
-                console.log('Master Employee Data:', masterEmployeeData);
+                console.log('Master Employee Data (Raw):', masterEmployeeData); // Debugging output
             } else {
                 console.error('Failed to fetch master employee data:', masterDataResponse ? masterDataResponse.message : 'Unknown error');
                 displayMessage('Failed to load employee master data. Some features might be limited.', true);
-                masterEmployeeData = []; // Ensure it's an empty array if fetch fails
+                masterEmployeeData = [];
             }
 
             processData(); // Process all data after both fetches are complete
@@ -219,60 +210,70 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function processData() {
-        // Use a Set for unique branch names (normalized)
+        // Use a Set for unique branch names (normalized, e.g., "angamaly")
         const uniqueBranchesSet = new Set();
         // Use a Map to store canonical employee details, keyed by Employee Code
-        const employeeMap = new Map();
+        // This ensures employee code is the primary key and prevents duplication
+        const employeeMap = new Map(); // key: employeeCode, value: {code, name, branch, designation}
 
         // 1. Populate employeeMap with master data first (highest priority for employee details)
         masterEmployeeData.forEach(emp => {
             const employeeCode = emp[MASTER_HEADER_EMPLOYEE_CODE];
             const employeeName = emp[MASTER_HEADER_EMPLOYEE_NAME];
-            const branchName = emp[MASTER_HEADER_BRANCH_NAME_MASTER];
-            const designation = emp[MASTER_HEADER_DESIGNATION] || 'Other'; // Assuming master data has Designation
+            const branchNameMaster = emp[MASTER_HEADER_BRANCH_NAME_MASTER];
+            const designationMaster = emp[MASTER_HEADER_DESIGNATION];
 
-            if (branchName) {
-                uniqueBranchesSet.add(branchName.trim().toLowerCase()); // Normalize branch name
+            if (branchNameMaster) {
+                // Normalize branch name and add to set
+                uniqueBranchesSet.add(branchNameMaster.trim().toLowerCase());
             }
 
             if (employeeCode) {
                 employeeMap.set(employeeCode, {
                     code: employeeCode,
-                    name: employeeName || 'Unknown',
-                    branch: branchName || 'Unknown',
-                    designation: designation
+                    name: employeeName || 'Unknown Name',
+                    branch: branchNameMaster || 'Unknown Branch',
+                    designation: designationMaster || 'Other'
                 });
             }
         });
+        console.log('Employee Map after Master Data:', employeeMap); // Debugging
 
         // 2. Process canvassing data
         canvassingData.forEach(row => {
-            const branchName = row[HEADER_BRANCH_NAME];
+            const branchNameCanvassing = row[HEADER_BRANCH_NAME];
             const employeeCode = row[HEADER_EMPLOYEE_CODE];
-            const employeeName = row[HEADER_EMPLOYEE_NAME];
-            const designation = row[HEADER_DESIGNATION] || 'Other';
+            const employeeNameCanvassing = row[HEADER_EMPLOYEE_NAME];
+            const designationCanvassing = row[HEADER_DESIGNATION];
 
-            if (branchName) {
-                uniqueBranchesSet.add(branchName.trim().toLowerCase()); // Normalize branch name
+            if (branchNameCanvassing) {
+                // Normalize branch name and add to set
+                uniqueBranchesSet.add(branchNameCanvassing.trim().toLowerCase());
             }
 
             if (employeeCode) {
-                // If employee code already in map (from master data), do not overwrite details
+                // If employee code already in map (from master data), DO NOT overwrite details
+                // The master data's name, branch, and designation are preferred.
                 if (!employeeMap.has(employeeCode)) {
+                    // If employee code is NEW, add details from canvassing data
                     employeeMap.set(employeeCode, {
                         code: employeeCode,
-                        name: employeeName || 'Unknown',
-                        branch: branchName || 'Unknown',
-                        designation: designation
+                        name: employeeNameCanvassing || 'Unknown Name',
+                        branch: branchNameCanvassing || 'Unknown Branch',
+                        designation: designationCanvassing || 'Other'
                     });
                 }
             }
         });
+        console.log('Employee Map after Canvassing Data (final canonical list):', employeeMap); // Debugging
 
         // Convert the Set of normalized branches to a sorted Array
         branches = Array.from(uniqueBranchesSet).sort();
         // Convert the Map values to a sorted Array of canonical employee objects
         employees = Array.from(employeeMap.values()).sort((a, b) => a.name.localeCompare(b.name));
+
+        console.log('Final Branches Array:', branches); // Debugging
+        console.log('Final Employees Array (Canonical):', employees); // Debugging
 
         populateFilters();
         renderReports();
@@ -286,7 +287,8 @@ document.addEventListener('DOMContentLoaded', () => {
         branches.forEach(branch => {
             const option = document.createElement('option');
             option.value = branch;
-            option.textContent = branch.split(' ').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' '); // Capitalize for display
+            // Display: Capitalize first letter of each word for readability (e.g., "angamaly" -> "Angamaly")
+            option.textContent = branch.split(' ').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
             branchSelect.appendChild(option);
         });
 
@@ -299,7 +301,7 @@ document.addEventListener('DOMContentLoaded', () => {
         employeesToFilter.forEach(employee => {
             const option = document.createElement('option');
             option.value = employee.code;
-            // Use the canonical name and branch from the 'employees' array
+            // Use the canonical name and branch from the 'employees' array for display
             option.textContent = `${employee.name} (${employee.branch})`;
             employeeSelect.appendChild(option);
         });
@@ -343,7 +345,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // Determine which report to render based on active tab
         const activeTab = document.querySelector('.tab-button.active');
-        if (!activeTab) return; // No active tab, do nothing
+        if (!activeTab) return;
 
         if (activeTab.id === 'allBranchSnapshotTabBtn') {
             renderAllBranchSnapshot(filteredData);
@@ -361,7 +363,7 @@ document.addEventListener('DOMContentLoaded', () => {
             dateRangeDisplay.style.display = (startDate || endDate) ? 'flex' : 'none';
         } else if (activeTab.id === 'nonParticipatingBranchesTabBtn') {
             renderNonParticipatingBranches(canvassingData); // Non-participating branches always uses full data
-            dateRangeDisplay.style.display = 'none'; // Date filter does not apply here
+            dateRangeDisplay.style.display = 'none';
         } else if (activeTab.id === 'employeeManagementTabBtn') {
             // Do nothing, employee management section handled by its own forms
         }
@@ -413,10 +415,10 @@ document.addEventListener('DOMContentLoaded', () => {
         let overallNewCustomerLeads = 0;
 
         allBranchSnapshotTableBody.innerHTML = '';
-        for (const branchNameKey of Object.keys(branchSummary).sort()) { // Sort by normalized key
+        for (const branchNameKey of Object.keys(branchSummary).sort()) {
             const summary = branchSummary[branchNameKey];
             const row = allBranchSnapshotTableBody.insertRow();
-            // Display the branch name with capitalized first letters for better readability
+            // Display: Capitalize first letter of each word for readability
             row.insertCell().textContent = branchNameKey.split(' ').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
             row.insertCell().textContent = summary.employees.size;
             row.insertCell().textContent = summary.calls;
@@ -491,7 +493,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const nameCell = row.insertCell();
             nameCell.textContent = performance.name;
             nameCell.classList.add('employee-name-cell');
-            nameCell.dataset.employeeCode = employeeCode; // Store code for click event
+            nameCell.dataset.employeeCode = employeeCode;
             nameCell.dataset.employeeName = performance.name;
             nameCell.dataset.employeeBranch = performance.branch;
             nameCell.dataset.employeeDesignation = designation;
@@ -511,7 +513,6 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function renderSingleEmployeePerformance(data, employeeCode) {
-        // Filter data for the specific employee and also calculate all metrics for each row
         const employeeDataWithMetrics = data.filter(row => row[HEADER_EMPLOYEE_CODE] === employeeCode).map(row => {
             const activityType = row[HEADER_ACTIVITY_TYPE];
             const customerType = row[HEADER_TYPE_OF_CUSTOMER];
@@ -521,7 +522,6 @@ document.addEventListener('DOMContentLoaded', () => {
             let calculatedReferences = 0;
             let calculatedNewCustomerLead = 0;
 
-            // Increment based on Activity Type for individual rows
             if (activityType === 'Calls') {
                 calculatedCalls = 1;
             } else if (activityType === 'Visit') {
@@ -530,13 +530,12 @@ document.addEventListener('DOMContentLoaded', () => {
                 calculatedReferences = 1;
             }
 
-            // Calculate New Customer Leads for individual rows
             if ((activityType === 'Visit' || activityType === 'Calls') && customerType === 'New') {
                 calculatedNewCustomerLead = 1;
             }
 
             return {
-                ...row, // Keep all original row data
+                ...row,
                 calculatedCalls: calculatedCalls,
                 calculatedVisits: calculatedVisits,
                 calculatedReferences: calculatedReferences,
@@ -544,8 +543,6 @@ document.addEventListener('DOMContentLoaded', () => {
             };
         });
 
-        // Find the employee's full details (name, branch, designation) from the global employees array
-        // This 'employees' array now contains the canonical details.
         const employeeDetail = employees.find(emp => emp.code === employeeCode);
         if (employeeDetail) {
             employeeNameDisplay.textContent = employeeDetail.name;
@@ -553,7 +550,6 @@ document.addEventListener('DOMContentLoaded', () => {
             employeeBranchDisplay.textContent = employeeDetail.branch;
             employeeDesignationDisplay.textContent = employeeDetail.designation || 'N/A';
         } else {
-            // Fallback if employee detail not found (should be rare with new logic)
             employeeNameDisplay.textContent = 'Unknown Employee';
             employeeCodeDisplay.textContent = employeeCode;
             employeeBranchDisplay.textContent = 'N/A';
@@ -561,7 +557,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         singleEmployeePerformanceTableBody.innerHTML = '';
-        // Sort by date descending, using the new array with calculated leads
         employeeDataWithMetrics.sort((a, b) => new Date(b[HEADER_TIMESTAMP]) - new Date(a[HEADER_TIMESTAMP]));
 
         employeeDataWithMetrics.forEach(row => {
@@ -570,7 +565,7 @@ document.addEventListener('DOMContentLoaded', () => {
             rowElement.insertCell().textContent = row.calculatedCalls;
             rowElement.insertCell().textContent = row.calculatedVisits;
             rowElement.insertCell().textContent = row.calculatedReferences;
-            rowElement.insertCell().textContent = row.calculatedNewCustomerLead; // Display the calculated value
+            rowElement.insertCell().textContent = row.calculatedNewCustomerLead;
             rowElement.insertCell().textContent = row[HEADER_REMARKS] || 'N/A';
         });
     }
@@ -583,8 +578,8 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
 
-        // Use the globally collected and normalized branches for comparison
-        const allBranchesNormalized = new Set(branches); // 'branches' already contains normalized names
+        // 'branches' global array already contains normalized names from both master and canvassing data
+        const allBranchesNormalized = new Set(branches);
         const nonParticipating = Array.from(allBranchesNormalized).filter(branch => !participatingBranchesNormalized.has(branch)).sort();
 
         nonParticipatingBranchesList.innerHTML = '';
@@ -593,18 +588,19 @@ document.addEventListener('DOMContentLoaded', () => {
             document.getElementById('noParticipationMessage').textContent = 'The following branches have no participation records:';
             nonParticipating.forEach(branch => {
                 const li = document.createElement('li');
-                li.textContent = branch.split(' ').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' '); // Capitalize for display
+                // Display: Capitalize first letter of each word for readability
+                li.textContent = branch.split(' ').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
                 nonParticipatingBranchesList.appendChild(li);
             });
         } else {
             noParticipationMessageContainer.style.display = 'block';
             document.getElementById('noParticipationMessage').textContent = 'All recorded branches have participation records.';
-            nonParticipatingBranchesList.innerHTML = ''; // Clear list if all participate
+            nonParticipatingBranchesList.innerHTML = '';
         }
     }
 
 
-    // --- Helper Functions ---
+    // --- Helper Functions (no changes needed here) ---
     function displayMessage(message, isError = false, autoHide = true) {
         statusMessageElement.textContent = message;
         statusMessageElement.classList.remove('success', 'error');
@@ -618,7 +614,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (autoHide) {
             setTimeout(() => {
                 statusMessageElement.style.display = 'none';
-            }, 5000); // Hide after 5 seconds
+            }, 5000);
         }
     }
 
@@ -637,7 +633,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // --- Google Apps Script Communication ---
+    // --- Google Apps Script Communication (no changes needed here) ---
     async function sendDataToGoogleAppsScript(action, data) {
         displayMessage('Processing request...', false, false);
         try {
@@ -659,7 +655,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             if (result.status === 'success') {
                 displayMessage(result.message || 'Operation successful!', false);
-                return result; // Return the full result object
+                return result;
             } else {
                 displayMessage(result.message || 'Operation failed!', true);
                 return false;
@@ -672,9 +668,8 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function displayEmployeeManagementMessage(message, isError) {
-        const messageElement = document.getElementById('employeeManagementMessage'); // Assuming you add this div
+        const messageElement = document.getElementById('employeeManagementMessage');
         if (!messageElement) {
-            // Fallback to general status message if specific one not found
             displayMessage(message, isError);
             return;
         }
@@ -691,32 +686,25 @@ document.addEventListener('DOMContentLoaded', () => {
         }, 5000);
     }
 
-
-    // --- Event Listeners ---
-
-    // Tab button click events
+    // --- Event Listeners (no changes needed here) ---
     allBranchSnapshotTabBtn.addEventListener('click', () => showTab('allBranchSnapshotTabBtn'));
     allStaffOverallPerformanceTabBtn.addEventListener('click', () => showTab('allStaffOverallPerformanceTabBtn'));
     employeeManagementTabBtn.addEventListener('click', () => showTab('employeeManagementTabBtn'));
     nonParticipatingBranchesTabBtn.addEventListener('click', () => showTab('nonParticipatingBranchesTabBtn'));
 
-
-    // Filter change events
     branchSelect.addEventListener('change', () => {
-        const selectedBranchNormalized = branchSelect.value; // This is already normalized
+        const selectedBranchNormalized = branchSelect.value;
         if (selectedBranchNormalized) {
-            // Filter employees based on their normalized branch name
             const employeesInBranch = employees.filter(emp => emp.branch.trim().toLowerCase() === selectedBranchNormalized);
             populateEmployeeFilter(employeesInBranch);
         } else {
-            populateEmployeeFilter(employees); // Show all employees if no branch selected
+            populateEmployeeFilter(employees);
         }
-        employeeSelect.value = ''; // Reset employee selection when branch changes
+        employeeSelect.value = '';
         renderReports();
     });
 
     employeeSelect.addEventListener('change', renderReports);
-
     applyDateFilterBtn.addEventListener('click', renderReports);
     clearDateFilterBtn.addEventListener('click', () => {
         dateFilterStart.value = '';
@@ -724,23 +712,18 @@ document.addEventListener('DOMContentLoaded', () => {
         renderReports();
     });
 
-    // Delegated event listener for employee name clicks in All Staff Performance table
     if (allStaffPerformanceTableBody) {
         allStaffPerformanceTableBody.addEventListener('click', (event) => {
             const targetCell = event.target.closest('.employee-name-cell');
             if (targetCell) {
                 const employeeCode = targetCell.dataset.employeeCode;
-                // Set the employeeSelect to the clicked employee
                 employeeSelect.value = employeeCode;
-                // Switch to the overall performance tab and render single employee view
                 showTab('allStaffOverallPerformanceTabBtn');
-                renderReports(); // This will trigger renderSingleEmployeePerformance because employeeSelect has a value
+                renderReports();
             }
         });
     }
 
-
-    // Event Listener for Add Employee Form
     if (addEmployeeForm) {
         addEmployeeForm.addEventListener('submit', async (event) => {
             event.preventDefault();
@@ -751,7 +734,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 [HEADER_DESIGNATION]: employeeDesignationInput.value.trim()
             };
 
-            // Basic validation
             if (!employeeData[HEADER_EMPLOYEE_NAME] || !employeeData[HEADER_EMPLOYEE_CODE] || !employeeData[HEADER_BRANCH_NAME] || !employeeData[HEADER_DESIGNATION]) {
                 displayEmployeeManagementMessage('All fields are required for adding an employee.', true);
                 return;
@@ -759,13 +741,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
             const success = await sendDataToGoogleAppsScript('add_employee', employeeData);
             if (success) {
-                addEmployeeForm.reset(); // Clear form after submission
-                fetchData(); // Refresh data
+                addEmployeeForm.reset();
+                fetchData();
             }
         });
     }
 
-    // Event Listener for Bulk Add Employee Form
     if (bulkAddEmployeeForm) {
         bulkAddEmployeeForm.addEventListener('submit', async (event) => {
             event.preventDefault();
@@ -782,7 +763,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             for (const line of employeeLines) {
                 const parts = line.split(',').map(part => part.trim());
-                if (parts.length < 2) { // Expect at least Name,Code
+                if (parts.length < 2) {
                     console.warn(`Skipping malformed bulk entry line: ${line}`);
                     continue;
                 }
@@ -798,8 +779,8 @@ document.addEventListener('DOMContentLoaded', () => {
             if (employeesToAdd.length > 0) {
                 const success = await sendDataToGoogleAppsScript('add_bulk_employees', employeesToAdd);
                 if (success) {
-                    bulkAddEmployeeForm.reset(); // Clear form after submission
-                    fetchData(); // Refresh data
+                    bulkAddEmployeeForm.reset();
+                    fetchData();
                 }
             } else {
                 displayEmployeeManagementMessage('No valid employee entries found in the bulk details.', true);
@@ -807,7 +788,6 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // Existing: Event Listener for Delete Employee Form
     if (deleteEmployeeForm) {
         deleteEmployeeForm.addEventListener('submit', async (event) => {
             event.preventDefault();
@@ -822,8 +802,8 @@ document.addEventListener('DOMContentLoaded', () => {
             const success = await sendDataToGoogleAppsScript('delete_employee', deleteData);
 
             if (success) {
-                deleteEmployeeForm.reset(); // Clear form after submission
-                fetchData(); // Refresh data
+                deleteEmployeeForm.reset();
+                fetchData();
             }
         });
     }
