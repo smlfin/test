@@ -36,19 +36,34 @@ document.addEventListener('DOMContentLoaded', () => {
             'New Customer Leads': 20
         }
     };
-    // CSV Column Headers (Ensure these exactly match your Google Sheet headers)
-    const HEADER_TIMESTAMP = "Timestamp";
-    const HEADER_BRANCH_NAME = "Branch Name";
-    const HEADER_EMPLOYEE_CODE = "Employee Code";
-    const HEADER_EMPLOYEE_NAME = "Employee Name";
-    const HEADER_DESIGNATION = "Designation";
-    const HEADER_ACTIVITY_TYPE = "Activity Type"; // New constant
-    const HEADER_TYPE_OF_CUSTOMER = "Type of Customer"; // New constant
-    const HEADER_CALL = "Calls";
-    const HEADER_VISIT = "Visit"; // Corrected spelling based on conversation
-    const HEADER_REFERENCE = "Reference"; // Corrected spelling based on conversation
-    // HEADER_NEW_CUSTOMER_LEADS will be a derived field, not a direct CSV header
-    const HEADER_REMARK = "Remark"; // Spelling corrected for consistency
+        // Predefined list of branches for the dropdown and "no participation" check
+    const PREDEFINED_BRANCHES = [
+        "Angamaly", "Corporate Office", "Edappally", "Harippad", "Koduvayur", "Kuzhalmannam",
+        "Mattanchery", "Mavelikara", "Nedumkandom", "Nenmara", "Paravoor", "Perumbavoor",
+        "Thiruwillamala", "Thodupuzha", "Chengannur", "Alathur", "Kottayam", "Kattapana",
+        "Muvattupuzha", "Thiruvalla", "Pathanamthitta", "HO KKM" // Corrected "Pathanamthitta" typo if it existed previously
+    ].sort();
+
+  // --- Column Headers Mapping (IMPORTANT: These must EXACTLY match the column names in your "Form Responses 2" Google Sheet) ---
+    const HEADER_TIMESTAMP = 'Timestamp';
+    const HEADER_DATE = 'Date';
+    const HEADER_BRANCH_NAME = 'Branch Name';
+    const HEADER_EMPLOYEE_NAME = 'Employee Name';
+    const HEADER_EMPLOYEE_CODE = 'Employee Code';
+    const HEADER_DESIGNATION = 'Designation';
+    const HEADER_ACTIVITY_TYPE = 'Activity Type';
+    const HEADER_TYPE_OF_CUSTOMER = 'Type of Customer'; // !!! CORRECTED TYPO HERE !!!
+    const HEADER_R_LEAD_SOURCE = 'rLead Source';      // Keeping user's provided interpretation of split header
+    const HEADER_HOW_CONTACTED = 'How Contacted';
+    const HEADER_PROSPECT_NAME = 'Prospect Name';
+    const HEADER_PHONE_NUMBER_WHATSAPP = 'Phone Numebr(Whatsapp)'; // Keeping user's provided typo
+    const HEADER_ADDRESS = 'Address';
+    const HEADER_PROFESSION = 'Profession';
+    const HEADER_DOB_WD = 'DOB/WD';
+    const HEADER_PRODUCT_INTERESTED = 'Prodcut Interested'; // Keeping user's provided typo
+    const HEADER_REMARKS = 'Remarks';
+    const HEADER_NEXT_FOLLOW_UP_DATE = 'Next Follow-up Date';
+    const HEADER_RELATION_WITH_STAFF = 'Relation With Staff';
 
     let canvassingData = []; // Stores the fetched and processed data
 
