@@ -579,7 +579,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             } else {
                 displayEmployeeManagementMessage('No valid employee entries found in the bulk details.', true);
-            }\
+            }
         });
     }
 
