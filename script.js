@@ -2,7 +2,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // *** Configuration ***
     // This URL is for your Canvassing Data sheet. Ensure it's correct and published as CSV.
     // NOTE: If you are still getting 404, this URL is the problem.
-    const DATA_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTO7LujC4VSa2wGkJ2YEYSN7UeXR221ny3THaVegYfNfRm2JQGg7QR9Bxxh9SadXtK8Pi6-psl2tGsb/pub?gid=696550092&single=true&output=csv"; 
+    const DATA_URL = "https://docs.google.com/spreadsheets/d/e/2PAC-1vTO7LujC4VSa2wGkJ2YEYSN7UeXR221ny3THAVegYfNfRm2JQGg7QR9Bxxh9SadXtK8Pi6-psl2tGsb/pub?gid=696550092&single=true&output=csv";
 
     // IMPORTANT: Replace this with YOUR DEPLOYED GOOGLE APPS SCRIPT WEB APP URL
     // NOTE: If you are getting errors sending data, this URL is the problem.
@@ -14,31 +14,31 @@ document.addEventListener('DOMContentLoaded', () => {
         'Branch Manager': {
             'Visit': 10,
             'Call': 3 * MONTHLY_WORKING_DAYS,
-            'Reference': 1 * MONTHLY_WORKING_DAYS,
+            'Referance': 1 * MONTHLY_WORKING_DAYS, // Stick to your spelling
             'New Customer Leads': 20
         },
         'Investment Staff': { // Added Investment Staff with custom Visit target
             'Visit': 30,
             'Call': 5 * MONTHLY_WORKING_DAYS,
-            'Reference': 1 * MONTHLY_WORKING_DAYS,
+            'Referance': 1 * MONTHLY_WORKING_DAYS, // Stick to your spelling
             'New Customer Leads': 20
         },
         'Relationship Officer': { // Added Relationship Officer
             'Visit': 25,
             'Call': 5 * MONTHLY_WORKING_DAYS,
-            'Reference': 1 * MONTHLY_WORKING_DAYS,
+            'Referance': 1 * MONTHLY_WORKING_DAYS, // Stick to your spelling
             'New Customer Leads': 15
         },
         'Telecaller': { // Added Telecaller
             'Call': 10 * MONTHLY_WORKING_DAYS,
             'New Customer Leads': 10,
             'Visit': 0, // No visit target for telecaller
-            'Reference': 0 // No reference target for telecaller
+            'Referance': 0 // No reference target for telecaller // Stick to your spelling
         },
         'Other': { // Default/Fallback for other designations
             'Visit': 5,
             'Call': 2 * MONTHLY_WORKING_DAYS,
-            'Reference': 0.5 * MONTHLY_WORKING_DAYS,
+            'Referance': 0.5 * MONTHLY_WORKING_DAYS, // Stick to your spelling
             'New Customer Leads': 5
         }
     };
@@ -51,9 +51,13 @@ document.addEventListener('DOMContentLoaded', () => {
     const HEADER_DESIGNATION = 'Designation';
     const HEADER_VISIT = 'Visit';
     const HEADER_CALL = 'Call';
-    const HEADER_REFERENCE = 'Reference';
-    const HEADER_NEW_CUSTOMER_LEADS = 'New Customer Leads';
+    const HEADER_REFERENCE = 'Referance'; // Changed to match your spelling
+    const HEADER_NEW_CUSTOMER_LEADS = 'New Customer Leads'; // This will be calculated in JS
     const HEADER_REMARKS = 'Remarks';
+
+    // *** NEW HEADERS FOR CALCULATION ***
+    const HEADER_ACTIVITY_TYPE = 'Activity Type'; // Make sure this matches your actual column name
+    const HEADER_TYPE_OF_CUSTOMER = 'Type of Customer'; // Make sure this matches your actual column name
 
     // --- Headers for Master Employee Data (from Liv).xlsx - Sheet1.csv) ---
     const MASTER_HEADER_EMPLOYEE_CODE = 'Employee Code';
@@ -369,8 +373,19 @@ document.addEventListener('DOMContentLoaded', () => {
             branchSummary[branchName].employees.add(employeeCode);
             branchSummary[branchName].calls += parseInt(row[HEADER_CALL] || 0);
             branchSummary[branchName].visits += parseInt(row[HEADER_VISIT] || 0);
+            // The original script was parsing HEADER_REFERENCE here.
+            // Since you clarified the spelling, it should be HEADER_REFERENCE which is 'Referance'
             branchSummary[branchName].references += parseInt(row[HEADER_REFERENCE] || 0);
-            branchSummary[branchName].newCustomerLeads += parseInt(row[HEADER_NEW_CUSTOMER_LEADS] || 0);
+
+            // *** Calculate New Customer Leads here for Branch Snapshot ***
+            // This assumes 'Activity Type' and 'Type of Customer' columns exist in your CSV
+            const activityType = row[HEADER_ACTIVITY_TYPE];
+            const customerType = row[HEADER_TYPE_OF_CUSTOMER];
+
+            if ((activityType === 'Visit' || activityType === 'Calls') && customerType === 'New') {
+                branchSummary[branchName].newCustomerLeads += 1;
+            }
+            // *** End Calculation ***
 
             employeeSet.add(employeeCode);
         });
@@ -421,13 +436,22 @@ document.addEventListener('DOMContentLoaded', () => {
                     calls: 0,
                     visits: 0,
                     references: 0,
-                    newCustomerLeads: 0
+                    newCustomerLeads: 0 // Initialize to 0 for calculation
                 };
             }
             employeePerformance[employeeCode].calls += parseInt(row[HEADER_CALL] || 0);
             employeePerformance[employeeCode].visits += parseInt(row[HEADER_VISIT] || 0);
-            employeePerformance[employeeCode].references += parseInt(row[HEADER_REFERENCE] || 0);
-            employeePerformance[employeeCode].newCustomerLeads += parseInt(row[HEADER_NEW_CUSTOMER_LEADS] || 0);
+            employeePerformance[employeeCode].references += parseInt(row[HEADER_REFERENCE] || 0); // Uses your spelling
+
+            // *** Calculate New Customer Leads here for All Staff Performance ***
+            // This assumes 'Activity Type' and 'Type of Customer' columns exist in your CSV
+            const activityType = row[HEADER_ACTIVITY_TYPE];
+            const customerType = row[HEADER_TYPE_OF_CUSTOMER];
+
+            if ((activityType === 'Visit' || activityType === 'Calls') && customerType === 'New') {
+                employeePerformance[employeeCode].newCustomerLeads += 1;
+            }
+            // *** End Calculation ***
         });
 
         allStaffPerformanceTableBody.innerHTML = '';
@@ -457,16 +481,23 @@ document.addEventListener('DOMContentLoaded', () => {
             row.insertCell().textContent = performance.calls;
             row.insertCell().textContent = performance.visits;
             row.insertCell().textContent = performance.references;
-            row.insertCell().textContent = performance.newCustomerLeads;
+            row.insertCell().textContent = performance.newCustomerLeads; // Display calculated value
             row.insertCell().textContent = targets.Call;
             row.insertCell().textContent = targets.Visit;
-            row.insertCell().textContent = targets.Reference;
+            row.insertCell().textContent = targets.Referance; // Uses your spelling
             row.insertCell().textContent = targets['New Customer Leads'];
         });
     }
 
     function renderSingleEmployeePerformance(data, employeeCode) {
-        const employeeData = data.filter(row => row[HEADER_EMPLOYEE_CODE] === employeeCode);
+        // Filter data for the specific employee and also calculate New Customer Leads for each row
+        const employeeDataWithLeads = data.filter(row => row[HEADER_EMPLOYEE_CODE] === employeeCode).map(row => {
+            const newCustomerLead = ((row[HEADER_ACTIVITY_TYPE] === 'Visit' || row[HEADER_ACTIVITY_TYPE] === 'Calls') && row[HEADER_TYPE_OF_CUSTOMER] === 'New') ? 1 : 0;
+            return {
+                ...row, // Keep all original row data
+                calculatedNewCustomerLead: newCustomerLead // Add the calculated lead
+            };
+        });
 
         // Find the employee's full details (name, branch, designation) from the global employees array
         const employeeDetail = employees.find(emp => emp.code === employeeCode);
@@ -484,15 +515,16 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         singleEmployeePerformanceTableBody.innerHTML = '';
-        employeeData.sort((a, b) => new Date(b[HEADER_TIMESTAMP]) - new Date(a[HEADER_TIMESTAMP])); // Sort by date descending
+        // Sort by date descending, using the new array with calculated leads
+        employeeDataWithLeads.sort((a, b) => new Date(b[HEADER_TIMESTAMP]) - new Date(a[HEADER_TIMESTAMP]));
 
-        employeeData.forEach(row => {
+        employeeDataWithLeads.forEach(row => {
             const rowElement = singleEmployeePerformanceTableBody.insertRow();
             rowElement.insertCell().textContent = new Date(row[HEADER_TIMESTAMP]).toLocaleDateString();
             rowElement.insertCell().textContent = row[HEADER_CALL] || 0;
             rowElement.insertCell().textContent = row[HEADER_VISIT] || 0;
-            rowElement.insertCell().textContent = row[HEADER_REFERENCE] || 0;
-            rowElement.insertCell().textContent = row[HEADER_NEW_CUSTOMER_LEADS] || 0;
+            rowElement.insertCell().textContent = row[HEADER_REFERENCE] || 0; // Uses your spelling
+            rowElement.insertCell().textContent = row.calculatedNewCustomerLead; // Display the calculated value
             rowElement.insertCell().textContent = row[HEADER_REMARKS] || 'N/A';
         });
     }
