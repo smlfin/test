@@ -369,6 +369,39 @@ footer {
     border-top: 1px solid #eee;
 }
 
+/* New styles for progress bar */
+.progress-bar-container {
+    width: 100%;
+    background-color: #e0e0e0;
+    border-radius: 5px;
+    margin-top: 5px;
+    height: 20px;
+    position: relative;
+    overflow: hidden; /* Ensure progress bar doesn't overflow container */
+}
+
+.progress-bar {
+    height: 100%;
+    background-color: #4CAF50; /* Green */
+    width: 0%; /* Initial width */
+    border-radius: 5px;
+    text-align: center;
+    color: white;
+    line-height: 20px; /* Vertically center the text */
+    transition: width 0.5s ease-in-out;
+}
+
+.progress-text {
+    position: absolute;
+    width: 100%;
+    text-align: center;
+    line-height: 20px; /* Vertically center the text */
+    color: #333; /* Darker text for readability */
+    font-size: 0.8em;
+    font-weight: bold;
+}
+
+
 /* Responsive Design */
 @media (max-width: 768px) {
     .report-tabs {
@@ -397,6 +430,14 @@ footer {
     /* Adjust summary breakdown card for smaller screens */
     .summary-breakdown-card {
         grid-template-columns: 1fr; /* Stack items vertically on small screens */
+    }
+
+    /* Adjust for specific table cell in mobile view for all branch snapshot */
+    .all-branch-snapshot-table td[data-label="Branch Name"] {
+        text-align: center; /* Center the branch name on mobile */
+        font-size: 1.1em;
+        padding-top: 15px;
+        padding-bottom: 15px;
     }
 
     /* Adjust for specific table cell in mobile view for all branch snapshot */
