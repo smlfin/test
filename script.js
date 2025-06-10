@@ -6,7 +6,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // IMPORTANT: Replace this with YOUR DEPLOYED GOOGLE APPS SCRIPT WEB APP URL
     // NOTE: If you are getting errors sending data, this URL is the problem.
-    const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzEYf0CKgwP0O4-z1lup1lDZImD1dQVEveLWsHwa_7T5ltndfIuRWXVZqFDj03_proD/exec"; // <-- PASTE YOUR NEWLY DEPLOYED WEB APP URL HERE
+    const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzEY0CKgwP0O4-z1lup1lDZImD1dQVEveLWsHwa_7T5ltndfIuRWXVZqFDj03_proD/exec"; // <-- PASTE YOUR NEWLY DEPLOYED WEB APP URL HERE
 
     const MONTHLY_WORKING_DAYS = 22; // Common approximation for a month's working days
 
@@ -501,16 +501,29 @@ document.addEventListener('DOMContentLoaded', () => {
             row.insertCell().textContent = employeeCode;
             row.insertCell().textContent = performance.branch;
             row.insertCell().textContent = designation;
-            row.insertCell().textContent = performance.calls;
-            row.insertCell().textContent = performance.visits;
-            row.insertCell().textContent = performance.references;
-            row.insertCell().textContent = performance.newCustomerLeads;
-            row.insertCell().textContent = targets.Call;
-            row.insertCell().textContent = targets.Visit;
-            row.insertCell().textContent = targets.Referance;
-            row.insertCell().textContent = targets['New Customer Leads'];
+
+            // Function to create cell with actual, target, and progress bar
+            const createMetricCell = (actual, target) => {
+                const cell = document.createElement('td');
+                const percentage = target > 0 ? ((actual / target) * 100).toFixed(0) : 0;
+
+                cell.innerHTML = `
+                    <div>${actual} / ${target}</div>
+                    <div class="progress-bar-container">
+                        <div class="progress-bar" style="width: ${Math.min(100, percentage)}%;"></div>
+                        <span class="progress-text">${percentage}%</span>
+                    </div>
+                `;
+                return cell;
+            };
+
+            row.appendChild(createMetricCell(performance.calls, targets.Call));
+            row.appendChild(createMetricCell(performance.visits, targets.Visit));
+            row.appendChild(createMetricCell(performance.references, targets.Referance));
+            row.appendChild(createMetricCell(performance.newCustomerLeads, targets['New Customer Leads']));
         });
     }
+
 
     function renderSingleEmployeePerformance(data, employeeCode) {
         const employeeDataWithMetrics = data.filter(row => row[HEADER_EMPLOYEE_CODE] === employeeCode).map(row => {
