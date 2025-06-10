@@ -10,36 +10,30 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const MONTHLY_WORKING_DAYS = 22; // Common approximation for a month's working days
 
-    const TARGETS = {
+    cconst TARGETS = {
         'Branch Manager': {
             'Visit': 10,
             'Call': 3 * MONTHLY_WORKING_DAYS,
-            'Referance': 1 * MONTHLY_WORKING_DAYS, // Stick to your spelling
+            'Reference': 1 * MONTHLY_WORKING_DAYS,
             'New Customer Leads': 20
         },
         'Investment Staff': { // Added Investment Staff with custom Visit target
             'Visit': 30,
             'Call': 5 * MONTHLY_WORKING_DAYS,
-            'Referance': 1 * MONTHLY_WORKING_DAYS, // Stick to your spelling
+            'Reference': 1 * MONTHLY_WORKING_DAYS,
             'New Customer Leads': 20
         },
-        'Relationship Officer': { // Added Relationship Officer
-            'Visit': 25,
+'Seniors': { // Added Investment Staff with custom Visit target
+            'Visit': 30,
             'Call': 5 * MONTHLY_WORKING_DAYS,
-            'Referance': 1 * MONTHLY_WORKING_DAYS, // Stick to your spelling
-            'New Customer Leads': 15
+            'Reference': 1 * MONTHLY_WORKING_DAYS,
+            'New Customer Leads': 20
         },
-        'Telecaller': { // Added Telecaller
-            'Call': 10 * MONTHLY_WORKING_DAYS,
-            'New Customer Leads': 10,
-            'Visit': 0, // No visit target for telecaller
-            'Referance': 0 // No reference target for telecaller // Stick to your spelling
-        },
-        'Other': { // Default/Fallback for other designations
+        'Default': { // For all other designations not explicitly defined
             'Visit': 5,
-            'Call': 2 * MONTHLY_WORKING_DAYS,
-            'Referance': 0.5 * MONTHLY_WORKING_DAYS, // Stick to your spelling
-            'New Customer Leads': 5
+            'Call': 3 * MONTHLY_WORKING_DAYS,
+            'Reference': 1 * MONTHLY_WORKING_DAYS,
+            'New Customer Leads': 20
         }
     };
 
