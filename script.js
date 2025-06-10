@@ -7,10 +7,9 @@ document.addEventListener('DOMContentLoaded', () => {
     // IMPORTANT: Replace this with YOUR DEPLOYED GOOGLE APPS SCRIPT WEB APP URL
     // NOTE: If you are getting errors sending data, this URL is the problem.
     const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzEY0CKgwP0O4-z1lup1lDZImD1dQVEveLWsHwa_7T5ltndfIuRWXVZqFDj03_proD/exec"; // <-- PASTE YOUR NEWLY DEPLOYED WEB APP URL HERE
+const MONTHLY_WORKING_DAYS = 22; // Common approximation for a month's working days
 
-    const MONTHLY_WORKING_DAYS = 22; // Common approximation for a month's working days
-
-    cconst TARGETS = {
+    const TARGETS = {
         'Branch Manager': {
             'Visit': 10,
             'Call': 3 * MONTHLY_WORKING_DAYS,
@@ -36,7 +35,6 @@ document.addEventListener('DOMContentLoaded', () => {
             'New Customer Leads': 20
         }
     };
-
     // --- Headers for Canvassing Data Sheet ---
     // !!! IMPORTANT: Ensure these match your actual Google Sheet column headers EXACTLY (case-sensitive) !!!
     const HEADER_TIMESTAMP = 'Timestamp';
