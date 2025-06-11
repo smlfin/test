@@ -16,46 +16,55 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // *** Header Definitions (Updated for 28 columns based on your sheet structure) ***
     // MAKE SURE THESE MATCH YOUR GOOGLE SHEET'S FIRST ROW HEADERS EXACTLY
-    const HEADER_TIMESTAMP = "Timestamp"; // MM/DD/YYYY HH:MM:SS format
-    const HEADER_DATE = "Date of Visit"; // DD/MM/YYYY format
-    const HEADER_DATE_OF_ENTRY = "Date of Entry";
-    const HEADER_BRANCH_NAME = "Branch Name";
-    const HEADER_EMPLOYEE_NAME = "Employee Name";
-    const HEADER_EMPLOYEE_CODE = "Employee Code";
-    const HEADER_DESIGNATION = "Designation";
-    const HEADER_MODE_OF_CONTACT = "Mode of contact";
-    const HEADER_CUSTOMER_TYPE = "Customer Type";
-    const HEADER_SOURCE = "Source";
-    const HEADER_REASON_FOR_VISIT = "Reason for Visit";
-    const HEADER_CUSTOMER_NAME = "Name of Customer";
-    const HEADER_PHONE_NUMBER = "Phone Number";
-    const HEADER_ADDRESS = "Address";
-    const HEADER_WIFE_HUSBAND_NAME = "Name of wife/Husband";
-    const HEADER_FAMILY_DETAILS_2 = "Family Deatils -2"; // Adjust if this is a real name
-    const HEADER_WIFE_HUSBAND_JOB = "Job of wife/Husband";
-    const HEADER_FAMILY_DETAILS_3 = "Family Deatils -3"; // Adjust if this is a real name
-    const HEADER_CHILDREN_NAMES = "Names of Children";
-    const HEADER_FAMILY_DETAILS_4 = "Family Deatils -4"; // Adjust if this is a real name
+    const HEADER_TIMESTAMP = 'Timestamp';
+    const HEADER_DATE = 'Date';
+    const HEADER_BRANCH_NAME = 'Branch Name';
+    const HEADER_EMPLOYEE_NAME = 'Employee Name';
+    const HEADER_EMPLOYEE_CODE = 'Employee Code';
+    const HEADER_DESIGNATION = 'Designation';
+    const HEADER_ACTIVITY_TYPE = 'Activity Type';
+    const HEADER_TYPE_OF_CUSTOMER = 'Type of Customer'; // !!! CORRECTED TYPO HERE !!!
+    const HEADER_R_LEAD_SOURCE = 'rLead Source';      // Keeping user's provided interpretation of split header
+    const HEADER_HOW_CONTACTED = 'How Contacted';
+    const HEADER_PROSPECT_NAME = 'Prospect Name';
+    const HEADER_PHONE_NUMBER_WHATSAPP = 'Phone Numebr(Whatsapp)'; // Keeping user's provided typo
+    const HEADER_ADDRESS = 'Address';
+    const HEADER_PROFESSION = 'Profession';
+    const HEADER_DOB_WD = 'DOB/WD';
+    const HEADER_PRODUCT_INTERESTED = 'Prodcut Interested'; // Keeping user's provided typo
+    const HEADER_REMARKS = 'Remarks';
+    const HEADER_NEXT_FOLLOW_UP_DATE = 'Next Follow-up Date';
+    const HEADER_RELATION_WITH_STAFF = 'Relation With Staff';
+    const HEADER_WIFE_HUSBAND_NAME = "Family Deatils -1 Name of wife/Husband";
+    const HEADER_FAMILY_DETAILS_2 = "Family Deatils -2  Job of wife/Husband"; // Adjust if this is a real name
+    const HEADER_FAMILY_DETAILS_3 = "Family Deatils -3 Names of Children"; // Adjust if this is a real name
+    const HEADER_FAMILY_DETAILS_4 = "Family Deatils -4 Deatils of Children"; // Adjust if this is a real name
     const HEADER_CHILDREN_DETAILS = "Deatils of Children";
-    const HEADER_LOAN_PRODUCT = "Product";
-    const HEADER_LOAN_STATUS = "Status"; // Under Loan Details
-    const HEADER_LOAN_DATE = "Date";    // Under Loan Details
-    const HEADER_REMARKS = "Remarks";
-    const HEADER_CALLBACK_DATE = "Date to call back";
-    const HEADER_DONE_BY = "Done by";
-    const HEADER_CUSTOMER_PROFILE_STATUS = "Status"; // Under Customer Profile
-    const HEADER_CUSTOMER_PROFILE_INTEREST = "Interested"; // Under Customer Profile
+    const HEADER_CUSTOMER_PROFILE_STATUS = "Profile of Customer"; // Under Customer Profile
+ 
 
 
     // Define which headers to display in the detailed table
     const HEADERS_TO_SHOW = [
-        HEADER_DATE, HEADER_BRANCH_NAME, HEADER_EMPLOYEE_NAME, HEADER_DESIGNATION,
-        HEADER_MODE_OF_CONTACT, HEADER_CUSTOMER_TYPE, HEADER_SOURCE, HEADER_REASON_FOR_VISIT,
-        HEADER_CUSTOMER_NAME, HEADER_PHONE_NUMBER, HEADER_ADDRESS, HEADER_WIFE_HUSBAND_NAME,
-        HEADER_WIFE_HUSBAND_JOB, HEADER_CHILDREN_NAMES, HEADER_CHILDREN_DETAILS,
-        HEADER_LOAN_PRODUCT, HEADER_LOAN_STATUS, HEADER_LOAN_DATE, HEADER_REMARKS,
-        HEADER_CALLBACK_DATE, HEADER_DONE_BY, HEADER_CUSTOMER_PROFILE_STATUS,
-        HEADER_CUSTOMER_PROFILE_INTEREST
+        HEADER_TIMESTAMP, HEADER_DATE, HEADER_BRANCH_NAME,HEADER_EMPLOYEE_NAME,HEADER_EMPLOYEE_CODE,HEADER_DESIGNATION, 
+    HEADER_ACTIVITY_TYPE,HEADER_TYPE_OF_CUSTOMER,
+    HEADER_R_LEAD_SOURCE, 
+    HEADER_HOW_CONTACTED, 
+   HEADER_PROSPECT_NAME, 
+    HEADER_PHONE_NUMBER_WHATSAPP,
+  HEADER_ADDRESS,
+    HEADER_PROFESSION, 
+  HEADER_DOB_WD,
+  HEADER_PRODUCT_INTERESTED, 
+HEADER_REMARKS, 
+ HEADER_NEXT_FOLLOW_UP_DATE, 
+   HEADER_RELATION_WITH_STAFF, 
+  HEADER_WIFE_HUSBAND_NAME, 
+   HEADER_FAMILY_DETAILS_2,
+HEADER_FAMILY_DETAILS_3,
+HEADER_FAMILY_DETAILS_4, 
+HEADER_CHILDREN_DETAILS,
+HEADER_CUSTOMER_PROFILE_STATUS
         // NOTE: HEADER_FAMILY_DETAILS_2, HEADER_FAMILY_DETAILS_3, HEADER_FAMILY_DETAILS_4 are included as constants
         // but not in HEADERS_TO_SHOW by default. Add if you want them in the detailed table.
     ];
