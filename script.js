@@ -11,6 +11,9 @@ document.addEventListener('DOMContentLoaded', () => {
     // We will IGNORE MasterEmployees sheet for data fetching and report generation
     const EMPLOYEE_MASTER_DATA_URL = "UNUSED"; // This remains unused for front-end reporting
 
+    // NEW: Performance optimization for detailed entry table
+    const MAX_DISPLAY_ROWS = 500; // Limit the number of rows to display in detailed entries table
+
     // *** Header Definitions (Updated for 28 columns based on your sheet structure) ***
     // MAKE SURE THESE MATCH YOUR GOOGLE SHEET'S FIRST ROW HEADERS EXACTLY
     const HEADER_TIMESTAMP = "Timestamp"; // MM/DD/YYYY HH:MM:SS format
@@ -115,10 +118,13 @@ document.addEventListener('DOMContentLoaded', () => {
         statusMessageContainer.className = `message-container ${isError ? 'error-message' : 'success-message'}`;
         statusMessageContainer.style.display = 'block';
 
-        setTimeout(() => {
-            statusMessageContainer.style.display = 'none';
-            statusMessageContainer.textContent = '';
-        }, 5000); // Message disappears after 5 seconds
+        // Keep status messages for longer if it's an error or loading
+        if (!isError && !message.includes('Loading')) {
+            setTimeout(() => {
+                statusMessageContainer.style.display = 'none';
+                statusMessageContainer.textContent = '';
+            }, 5000); // Message disappears after 5 seconds
+        }
     }
 
 
@@ -452,8 +458,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         return data.filter(entry => {
-            // MODIFIED: Use parseFlexibleTimestampDate for HEADER_TIMESTAMP
-            const entryDate = parseFlexibleTimestampDate(entry[HEADER_TIMESTAMP]); // <--- MODIFIED HERE
+            const entryDate = parseFlexibleTimestampDate(entry[HEADER_TIMESTAMP]);
 
             if (!entryDate) return false; // Skip if date cannot be parsed
 
@@ -677,8 +682,9 @@ document.addEventListener('DOMContentLoaded', () => {
             headerRow.appendChild(th);
         });
 
-        // Add table body rows
-        employeeEntries.forEach(entry => {
+        // Add table body rows, respecting MAX_DISPLAY_ROWS
+        const entriesToDisplay = employeeEntries.slice(0, MAX_DISPLAY_ROWS); // Limit display <--- MODIFIED
+        entriesToDisplay.forEach(entry => { // Loop over the limited array <--- MODIFIED
             const row = employeeDetailedEntriesTableBody.insertRow();
             HEADERS_TO_SHOW.forEach(header => {
                 const cell = row.insertCell();
@@ -689,6 +695,15 @@ document.addEventListener('DOMContentLoaded', () => {
                 cell.textContent = cellValue;
             });
         });
+
+        // Add a message if not all entries are displayed
+        if (employeeEntries.length > MAX_DISPLAY_ROWS) { // <--- ADDED
+            const moreRowsMessage = employeeDetailedEntriesTableBody.insertRow();
+            const messageCell = moreRowsMessage.insertCell();
+            messageCell.colSpan = HEADERS_TO_SHOW.length;
+            messageCell.classList.add('info-message'); // Add a class for styling
+            messageCell.textContent = `Displaying the most recent ${MAX_DISPLAY_ROWS} entries. Total entries: ${employeeEntries.length}.`;
+        }
 
         // Display summary for the detailed entries
         const employeeTotalVisits = employeeEntries.length;
@@ -714,6 +729,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Main function to apply all filters and render reports
     function applyFiltersAndRender() {
+        displayStatusMessage('Applying filters and rendering reports...', false); // Show message
         let filteredData = allData;
 
         // Get selected filter values
@@ -745,6 +761,7 @@ document.addEventListener('DOMContentLoaded', () => {
             employeeDetailedEntriesTableBody.innerHTML = '<tr><td colspan="23">Please select an employee from the filter to see detailed entries.</td></tr>';
             employeeDetailedEntriesSummary.innerHTML = '';
         }
+        displayStatusMessage('Reports updated.', false); // Clear message after rendering
     }
 
 
@@ -849,6 +866,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Master function to fetch, initialize filters, and apply filters
     async function processData() {
+        displayStatusMessage('Initializing dashboard...', false); // Initial message for the whole process
         const data = await fetchData();
         if (data.length > 0) {
             initializeFilters(data);
@@ -870,6 +888,7 @@ document.addEventListener('DOMContentLoaded', () => {
             totalParticipatingBranchesCount.textContent = '0';
             totalNonParticipatingBranchesCount.textContent = '0';
         }
+        displayStatusMessage('Dashboard ready.', false); // Final message
     }
 
 
