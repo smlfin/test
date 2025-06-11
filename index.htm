@@ -13,7 +13,7 @@
             <button class="tab-button active" id="allBranchSnapshotTabBtn">All Branch Snapshot</button>
             <button class="tab-button" id="allStaffOverallPerformanceTabBtn">All Staff Performance (Overall)</button>
             <button class="tab-button" id="nonParticipatingBranchesTabBtn">Non-Participating Branches</button>
-            <button class="tab-button" id="dailyFollowUpReportTabBtn">Daily Follow-up Report</button> <button class="tab-button" id="employeeManagementTabBtn">Employee Management</button>
+            <button class="tab-button" id="employeeManagementTabBtn">Employee Management</button>
         </nav>
     </header>
 
@@ -36,80 +36,138 @@
                     </select>
                 </div>
 
-                <div id="viewOptions" class="view-options" style="display: none;">
-                    <button class="btn" id="viewBranchPerformanceReportBtn">Branch Performance Report</button>
-                    <button class="btn" id="viewEmployeeSummaryBtn">Employee Summary (Current Month)</button>
-                    <button class="btn" id="viewAllEntriesBtn">View All Entries (Employee)</button>
-                    <button class="btn" id="viewPerformanceReportBtn">Employee Performance Report</button>
+                <div class="dropdown-group">
+                    <label for="customerTypeSelect">Select Customer Type:</label>
+                    <select id="customerTypeSelect">
+                        <option value="">-- All --</option>
+                    </select>
+                </div>
+
+                <div class="dropdown-group">
+                    <label for="reasonForVisitSelect">Select Reason for Visit:</label>
+                    <select id="reasonForVisitSelect">
+                        <option value="">-- All --</option>
+                    </select>
+                </div>
+
+                <div class="dropdown-group">
+                    <label for="loanProductSelect">Select Loan Product:</label>
+                    <select id="loanProductSelect">
+                        <option value="">-- All --</option>
+                    </select>
+                </div>
+
+                <div class="dropdown-group">
+                    <label for="dateRangePicker">Select Date Range:</label>
+                    <select id="dateRangePicker">
+                        <option value="All Time">All Time</option>
+                        <option value="Today">Today</option>
+                        <option value="Yesterday">Yesterday</option>
+                        <option value="This Week">This Week</option>
+                        <option value="Last 7 Days">Last 7 Days</option>
+                        <option value="This Month">This Month</option>
+                        <option value="Last 30 Days">Last 30 Days</option>
+                        <option value="This Quarter">This Quarter</option>
+                        <option value="This Year">This Year</option>
+                        </select>
                 </div>
             </div>
 
-            <div id="reportDisplay" class="report-display">
-                <p>Select a report from the tabs above.</p>
-            </div>
-        </section>
+            <section id="allBranchSnapshotSection" class="report-section-content">
+                <h2>All Branch Snapshot</h2>
+                <div class="summary-breakdown-card">
+                    <div class="summary-item">Total Visits: <span id="totalVisitsCount">0</span></div>
+                    <div class="summary-item">New Customers: <span id="totalNewCustomersCount">0</span></div>
+                    <div class="summary-item">Loan Enquiries: <span id="totalLoanEnquiriesCount">0</span></div>
+                    <div class="summary-item">RD Customers: <span id="totalRDCustomersCount">0</span></div>
+                    <div class="summary-item">MISC Customers: <span id="totalMISCCustomersCount">0</span></div>
+                    <div class="summary-item">Participating Branches: <span id="totalParticipatingBranchesCount">0</span></div>
+                    <div class="summary-item">Non-Participating Branches (Current Filter): <span id="totalNonParticipatingBranchesCount">0</span></div>
+                </div>
+                <div class="table-container">
+                    <table class="data-table all-branch-snapshot-table">
+                        <thead>
+                            <tr>
+                                <th>Branch Name</th>
+                                <th>Total Visits</th>
+                                <th>New Customers</th>
+                                <th>Participating Employees</th>
+                            </tr>
+                        </thead>
+                        <tbody id="allBranchSnapshotTableBody">
+                            </tbody>
+                    </table>
+                </div>
+            </section>
 
-        <section id="employeeManagementSection" class="employee-management-section" style="display:none;">
-            <h2>Employee Management</h2>
-            <div id="employeeManagementMessage" class="message-container" style="display:none;"></div>
-            
-            <div class="form-section">
-                <h3>Add New Employee</h3>
-                <form id="addEmployeeForm" class="employee-form">
-                    <div class="form-group">
-                        <label for="newEmployeeName">Employee Name:</label>
-                        <input type="text" id="newEmployeeName" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="newEmployeeCode">Employee Code:</label>
-                        <input type="text" id="newEmployeeCode" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="newBranchName">Branch Name:</label>
-                        <input type="text" id="newBranchName" required list="branchNames">
-                        <datalist id="branchNames"></datalist>
-                    </div>
-                    <div class="form-group">
-                        <label for="newDesignation">Designation:</label>
-                        <input type="text" id="newDesignation" required list="designations">
-                        <datalist id="designations">
-                            <option value="Branch Manager">
-                            <option value="Investment Staff">
-                            <option value="Seniors">
-                            </datalist>
-                    </div>
-                    <button type="submit" class="btn">Add Employee</button>
-                </form>
-            </div>
+            <section id="allStaffOverallPerformanceSection" class="report-section-content" style="display: none;">
+                <h2>All Staff Performance (Overall)</h2>
+                <div class="table-container">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Employee Name</th>
+                                <th>Employee Code</th>
+                                <th>Total Visits</th>
+                                <th>New Customers</th>
+                                <th>Loan Enquiries</th>
+                                <th>RD Customers</th>
+                                <th>MISC Customers</th>
+                            </tr>
+                        </thead>
+                        <tbody id="allStaffOverallPerformanceTableBody">
+                            </tbody>
+                    </table>
+                </div>
 
-            <div class="form-section">
-                <h3>Bulk Add Employees</h3>
-                <form id="bulkAddEmployeeForm" class="employee-form">
-                    <div class="form-group">
-                        <label for="bulkEmployeeBranchName">Branch Name for Bulk Entry:</label>
-                        <input type="text" id="bulkEmployeeBranchName" required list="branchNamesBulk">
-                        <datalist id="branchNamesBulk"></datalist>
+                <div id="employeeDetailedEntriesSummary" class="summary-details-container">
                     </div>
-                    <div class="form-group">
-                        <label for="bulkEmployeeDetails">Employee Details (Name,Code,Designation - one per line):</label>
-                        <textarea id="bulkEmployeeDetails" rows="10" placeholder="e.g.,&#10;Alice,EMP001,Manager&#10;Bob,EMP002,Sales Exec&#10;Charlie,EMP003" required></textarea>
-                    </div>
-                    <button type="submit" class="btn">Add Bulk Employees</button>
-                </form>
-            </div>
+                <div class="table-container">
+                    <table class="data-table detailed-entries-table">
+                        <tbody id="employeeDetailedEntriesTableBody">
+                            <tr><td colspan="23">Please select an employee from the filter to see detailed entries.</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
 
-            <div class="form-section">
-                <h3>Delete Employee</h3>
-                <form id="deleteEmployeeForm" class="employee-form">
-                    <div class="form-group">
-                        <label for="deleteEmployeeCode">Employee Code to Delete:</label>
-                        <input type="text" id="deleteEmployeeCode" required>
-                    </div>
-                    <button type="submit" class="btn danger-btn">Delete Employee</button>
-                </form>
-            </div>
-        </section>
-    </main>
+            <section id="nonParticipatingBranchesSection" class="report-section-content" style="display: none;">
+                <h2>Non-Participating Branches</h2>
+                <ul id="nonParticipatingBranchesList" class="non-participating-branch-list">
+                    </ul>
+            </section>
+
+            <section id="employeeManagementSection" class="report-section-content" style="display: none;">
+                <h2>Employee Management</h2>
+                <div id="employeeManagementMessage" class="message-container"></div>
+
+                <div class="form-section">
+                    <h3>Add Bulk Employees</h3>
+                    <form id="bulkAddEmployeeForm" class="employee-form">
+                        <div class="form-group">
+                            <label for="bulkEmployeeBranchName">Branch Name for Bulk Entry:</label>
+                            <input type="text" id="bulkEmployeeBranchName" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="bulkEmployeeDetails">Employee Details (Name,Code,Designation - one per line):</label>
+                            <textarea id="bulkEmployeeDetails" rows="10" placeholder="e.g.,&#10;Alice,EMP001,Manager&#10;Bob,EMP002,Sales Exec&#10;Charlie,EMP003" required></textarea>
+                        </div>
+                        <button type="submit" class="btn">Add Bulk Employees</button>
+                    </form>
+                </div>
+
+                <div class="form-section">
+                    <h3>Delete Employee</h3>
+                    <form id="deleteEmployeeForm" class="employee-form">
+                        <div class="form-group">
+                            <label for="deleteEmployeeCode">Employee Code to Delete:</label>
+                            <input type="text" id="deleteEmployeeCode" required>
+                        </div>
+                        <button type="submit" class="btn danger-btn">Delete Employee</button>
+                    </form>
+                </div>
+            </section>
+        </main>
 
     <footer>
         <p>&copy; 2025 Employee Canvassing Dashboard</p>
