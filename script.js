@@ -73,9 +73,13 @@ document.addEventListener('DOMContentLoaded', () => {
     const allStaffOverallPerformanceReport = document.getElementById('allStaffOverallPerformanceReport');
     const nonParticipatingBranchesReport = document.getElementById('nonParticipatingBranchesReport');
     const employeeDetailedEntriesReport = document.getElementById('employeeDetailedEntriesReport');
-    const branchDetailedEntriesReport = document.getElementById('branchDetailedEntriesReport'); // NEW
-    const branchDetailedEntriesTitle = document.getElementById('branchDetailedEntriesTitle'); // NEW
-    const backToBranchSnapshotBtn = document.getElementById('backToBranchSnapshotBtn'); // NEW
+    const branchDetailedEntriesReport = document.getElementById('branchDetailedEntriesReport');
+    const branchDetailedEntriesTitle = document.getElementById('branchDetailedEntriesTitle');
+    const backToBranchSnapshotBtn = document.getElementById('backToBranchSnapshotBtn');
+
+    const customerDetailedEntriesReport = document.getElementById('customerDetailedEntriesReport'); // NEW
+    const customerDetailedEntriesTitle = document.getElementById('customerDetailedEntriesTitle'); // NEW
+    const backToEmployeeSpecificReportsBtn = document.getElementById('backToEmployeeSpecificReportsBtn'); // NEW
 
     const branchSelect = document.getElementById('branchSelect');
     const employeeFilterPanel = document.getElementById('employeeFilterPanel');
@@ -88,7 +92,15 @@ document.addEventListener('DOMContentLoaded', () => {
     const allStaffOverallPerformanceTable = document.getElementById('allStaffOverallPerformanceTable');
     const nonParticipatingBranchesTable = document.getElementById('nonParticipatingBranchesTable');
     const employeeDetailedEntriesTable = document.getElementById('employeeDetailedEntriesTable');
-    const branchDetailedEntriesTable = document.getElementById('branchDetailedEntriesTable'); // NEW
+    const branchDetailedEntriesTable = document.getElementById('branchDetailedEntriesTable');
+    const customerDetailedEntriesTable = document.getElementById('customerDetailedEntriesTable'); // NEW
+
+    const employeeSpecificReportsContainer = document.getElementById('employeeSpecificReportsContainer'); // NEW
+    const customerVisitsTable = document.getElementById('customerVisitsTable'); // NEW
+    const customerReferencesTable = document.getElementById('customerReferencesTable'); // NEW
+    const newCustomerLeadsTable = document.getElementById('newCustomerLeadsTable'); // NEW
+    const newLoanLeadsTable = document.getElementById('newLoanLeadsTable'); // NEW
+
 
     // Employee Management Forms
     const employeeManagementMessageDiv = document.getElementById('employeeManagementMessage');
@@ -187,8 +199,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // Extract unique branches and employees from canvassing data
         const uniqueBranches = new Set();
-        const uniqueEmployees = new Set();
-        employeesByBranch = {};
+        const uniqueEmployees = new Set(); // For overall staff performance dropdown
+        employeesByBranch = {}; // For branch-specific employee dropdown
 
         allCanvassingData.forEach(entry => {
             const branch = entry[HEADER_BRANCH_NAME];
@@ -211,10 +223,11 @@ document.addEventListener('DOMContentLoaded', () => {
         });
 
         allBranches = Array.from(uniqueBranches).sort();
-        allEmployees = Array.from(uniqueEmployees).sort();
+        allEmployees = Array.from(uniqueEmployees).sort(); // Sort all employees for overall dropdown
 
         populateBranchSelect();
-        populateEmployeeSelect();
+        // Initially populate employee select with all employees if no branch is selected
+        populateEmployeeSelect(); 
         renderAllBranchSnapshot();
         renderAllStaffOverallPerformance();
         renderNonParticipatingBranches();
@@ -238,7 +251,14 @@ document.addEventListener('DOMContentLoaded', () => {
         if (branch && employeesByBranch[branch]) {
             employeesToDisplay = Array.from(employeesByBranch[branch]).map(emp => `${emp.name} (${emp.code}) - ${emp.designation}`).sort();
         } else {
-            employeesToDisplay = allEmployees;
+            // Only populate with employees who have data, not necessarily all employees from master
+            // This ensures dropdown only shows relevant employees if no branch is selected or if data is empty.
+            employeesToDisplay = Array.from(new Set(allCanvassingData.map(entry => {
+                if (entry[HEADER_EMPLOYEE_NAME] && entry[HEADER_EMPLOYEE_CODE] && entry[HEADER_DESIGNATION]) {
+                    return `${entry[HEADER_EMPLOYEE_NAME]} (${entry[HEADER_EMPLOYEE_CODE]}) - ${entry[HEADER_DESIGNATION]}`;
+                }
+                return null;
+            }).filter(Boolean))).sort();
         }
 
         employeesToDisplay.forEach(employee => {
@@ -247,7 +267,9 @@ document.addEventListener('DOMContentLoaded', () => {
             option.textContent = employee;
             employeeSelect.appendChild(option);
         });
+        employeeSelect.value = ''; // Reset selected employee
     }
+
 
     // Tab and Report Display Logic
     function showTab(tabId) {
@@ -258,7 +280,14 @@ document.addEventListener('DOMContentLoaded', () => {
         // Hide employee management section
         employeeManagementSection.style.display = 'none';
         reportsSection.style.display = 'none';
-        employeeFilterPanel.style.display = 'none'; // Hide employee filter by default
+        
+        // Hide employee filter panel and specific reports container by default
+        employeeFilterPanel.style.display = 'none'; 
+        employeeSpecificReportsContainer.style.display = 'none'; 
+        customerDetailedEntriesReport.style.display = 'none'; // Hide customer specific detailed report
+        employeeDetailedEntriesReport.style.display = 'none'; // Hide employee detailed report
+        branchDetailedEntriesReport.style.display = 'none'; // Hide branch detailed report
+
 
         // Activate selected tab button and show relevant section
         document.getElementById(tabId).classList.add('active');
@@ -266,10 +295,18 @@ document.addEventListener('DOMContentLoaded', () => {
         if (tabId === 'allBranchSnapshotTabBtn') {
             reportsSection.style.display = 'block';
             allBranchSnapshotReport.style.display = 'block';
+            employeeFilterPanel.style.display = 'flex'; // Show employee filter under All Branch Snapshot
+            branchSelect.value = ''; // Reset branch selection
+            employeeSelect.value = ''; // Reset employee selection
+            populateEmployeeSelect(''); // Show all employees initially in the dropdown
         } else if (tabId === 'allStaffOverallPerformanceTabBtn') {
             reportsSection.style.display = 'block';
             allStaffOverallPerformanceReport.style.display = 'block';
-            employeeFilterPanel.style.display = 'flex'; // Show employee filter
+            // For this tab, the dropdowns are linked to viewing all entries for an employee
+            employeeFilterPanel.style.display = 'flex'; 
+            branchSelect.value = ''; // Reset branch selection
+            employeeSelect.value = ''; // Reset employee selection
+            populateEmployeeSelect(''); // Show all employees initially in the dropdown
         } else if (tabId === 'nonParticipatingBranchesTabBtn') {
             reportsSection.style.display = 'block';
             nonParticipatingBranchesReport.style.display = 'block';
@@ -361,6 +398,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (!employeePerformance[employeeCode]) {
                     employeePerformance[employeeCode] = {
                         name: employeeName,
+                        code: employeeCode, // Added code for easier access
                         branch: branch,
                         designation: designation,
                         totalEntries: 0,
@@ -456,10 +494,108 @@ document.addEventListener('DOMContentLoaded', () => {
         nonParticipatingBranchesTable.innerHTML = tableHTML;
     }
 
+    // Helper to render basic Date/Customer Name table with clickable customer names
+    function renderSimpleCustomerTable(data, tableElement, title) {
+        let tableHTML = `
+            <thead>
+                <tr>
+                    <th>Date</th>
+                    <th>Customer Name</th>
+                </tr>
+            </thead>
+            <tbody>
+        `;
+
+        if (data.length === 0) {
+            tableHTML += `<tr><td colspan="2">No ${title.toLowerCase()} found.</td></tr>`;
+        } else {
+            // Sort by timestamp descending
+            const sortedData = [...data].sort((a, b) => new Date(b[HEADER_TIMESTAMP]) - new Date(a[HEADER_TIMESTAMP]));
+
+            sortedData.forEach(entry => {
+                const timestamp = new Date(entry[HEADER_TIMESTAMP]);
+                const formattedDate = timestamp.toLocaleDateString(); // Format date nicely
+                const customerName = entry[HEADER_CUSTOMER_NAME] || 'N/A';
+                const customerContact = entry[HEADER_CUSTOMER_CONTACT] || ''; // Pass contact for better uniqueness
+
+                // Pass all necessary info for detailed view to the click handler
+                tableHTML += `
+                    <tr>
+                        <td>${formattedDate}</td>
+                        <td><a href="#" class="customer-link" 
+                                data-customer-name="${customerName}" 
+                                data-customer-contact="${customerContact}"
+                                data-employee-code="${entry[HEADER_EMPLOYEE_CODE]}">${customerName}</a></td>
+                    </tr>
+                `;
+            });
+        }
+        tableHTML += `</tbody>`;
+        tableElement.innerHTML = tableHTML;
+
+        // Attach event listeners after rendering
+        tableElement.querySelectorAll('.customer-link').forEach(link => {
+            link.addEventListener('click', (event) => {
+                event.preventDefault();
+                const customerName = event.target.dataset.customerName;
+                const customerContact = event.target.dataset.customerContact;
+                const employeeCode = event.target.dataset.employeeCode;
+                renderCustomerDetailedEntries(customerName, customerContact, employeeCode);
+            });
+        });
+    }
+
+    // NEW: Functions to render the four specific tables
+    function renderCustomerVisitsTable(branchName, employeeCode) {
+        const filteredData = allCanvassingData.filter(entry =>
+            entry[HEADER_BRANCH_NAME] === branchName &&
+            entry[HEADER_EMPLOYEE_CODE] === employeeCode &&
+            entry[HEADER_ACTIVITY_TYPE] === 'Visit' &&
+            entry[HEADER_CUSTOMER_NAME]
+        );
+        renderSimpleCustomerTable(filteredData, customerVisitsTable, 'Customer Visits & Meeting Report');
+    }
+
+    function renderCustomerReferencesTable(branchName, employeeCode) {
+        const filteredData = allCanvassingData.filter(entry =>
+            entry[HEADER_BRANCH_NAME] === branchName &&
+            entry[HEADER_EMPLOYEE_CODE] === employeeCode &&
+            entry[HEADER_ACTIVITY_TYPE] === 'Reference' &&
+            entry[HEADER_CUSTOMER_NAME]
+        );
+        renderSimpleCustomerTable(filteredData, customerReferencesTable, 'Customer Reference Generated');
+    }
+
+    function renderNewCustomerLeadsTable(branchName, employeeCode) {
+        const filteredData = allCanvassingData.filter(entry =>
+            entry[HEADER_BRANCH_NAME] === branchName &&
+            entry[HEADER_EMPLOYEE_CODE] === employeeCode &&
+            entry[HEADER_ACTIVITY_TYPE] === 'New Customer Leads' &&
+            entry[HEADER_CUSTOMER_NAME]
+        );
+        renderSimpleCustomerTable(filteredData, newCustomerLeadsTable, 'New Customer Leads Generated');
+    }
+
+    function renderNewLoanLeadsTable(branchName, employeeCode) {
+        const filteredData = allCanvassingData.filter(entry =>
+            entry[HEADER_BRANCH_NAME] === branchName &&
+            entry[HEADER_EMPLOYEE_CODE] === employeeCode &&
+            entry[HEADER_ACTIVITY_TYPE] === 'New Loan Leads' &&
+            entry[HEADER_CUSTOMER_NAME]
+        );
+        renderSimpleCustomerTable(filteredData, newLoanLeadsTable, 'New Loan Leads Generated');
+    }
+
+
+    // Unified function to render detailed entries (employee, branch, or customer)
     function renderDetailedEntriesTable(data, tableElement, titleElement, backButtonElement, backTo) {
         if (data.length === 0) {
             tableElement.innerHTML = `<tr><td colspan="9">No canvassing entries found.</td></tr>`;
+            // Hide the table if no data
+            tableElement.style.display = 'none'; 
             return;
+        } else {
+             tableElement.style.display = 'table'; // Show table if data exists
         }
 
         const headers = [
@@ -475,7 +611,11 @@ document.addEventListener('DOMContentLoaded', () => {
         });
         tableHTML += `</tr></thead><tbody>`;
 
-        data.forEach(entry => {
+        // Sort entries by timestamp descending for detailed views
+        const sortedData = [...data].sort((a, b) => new Date(b[HEADER_TIMESTAMP]) - new Date(a[HEADER_TIMESTAMP]));
+
+
+        sortedData.forEach(entry => {
             tableHTML += `<tr>`;
             headers.forEach(header => {
                 tableHTML += `<td>${entry[header] || ''}</td>`;
@@ -485,16 +625,22 @@ document.addEventListener('DOMContentLoaded', () => {
         tableHTML += `</tbody>`;
         tableElement.innerHTML = tableHTML;
 
-        // Hide all reports and show the detailed report
+        // Hide all main reports and show the specific detailed report
         document.querySelectorAll('.report-content').forEach(report => report.style.display = 'none');
         document.querySelectorAll('.tab-button').forEach(btn => btn.classList.remove('active')); // Deactivate all tabs
-        
+        employeeFilterPanel.style.display = 'none'; // Hide dropdowns
+        employeeSpecificReportsContainer.style.display = 'none'; // Hide the four tables
+
+
         // Show the specific detailed report and its back button
         if (tableElement === employeeDetailedEntriesTable) {
             employeeDetailedEntriesReport.style.display = 'block';
             document.getElementById('allStaffOverallPerformanceTabBtn').classList.add('active'); // Keep overall performance tab active
         } else if (tableElement === branchDetailedEntriesTable) {
             branchDetailedEntriesReport.style.display = 'block';
+            document.getElementById('allBranchSnapshotTabBtn').classList.add('active'); // Keep branch snapshot tab active
+        } else if (tableElement === customerDetailedEntriesTable) { // NEW
+            customerDetailedEntriesReport.style.display = 'block';
             document.getElementById('allBranchSnapshotTabBtn').classList.add('active'); // Keep branch snapshot tab active
         }
     }
@@ -507,11 +653,22 @@ document.addEventListener('DOMContentLoaded', () => {
         renderDetailedEntriesTable(employeeCodeEntries, employeeDetailedEntriesTable, employeeDetailedEntriesTitle, backToEmployeeFilterBtn, 'employeeFilter');
     }
 
-    // NEW: Function to render detailed entries for a specific branch
     function renderBranchDetailedEntries(branchName) {
         const branchEntries = allCanvassingData.filter(entry => entry[HEADER_BRANCH_NAME] === branchName);
         branchDetailedEntriesTitle.textContent = `Customer Canvassing Details for Branch: ${branchName}`;
         renderDetailedEntriesTable(branchEntries, branchDetailedEntriesTable, branchDetailedEntriesTitle, backToBranchSnapshotBtn, 'allBranchSnapshot');
+    }
+
+    // NEW: Function to render detailed entries for a specific customer
+    function renderCustomerDetailedEntries(customerName, customerContact, employeeCode) {
+        // Filter by customer name, contact, and employee code for more precise results
+        const customerEntries = allCanvassingData.filter(entry => 
+            (entry[HEADER_CUSTOMER_NAME] === customerName || (!entry[HEADER_CUSTOMER_NAME] && customerName === 'N/A')) && 
+            entry[HEADER_CUSTOMER_CONTACT] === customerContact &&
+            entry[HEADER_EMPLOYEE_CODE] === employeeCode
+        );
+        customerDetailedEntriesTitle.textContent = `Customer Canvassing Details for: ${customerName}`;
+        renderDetailedEntriesTable(customerEntries, customerDetailedEntriesTable, customerDetailedEntriesTitle, backToEmployeeSpecificReportsBtn, 'employeeSpecificReports');
     }
 
 
@@ -528,15 +685,60 @@ document.addEventListener('DOMContentLoaded', () => {
             populateEmployeeSelect(selectedBranch);
             employeeFilterPanel.style.display = 'flex'; // Show employee filter when branch is selected
         } else {
+            // If no branch selected, reset employee dropdown and hide specific reports
             populateEmployeeSelect(); // Show all employees if no branch selected
-            employeeFilterPanel.style.display = 'none'; // Hide employee filter if no branch selected
+            employeeFilterPanel.style.display = 'flex'; // Keep filter visible
             employeeSelect.value = ''; // Reset employee select
+            employeeSpecificReportsContainer.style.display = 'none'; // Hide the four tables
+            customerDetailedEntriesReport.style.display = 'none'; // Hide customer specific detailed report
             employeeDetailedEntriesReport.style.display = 'none'; // Hide employee detailed report
-            showTab('allStaffOverallPerformanceTabBtn'); // Go back to overall performance view
+        }
+        // Always try to render employee specific reports if both are selected, or hide them
+        const selectedEmployeeText = employeeSelect.value;
+        const employeeCodeMatch = selectedEmployeeText ? selectedEmployeeText.match(/\((EMP\d+)\)/) : null;
+        const employeeCode = employeeCodeMatch ? employeeCodeMatch[1] : null;
+        if (selectedBranch && employeeCode) {
+             renderEmployeeSpecificReports(selectedBranch, employeeCode);
+        } else {
+            employeeSpecificReportsContainer.style.display = 'none';
         }
     });
 
-    // Event Listener for View All Entries (Employee) Button
+    // NEW: Event listener for Employee Select
+    employeeSelect.addEventListener('change', () => {
+        const selectedBranch = branchSelect.value;
+        const selectedEmployeeText = employeeSelect.value;
+
+        if (selectedBranch && selectedEmployeeText) {
+            const employeeCodeMatch = selectedEmployeeText.match(/\((EMP\d+)\)/);
+            if (employeeCodeMatch) {
+                const employeeCode = employeeCodeMatch[1];
+                renderEmployeeSpecificReports(selectedBranch, employeeCode);
+            } else {
+                showStatusMessage('Could not parse employee code from selection.', true);
+                employeeSpecificReportsContainer.style.display = 'none';
+            }
+        } else {
+            employeeSpecificReportsContainer.style.display = 'none';
+        }
+
+        // Hide customer detailed view if employee selection changes
+        customerDetailedEntriesReport.style.display = 'none';
+        // Hide employee detailed entries (from "View All Entries (Employee)" button) if employee selection changes
+        employeeDetailedEntriesReport.style.display = 'none';
+    });
+
+    // Function to render all four specific tables
+    function renderEmployeeSpecificReports(branchName, employeeCode) {
+        renderCustomerVisitsTable(branchName, employeeCode);
+        renderCustomerReferencesTable(branchName, employeeCode);
+        renderNewCustomerLeadsTable(branchName, employeeCode);
+        renderNewLoanLeadsTable(branchName, employeeCode);
+        employeeSpecificReportsContainer.style.display = 'block';
+    }
+
+
+    // Event Listener for View All Entries (Employee) Button (This is still for the "All Staff Performance (Overall)" use case)
     viewAllEntriesBtn.addEventListener('click', () => {
         const selectedEmployeeText = employeeSelect.value;
         if (!selectedEmployeeText) {
@@ -555,16 +757,30 @@ document.addEventListener('DOMContentLoaded', () => {
         renderEmployeeDetailedEntries(employeeCodeEntries);
     });
 
-    // Event Listener for Back to Employee Filter Button
+    // Event Listener for Back to Employee Filter Button (from Employee Detailed Entries)
     backToEmployeeFilterBtn.addEventListener('click', () => {
         employeeDetailedEntriesReport.style.display = 'none';
-        showTab('allStaffOverallPerformanceTabBtn');
+        showTab('allStaffOverallPerformanceTabBtn'); // This back button always goes to All Staff Performance
     });
 
-    // NEW: Event Listener for Back to Branch Snapshot Button
+    // Event Listener for Back to Branch Snapshot Button (from Branch Detailed Entries)
     backToBranchSnapshotBtn.addEventListener('click', () => {
         branchDetailedEntriesReport.style.display = 'none';
-        showTab('allBranchSnapshotTabBtn');
+        showTab('allBranchSnapshotTabBtn'); // This back button always goes to All Branch Snapshot
+        // Reset dropdowns to ensure initial state on return
+        branchSelect.value = ''; 
+        employeeSelect.value = '';
+        employeeSpecificReportsContainer.style.display = 'none'; // Ensure the four tables are hidden
+    });
+
+    // NEW: Event Listener for Back to Employee Specific Reports (from Customer Detailed Entries)
+    backToEmployeeSpecificReportsBtn.addEventListener('click', () => {
+        customerDetailedEntriesReport.style.display = 'none';
+        // Re-show the main reports section and the All Branch Snapshot content
+        reportsSection.style.display = 'block';
+        allBranchSnapshotReport.style.display = 'block';
+        employeeFilterPanel.style.display = 'flex'; // Show dropdowns
+        employeeSpecificReportsContainer.style.display = 'block'; // Show the four tables again
     });
 
 
