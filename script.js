@@ -59,7 +59,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const HEADER_PHONE_NUMBER_WHATSAPP = 'Phone Numebr(Whatsapp)';
     const HEADER_ADDRESS = 'Address';
     const HEADER_PROFESSION = 'Profession';
-    const HEADER_DOB_WD = 'DOB/WD'; // Included
+    const HEADER_DOB_WD = 'DOB/WD';
     const HEADER_PRODUCT_INTERESTED = 'Prodcut Interested';
     const HEADER_REMARKS = 'Remarks';
     const HEADER_NEXT_FOLLOW_UP_DATE = 'Next Follow-up Date';
@@ -102,9 +102,9 @@ document.addEventListener('DOMContentLoaded', () => {
     const detailCustomerName = document.getElementById('detailCustomerName');
     const detailAddress = document.getElementById('detailAddress');
     const detailPhoneNumber = document.getElementById('detailPhoneNumber');
-    const detailEmailId = document.getElementById('detailEmailId'); // Ensure this ID exists in HTML
-    const detailDobWd = document.getElementById('detailDobWd'); // NEW
-    const detailProfession = document.getElementById('detailProfession'); // NEW
+    const detailEmailId = document.getElementById('detailEmailId');
+    const detailDobWd = document.getElementById('detailDobWd');
+    const detailProfession = document.getElementById('detailProfession');
     const detailProductInterested = document.getElementById('detailProductInterested');
     const detailRelationWithStaff = document.getElementById('detailRelationWithStaff');
     const detailRemarks = document.getElementById('detailRemarks');
@@ -164,12 +164,33 @@ document.addEventListener('DOMContentLoaded', () => {
     let currentBranchSnapshotSubView = 'summary';
 
 
-    // Utility to format date to ISO-MM-DD
+    // Utility to format date to YYYY-MM-DD, robustly parsing various input formats
     const formatDate = (dateString) => {
         if (!dateString) return '';
-        const date = new Date(dateString);
-        if (isNaN(date.getTime())) return dateString; // Return original if invalid date
-        return date.toISOString().split('T')[0];
+        
+        let date = new Date(dateString); // Try parsing directly (works for YYYY-MM-DD, MM/DD/YYYY)
+
+        // If direct parsing results in an invalid date, try DD/MM/YYYY format
+        if (isNaN(date.getTime())) {
+            const parts = dateString.split('/');
+            if (parts.length === 3) {
+                const day = parseInt(parts[0], 10);
+                const month = parseInt(parts[1], 10); // Month is 1-indexed in DD/MM/YYYY format
+                const year = parseInt(parts[2], 10);
+                // Construct date with year, month-1, day to be safe
+                date = new Date(year, month - 1, day);
+            }
+        }
+
+        if (date && !isNaN(date.getTime())) {
+            // Format to YYYY-MM-DD
+            const year = date.getFullYear();
+            const month = (date.getMonth() + 1).toString().padStart(2, '0');
+            const day = date.getDate().toString().padStart(2, '0');
+            return `${year}-${month}-${day}`;
+        }
+        console.warn(`Could not parse or format date: ${dateString}`); // Log problematic dates
+        return dateString; // Return original string if parsing failed even after attempts
     };
 
     // Helper to clear and display messages in a specific div
@@ -579,12 +600,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
             const row = staffOverallPerformanceTableBody.insertRow();
 
-            // Employee Info - Adjusted order for Branch and Designation
+            // Employee Info - Adjusted order for Branch and Designation (Confirmed order for the design)
             row.insertCell().setAttribute('data-label', 'Employee Name');
             row.lastChild.textContent = employeeName;
-            row.insertCell().setAttribute('data-label', 'Branch'); // Changed order
+            row.insertCell().setAttribute('data-label', 'Branch');
             row.lastChild.textContent = employeeBranch;
-            row.insertCell().setAttribute('data-label', 'Designation'); // Changed order
+            row.insertCell().setAttribute('data-label', 'Designation');
             row.lastChild.textContent = employeeDesignation;
 
             // Visit Metrics
@@ -707,8 +728,8 @@ document.addEventListener('DOMContentLoaded', () => {
         detailAddress.textContent = entry[HEADER_ADDRESS] || 'N/A';
         detailPhoneNumber.textContent = entry[HEADER_PHONE_NUMBER_WHATSAPP] || 'N/A';
         detailEmailId.textContent = entry['Email ID'] || 'N/A'; // Assuming 'Email ID' is the header for email if it exists
-        detailDobWd.textContent = entry[HEADER_DOB_WD] || 'N/A'; // NEW
-        detailProfession.textContent = entry[HEADER_PROFESSION] || 'N/A'; // NEW
+        detailDobWd.textContent = formatDate(entry[HEADER_DOB_WD]); // Apply formatDate here too
+        detailProfession.textContent = entry[HEADER_PROFESSION] || 'N/A';
         detailProductInterested.textContent = entry[HEADER_PRODUCT_INTERESTED] || 'N/A';
         detailRelationWithStaff.textContent = entry[HEADER_RELATION_WITH_STAFF] || 'N/A';
         detailRemarks.textContent = entry[HEADER_REMARKS] || 'N/A';
