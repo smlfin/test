@@ -40,7 +40,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const totalCustomersSpan = document.getElementById('totalCustomers');
     const totalCanvassedSpan = document.getElementById('totalCanvassed');
-    const totalAchievedSpan = document = document.getElementById('totalAchieved');
+    const totalAchievedSpan = document.getElementById('totalAchieved');
     const totalAchievedPercentageSpan = document.getElementById('totalAchievedPercentage');
     const branchPerformanceTableBody = document.getElementById('branchPerformanceTable').querySelector('tbody');
     const employeePerformanceTableBody = document.getElementById('employeePerformanceTable').querySelector('tbody');
@@ -218,7 +218,7 @@ document.addEventListener('DOMContentLoaded', () => {
         employeeSelect.innerHTML = '<option value="">-- All Employees --</option>';
         const uniqueEmployeesForFilter = new Set();
         allEmployees.forEach(emp => {
-             // Use a combination of code and name to ensure uniqueness if codes are not strictly unique globally
+            // Use a combination of code and name to ensure uniqueness if codes are not strictly unique globally
             uniqueEmployeesForFilter.add(JSON.stringify({ code: emp.code, name: emp.name }));
         });
         
@@ -239,6 +239,7 @@ document.addEventListener('DOMContentLoaded', () => {
         months.forEach((month, index) => {
             const option = document.createElement('option');
             option.value = String(index + 1).padStart(2, '0'); // "01", "02", etc.
+            option.textContent = month; // Display full month name
             if (index + 1 === currentMonth) {
                 option.selected = true;
             }
@@ -715,7 +716,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const success = await sendDataToGoogleAppsScript('delete_employee', deleteData);
 
             if (success) {
-                await processData(); // Re-fetch to update lists after deletion
+                await processData(); // Re-fetch to update filters after deletion
                 deleteEmployeeForm.reset();
             }
         });
@@ -723,5 +724,5 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Initial data fetch and tab display when the page loads
     processData();
-    showTab('allBranchSnapshotTabBtn'); // Call showTab to set initial active tab and display report
+    showTab('allBranchSnapshotTabBtn');
 });
