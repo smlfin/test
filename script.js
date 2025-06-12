@@ -11,7 +11,8 @@ document.addEventListener('DOMContentLoaded', () => {
     // We will IGNORE MasterEmployees sheet for data fetching and report generation
     // Employee management functions in Apps Script still use the MASTER_SHEET_ID you've set up in code.gs
     // For front-end reporting, all employee and branch data will come from Canvassing Data and predefined list.
-    const EMPLOYEE_MASTER_DATA_URL = "UNUSED"; // This URL is not used for client-side data fetching.
+    const EMPLOYEE_MASTER_DATA_URL = "UNUSED"; // Marked as UNUSED for clarity, won't be fetched for reports
+
 
     // Header constants for CSV/Sheet columns
     const HEADER_DATE_CANVASSED = 'Date Canvassed';
