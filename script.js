@@ -59,16 +59,16 @@ document.addEventListener('DOMContentLoaded', () => {
     const HEADER_PHONE_NUMBER_WHATSAPP = 'Phone Numebr(Whatsapp)';
     const HEADER_ADDRESS = 'Address';
     const HEADER_PROFESSION = 'Profession';
-    const HEADER_DOB_WD = 'DOB/WD';
-    const HEADER_PRODUCT_INTERESTED = 'Prodcut Interested'; // Added
+    const HEADER_DOB_WD = 'DOB/WD'; // Included
+    const HEADER_PRODUCT_INTERESTED = 'Prodcut Interested';
     const HEADER_REMARKS = 'Remarks';
     const HEADER_NEXT_FOLLOW_UP_DATE = 'Next Follow-up Date';
-    const HEADER_RELATION_WITH_STAFF = 'Relation With Staff'; // Added/Uncommented
-    const HEADER_FAMILY_DETAILS_WIFE_HUSBAND_NAME = 'Family Deatils -1 Name of wife/Husband'; // New
-    const HEADER_FAMILY_DETAILS_WIFE_HUSBAND_JOB = 'Family Deatils -2 Job of wife/Husband'; // New
-    const HEADER_FAMILY_DETAILS_CHILDREN_NAMES = 'Family Deatils -3 Names of Children'; // New
-    const HEADER_FAMILY_DETAILS_CHILDREN_DETAILS = 'Family Deatils -4 Deatils of Children'; // New
-    const HEADER_PROFILE_OF_CUSTOMER = 'Profile of Customer'; // New
+    const HEADER_RELATION_WITH_STAFF = 'Relation With Staff';
+    const HEADER_FAMILY_DETAILS_WIFE_HUSBAND_NAME = 'Family Deatils -1 Name of wife/Husband';
+    const HEADER_FAMILY_DETAILS_WIFE_HUSBAND_JOB = 'Family Deatils -2 Job of wife/Husband';
+    const HEADER_FAMILY_DETAILS_CHILDREN_NAMES = 'Family Deatils -3 Names of Children';
+    const HEADER_FAMILY_DETAILS_CHILDREN_DETAILS = 'Family Deatils -4 Deatils of Children';
+    const HEADER_PROFILE_OF_CUSTOMER = 'Profile of Customer';
 
 
     // *** DOM Elements ***
@@ -102,16 +102,18 @@ document.addEventListener('DOMContentLoaded', () => {
     const detailCustomerName = document.getElementById('detailCustomerName');
     const detailAddress = document.getElementById('detailAddress');
     const detailPhoneNumber = document.getElementById('detailPhoneNumber');
-    const detailEmailId = document.getElementById('detailEmailId');
-    const detailProductInterested = document.getElementById('detailProductInterested'); // NEW
-    const detailRelationWithStaff = document.getElementById('detailRelationWithStaff'); // NEW
+    const detailEmailId = document.getElementById('detailEmailId'); // Ensure this ID exists in HTML
+    const detailDobWd = document.getElementById('detailDobWd'); // NEW
+    const detailProfession = document.getElementById('detailProfession'); // NEW
+    const detailProductInterested = document.getElementById('detailProductInterested');
+    const detailRelationWithStaff = document.getElementById('detailRelationWithStaff');
     const detailRemarks = document.getElementById('detailRemarks');
     const detailFollowupDate = document.getElementById('detailFollowupDate');
-    const detailCustomerProfile = document.getElementById('detailCustomerProfile'); // NEW
-    const detailFamilySpouse = document.getElementById('detailFamilySpouse'); // NEW
-    const detailFamilySpouseJob = document.getElementById('detailFamilySpouseJob'); // NEW
-    const detailFamilyChildrenNames = document.getElementById('detailFamilyChildrenNames'); // NEW
-    const detailFamilyChildrenDetails = document.getElementById('detailFamilyChildrenDetails'); // NEW
+    const detailCustomerProfile = document.getElementById('detailCustomerProfile');
+    const detailFamilySpouse = document.getElementById('detailFamilySpouse');
+    const detailFamilySpouseJob = document.getElementById('detailFamilySpouseJob');
+    const detailFamilyChildrenNames = document.getElementById('detailFamilyChildrenNames');
+    const detailFamilyChildrenDetails = document.getElementById('detailFamilyChildrenDetails');
 
 
     // Dedicated message area element
@@ -705,15 +707,17 @@ document.addEventListener('DOMContentLoaded', () => {
         detailAddress.textContent = entry[HEADER_ADDRESS] || 'N/A';
         detailPhoneNumber.textContent = entry[HEADER_PHONE_NUMBER_WHATSAPP] || 'N/A';
         detailEmailId.textContent = entry['Email ID'] || 'N/A'; // Assuming 'Email ID' is the header for email if it exists
-        detailProductInterested.textContent = entry[HEADER_PRODUCT_INTERESTED] || 'N/A'; // NEW
-        detailRelationWithStaff.textContent = entry[HEADER_RELATION_WITH_STAFF] || 'N/A'; // NEW
+        detailDobWd.textContent = entry[HEADER_DOB_WD] || 'N/A'; // NEW
+        detailProfession.textContent = entry[HEADER_PROFESSION] || 'N/A'; // NEW
+        detailProductInterested.textContent = entry[HEADER_PRODUCT_INTERESTED] || 'N/A';
+        detailRelationWithStaff.textContent = entry[HEADER_RELATION_WITH_STAFF] || 'N/A';
         detailRemarks.textContent = entry[HEADER_REMARKS] || 'N/A';
         detailFollowupDate.textContent = formatDate(entry[HEADER_NEXT_FOLLOW_UP_DATE]);
-        detailCustomerProfile.textContent = entry[HEADER_PROFILE_OF_CUSTOMER] || 'N/A'; // NEW
-        detailFamilySpouse.textContent = entry[HEADER_FAMILY_DETAILS_WIFE_HUSBAND_NAME] || 'N/A'; // NEW
-        detailFamilySpouseJob.textContent = entry[HEADER_FAMILY_DETAILS_WIFE_HUSBAND_JOB] || 'N/A'; // NEW
-        detailFamilyChildrenNames.textContent = entry[HEADER_FAMILY_DETAILS_CHILDREN_NAMES] || 'N/A'; // NEW
-        detailFamilyChildrenDetails.textContent = entry[HEADER_FAMILY_DETAILS_CHILDREN_DETAILS] || 'N/A'; // NEW
+        detailCustomerProfile.textContent = entry[HEADER_PROFILE_OF_CUSTOMER] || 'N/A';
+        detailFamilySpouse.textContent = entry[HEADER_FAMILY_DETAILS_WIFE_HUSBAND_NAME] || 'N/A';
+        detailFamilySpouseJob.textContent = entry[HEADER_FAMILY_DETAILS_WIFE_HUSBAND_JOB] || 'N/A';
+        detailFamilyChildrenNames.textContent = entry[HEADER_FAMILY_DETAILS_CHILDREN_NAMES] || 'N/A';
+        detailFamilyChildrenDetails.textContent = entry[HEADER_FAMILY_DETAILS_CHILDREN_DETAILS] || 'N/A';
     }
 
     // Event Listener for "Back to List" button for the detailed customer report
