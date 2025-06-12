@@ -34,145 +34,64 @@
                     <select id="employeeSelect">
                         <option value="">-- Select an Employee --</option>
                     </select>
+                    <button id="viewAllEntriesBtn" class="btn">View All Entries (Employee)</button>
+                </div>
+            </div>
+
+            <div id="reportDisplay">
+                <div id="allBranchSnapshotReport" class="report-content active">
+                    <h2>All Branch Snapshot</h2>
+                    <p>Aggregated performance metrics across all branches.</p>
+                    <div class="table-container">
+                        <table id="allBranchSnapshotTable" class="report-table">
+                            </table>
+                    </div>
+                </div>
+
+                <div id="allStaffOverallPerformanceReport" class="report-content">
+                    <h2>All Staff Performance (Overall)</h2>
+                    <p>Consolidated performance of all employees, across all branches.</p>
+                    <div class="table-container">
+                        <table id="allStaffOverallPerformanceTable" class="report-table">
+                            </table>
+                    </div>
+                </div>
+
+                <div id="nonParticipatingBranchesReport" class="report-content">
+                    <h2>Non-Participating Branches</h2>
+                    <p>Branches with no canvassing activity recorded.</p>
+                    <div class="table-container">
+                        <table id="nonParticipatingBranchesTable" class="report-table">
+                            </table>
+                    </div>
                 </div>
                 
-                <div id="dateFilterPanel" class="dropdown-group">
-                    <label for="dateFilter">Filter by Date:</label>
-                    <input type="date" id="dateFilter">
-                </div>
-            </div>
-
-            <div id="allBranchSnapshotTabContent" class="tab-content active">
-                <h2>All Branch Snapshot</h2>
-                <div id="branchSummaryView"> <div class="summary-details-container">
-                        <ul class="summary-list">
-                            <li><strong>Total Employees:</strong> <span id="totalEmployees">0</span></li>
-                            <li><strong>Total Branches:</strong> <span id="totalBranches">0</span></li>
-                            <li><strong>Participating Branches:</strong> <span id="participatingBranches">0</span></li>
-                            <li><strong>Total Canvassing Entries:</strong> <span id="totalCanvassingEntries">0</span></li>
-                        </ul>
-                    </div>
-                    <div class="table-responsive">
-                        <table class="all-branch-snapshot-table">
-                            <thead>
-                                <tr>
-                                    <th>Branch Name</th>
-                                    <th>Employees with Activity</th>
-                                    <th>Total Visits</th>
-                                    <th>Total Calls</th>
-                                    <th>Total References</th>
-                                    <th>Total New Customer Leads</th>
-                                    <th>View All Entry</th>
-                                </tr>
-                            </thead>
-                            <tbody id="branchSnapshotTableBody">
-                                </tbody>
-                        </table>
-                    </div>
-                </div>
-
-                <div id="branchCustomerActivityLogView" style="display: none;">
-                    <h3>Customer Activity Log</h3>
-                    <button id="backToBranchSummaryBtn" class="btn back-btn">&larr; Back to Branch Summary</button>
-                    <div id="overallPerformanceListView">
-                        <div class="table-responsive">
-                            <table class="data-table">
-                                <thead>
-                                    <tr>
-                                        <th>Date</th>
-                                        <th>Employee Name</th>
-                                        <th>Branch</th>
-                                        <th>Customer Name</th>
-                                        <th>Activity Type</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="overallPerformanceTableBody">
-                                    </tbody>
+                <div id="branchDetailedEntriesReport" class="report-content" style="display: none;">
+                    <h2 id="branchDetailedEntriesTitle">Customer Canvassing Details for Branch: </h2>
+                    <button id="backToBranchSnapshotBtn" class="btn">Back to All Branch Snapshot</button>
+                    <div class="table-container">
+                        <table id="branchDetailedEntriesTable" class="report-table detailed-entries-table">
                             </table>
-                        </div>
-                    </div>
-
-                    <div id="customerDetailView" class="customer-detail-card" style="display: none;">
-                        <button id="backToOverallListBtn" class="btn back-btn">&larr; Back to List</button>
-                        <div class="card-header">
-                            <h3>Customer Canvassing Details</h3>
-                        </div>
-                        <div class="detail-grid">
-                            <div class="detail-item"><strong>Date:</strong> <span id="detailDate"></span></div>
-                            <div class="detail-item"><strong>Branch Name:</strong> <span id="detailBranchName"></span></div>
-                            <div class="detail-item"><strong>Employee Name:</strong> <span id="detailEmployeeName"></span></div>
-                            <div class="detail-item"><strong>Designation:</strong> <span id="detailDesignation"></span></div>
-                            
-                            <div class="detail-item full-width highlight-name"><strong>Customer Name:</strong> <span id="detailCustomerName"></span></div>
-                            <div class="detail-item full-width"><strong>Address:</strong> <span id="detailAddress"></span></div>
-                            
-                            <div class="detail-item"><strong>Phone Number:</strong> <span id="detailPhoneNumber"></span></div>
-                            <div class="detail-item"><strong>Email ID:</strong> <span id="detailEmailId"></span></div>
-                            
-                            <div class="detail-item"><strong>Date of Birth/Wedding Date:</strong> <span id="detailDobWd"></span></div>
-                            <div class="detail-item"><strong>Profession:</strong> <span id="detailProfession"></span></div>
-                            
-                            <div class="detail-item"><strong>Product Interested:</strong> <span id="detailProductInterested"></span></div>
-                            <div class="detail-item"><strong>Next Follow-up Date:</strong> <span id="detailFollowupDate"></span></div>
-                            
-                            <div class="detail-item full-width"><strong>Relation With Staff:</strong> <span id="detailRelationWithStaff"></span></div>
-                            <div class="detail-item full-width"><strong>Remarks:</strong> <span id="detailRemarks"></span></div>
-                            <div class="detail-item full-width"><strong>Customer Profile:</strong> <span id="detailCustomerProfile"></span></div>
-                            
-                            <div class="detail-item full-width section-header"><h4>Family Details</h4></div>
-                            <div class="detail-item"><strong>Spouse Name:</strong> <span id="detailFamilySpouse"></span></div>
-                            <div class="detail-item"><strong>Spouse Job:</strong> <span id="detailFamilySpouseJob"></span></div>
-                            <div class="detail-item full-width"><strong>Children Names:</strong> <span id="detailFamilyChildrenNames"></span></div>
-                            <div class="detail-item full-width"><strong>Children Details:</strong> <span id="detailFamilyChildrenDetails"></span></div>
-                        </div>
                     </div>
                 </div>
-            </div>
 
-            <div id="allStaffOverallPerformanceTabContent" class="tab-content">
-                <h2>All Staff Performance (Overall)</h2>
-                <h3>Employee Performance Summary</h3>
-                <div class="table-responsive">
-                    <table class="data-table staff-performance-table">
-                        <thead>
-                            <tr>
-                                <th>Employee Name</th>
-                                <th>Branch</th>
-                                <th>Designation</th>
-                                <th>Target Visits</th>
-                                <th>Actual Visits</th>
-                                <th>Visit Progress</th>
-                                <th>Target Calls</th>
-                                <th>Actual Calls</th>
-                                <th>Call Progress</th>
-                                <th>Target References</th>
-                                <th>Actual References</th>
-                                <th>Reference Progress</th>
-                                <th>Target New Leads</th>
-                                <th>Actual New Leads</th>
-                                <th>New Lead Progress</th>
-                            </tr>
-                        </thead>
-                        <tbody id="staffOverallPerformanceTableBody">
-                            </tbody>
-                    </table>
-                </div>
-            </div>
 
-            <div id="nonParticipatingBranchesTabContent" class="tab-content">
-                <h2>Non-Participating Branches</h2>
-                <div id="noParticipationMessage" class="no-participation-message" style="display: none;">
-                    🎉 All branches have participated in canvassing! 🎉
+                <div id="employeeDetailedEntriesReport" class="report-content" style="display: none;">
+                    <h2 id="employeeDetailedEntriesTitle">Customer Canvassing Details for Employee: </h2>
+                    <button id="backToEmployeeFilterBtn" class="btn">Back to Employee Filter</button>
+                    <div class="table-container">
+                        <table id="employeeDetailedEntriesTable" class="report-table detailed-entries-table">
+                            </table>
+                    </div>
                 </div>
-                <ul id="nonParticipatingBranchesList" class="non-participating-branch-list">
-                    </ul>
+
             </div>
         </section>
 
-        <section id="employeeManagementSection" class="employee-management-section tab-content">
+        <section id="employeeManagementSection" class="employee-management-section" style="display: none;">
             <h2>Employee Management</h2>
             <div id="employeeManagementMessage" class="message-container"></div>
-
+            
             <div class="form-section">
                 <h3>Add New Employee</h3>
                 <form id="addEmployeeForm" class="employee-form">
@@ -185,8 +104,8 @@
                         <input type="text" id="employeeCode" required>
                     </div>
                     <div class="form-group">
-                        <label for="employeeBranch">Branch Name:</label>
-                        <input type="text" id="employeeBranch" required>
+                        <label for="employeeBranchName">Branch Name:</label>
+                        <input type="text" id="employeeBranchName" required>
                     </div>
                     <div class="form-group">
                         <label for="employeeDesignation">Designation:</label>
@@ -205,7 +124,7 @@
                     </div>
                     <div class="form-group">
                         <label for="bulkEmployeeDetails">Employee Details (Name,Code,Designation - one per line):</label>
-                        <textarea id="bulkEmployeeDetails" rows="10" placeholder="e.g.,&#10;Alice,EMP001,Manager&#10;Bob,EMP002,Sales Exec&#10;Charlie,EMP003\" required></textarea>
+                        <textarea id="bulkEmployeeDetails" rows="10" placeholder="e.g.,&#10;Alice,EMP001,Manager&#10;Bob,EMP002,Sales Exec&#10;Charlie,EMP003" required></textarea>
                     </div>
                     <button type="submit" class="btn">Add Bulk Employees</button>
                 </form>
