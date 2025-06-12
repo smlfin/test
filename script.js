@@ -39,7 +39,32 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Header constants for easier access and consistency
     const HEADER_TIMESTAMP = 'Timestamp';
-    const HEADER_BRANCH_NAME = 'Branch Name';
+    const HEADER_BRANCH_NAME = 'Branch Name';const TARGETS = {
+        'Branch Manager': {
+            'Visit': 10,
+            'Call': 3 * MONTHLY_WORKING_DAYS,
+            'Reference': 1 * MONTHLY_WORKING_DAYS,
+            'New Customer Leads': 20
+        },
+        'Investment Staff': {
+            'Visit': 30,
+            'Call': 5 * MONTHLY_WORKING_DAYS,
+            'Reference': 1 * MONTHLY_WORKING_DAYS,
+            'New Customer Leads': 20
+        },
+        'Seniors': {
+            'Visit': 30,
+            'Call': 5 * MONTHLY_WORKING_DAYS,
+            'Reference': 1 * MONTHLY_WORKING_DAYS,
+            'New Customer Leads': 20
+        },
+        'Default': { // For all other designations not explicitly defined
+            'Visit': 5,
+            'Call': 3 * MONTHLY_WORKING_DAYS,
+            'Reference': 1 * MONTHLY_WORKING_DAYS,
+            'New Customer Leads': 20
+        }
+    };
     const HEADER_EMPLOYEE_NAME = 'Employee Name';
     const HEADER_EMPLOYEE_CODE = 'Employee Code';
     const HEADER_DESIGNATION = 'Designation';
@@ -551,7 +576,7 @@ document.addEventListener('DOMContentLoaded', () => {
             entry[HEADER_BRANCH_NAME] === branchName &&
             entry[HEADER_EMPLOYEE_CODE] === employeeCode &&
             entry[HEADER_ACTIVITY_TYPE] === 'Visit' &&
-            entry[HEADER_CUSTOMER_NAME]
+            entry[HEADER_CUSTOMER_NAME] // Ensure customer name is present
         );
         renderSimpleCustomerTable(filteredData, customerVisitsTable, 'Customer Visits & Meeting Report');
     }
@@ -561,7 +586,7 @@ document.addEventListener('DOMContentLoaded', () => {
             entry[HEADER_BRANCH_NAME] === branchName &&
             entry[HEADER_EMPLOYEE_CODE] === employeeCode &&
             entry[HEADER_ACTIVITY_TYPE] === 'Reference' &&
-            entry[HEADER_CUSTOMER_NAME]
+            entry[HEADER_CUSTOMER_NAME] // Ensure customer name is present
         );
         renderSimpleCustomerTable(filteredData, customerReferencesTable, 'Customer Reference Generated');
     }
@@ -571,7 +596,7 @@ document.addEventListener('DOMContentLoaded', () => {
             entry[HEADER_BRANCH_NAME] === branchName &&
             entry[HEADER_EMPLOYEE_CODE] === employeeCode &&
             entry[HEADER_ACTIVITY_TYPE] === 'New Customer Leads' &&
-            entry[HEADER_CUSTOMER_NAME]
+            entry[HEADER_CUSTOMER_NAME] // Ensure customer name is present
         );
         renderSimpleCustomerTable(filteredData, newCustomerLeadsTable, 'New Customer Leads Generated');
     }
@@ -581,7 +606,7 @@ document.addEventListener('DOMContentLoaded', () => {
             entry[HEADER_BRANCH_NAME] === branchName &&
             entry[HEADER_EMPLOYEE_CODE] === employeeCode &&
             entry[HEADER_ACTIVITY_TYPE] === 'New Loan Leads' &&
-            entry[HEADER_CUSTOMER_NAME]
+            entry[HEADER_CUSTOMER_NAME] // Ensure customer name is present
         );
         renderSimpleCustomerTable(filteredData, newLoanLeadsTable, 'New Loan Leads Generated');
     }
@@ -590,12 +615,11 @@ document.addEventListener('DOMContentLoaded', () => {
     // Unified function to render detailed entries (employee, branch, or customer)
     function renderDetailedEntriesTable(data, tableElement, titleElement, backButtonElement, backTo) {
         if (data.length === 0) {
-            tableElement.innerHTML = `<tr><td colspan="9">No canvassing entries found.</td></tr>`;
-            // Hide the table if no data
+            tableElement.innerHTML = `<tr><td colspan="14">No canvassing entries found.</td></tr>`; // Changed colspan to 14
             tableElement.style.display = 'none'; 
             return;
         } else {
-             tableElement.style.display = 'table'; // Show table if data exists
+             tableElement.style.display = 'table'; 
         }
 
         const headers = [
@@ -683,28 +707,19 @@ document.addEventListener('DOMContentLoaded', () => {
         const selectedBranch = branchSelect.value;
         if (selectedBranch) {
             populateEmployeeSelect(selectedBranch);
-            employeeFilterPanel.style.display = 'flex'; // Show employee filter when branch is selected
         } else {
             // If no branch selected, reset employee dropdown and hide specific reports
             populateEmployeeSelect(); // Show all employees if no branch selected
-            employeeFilterPanel.style.display = 'flex'; // Keep filter visible
             employeeSelect.value = ''; // Reset employee select
-            employeeSpecificReportsContainer.style.display = 'none'; // Hide the four tables
-            customerDetailedEntriesReport.style.display = 'none'; // Hide customer specific detailed report
-            employeeDetailedEntriesReport.style.display = 'none'; // Hide employee detailed report
         }
-        // Always try to render employee specific reports if both are selected, or hide them
-        const selectedEmployeeText = employeeSelect.value;
-        const employeeCodeMatch = selectedEmployeeText ? selectedEmployeeText.match(/\((EMP\d+)\)/) : null;
-        const employeeCode = employeeCodeMatch ? employeeCodeMatch[1] : null;
-        if (selectedBranch && employeeCode) {
-             renderEmployeeSpecificReports(selectedBranch, employeeCode);
-        } else {
-            employeeSpecificReportsContainer.style.display = 'none';
-        }
+        // Always hide specific reports when branch selection changes (or is cleared)
+        // They will be re-shown by employeeSelect listener if both are valid.
+        employeeSpecificReportsContainer.style.display = 'none'; 
+        customerDetailedEntriesReport.style.display = 'none'; 
+        employeeDetailedEntriesReport.style.display = 'none'; 
     });
 
-    // NEW: Event listener for Employee Select
+    // NEW: Event listener for Employee Select - This is the primary trigger for the four tables
     employeeSelect.addEventListener('change', () => {
         const selectedBranch = branchSelect.value;
         const selectedEmployeeText = employeeSelect.value;
@@ -715,10 +730,11 @@ document.addEventListener('DOMContentLoaded', () => {
                 const employeeCode = employeeCodeMatch[1];
                 renderEmployeeSpecificReports(selectedBranch, employeeCode);
             } else {
-                showStatusMessage('Could not parse employee code from selection.', true);
+                showStatusMessage('Could not parse employee code from selection. Please ensure employee data is correctly formatted (Name (CODE) - Designation).', true);
                 employeeSpecificReportsContainer.style.display = 'none';
             }
         } else {
+            // If either branch or employee is not selected, hide the specific reports
             employeeSpecificReportsContainer.style.display = 'none';
         }
 
@@ -730,11 +746,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Function to render all four specific tables
     function renderEmployeeSpecificReports(branchName, employeeCode) {
+        // Ensure the container is visible first
+        employeeSpecificReportsContainer.style.display = 'block'; 
+        
+        // Then render each table
         renderCustomerVisitsTable(branchName, employeeCode);
         renderCustomerReferencesTable(branchName, employeeCode);
         renderNewCustomerLeadsTable(branchName, employeeCode);
         renderNewLoanLeadsTable(branchName, employeeCode);
-        employeeSpecificReportsContainer.style.display = 'block';
     }
 
 
@@ -780,7 +799,18 @@ document.addEventListener('DOMContentLoaded', () => {
         reportsSection.style.display = 'block';
         allBranchSnapshotReport.style.display = 'block';
         employeeFilterPanel.style.display = 'flex'; // Show dropdowns
-        employeeSpecificReportsContainer.style.display = 'block'; // Show the four tables again
+        
+        // Re-render the specific reports based on current selections (if any)
+        const selectedBranch = branchSelect.value;
+        const selectedEmployeeText = employeeSelect.value;
+        if (selectedBranch && selectedEmployeeText) {
+            const employeeCodeMatch = selectedEmployeeText.match(/\((EMP\d+)\)/);
+            if (employeeCodeMatch) {
+                renderEmployeeSpecificReports(selectedBranch, employeeCodeMatch[1]);
+            }
+        } else {
+            employeeSpecificReportsContainer.style.display = 'none'; // Hide if selections are not complete
+        }
     });
 
 
