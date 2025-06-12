@@ -6,7 +6,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // IMPORTANT: Replace this with YOUR DEPLOYED GOOGLE APPS SCRIPT WEB APP URL
     // NOTE: If you are getting errors sending data, this URL is the problem.
-    const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzEYf0CKgwP0O4-z1lup1lDZImD1dQVEveLWsHwa_7T5ltndfIuRWXVZqFDj03_proD/exec"; // <-- PASTE YOUR NEWLY DEPLOYED WEB APP URL HERE
+    const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzEYf0CKgwP0O4-z1lup1lDZImD1dQVEveLWsHwa_7T5ltndfIuRWXVZqFD03_proD/exec"; // <-- PASTE YOUR NEWLY DEPLOYED WEB APP URL HERE
 
     const MONTHLY_WORKING_DAYS = 22; // Common approximation for a month's working days
 
@@ -15,25 +15,49 @@ document.addEventListener('DOMContentLoaded', () => {
             'Visit': 10,
             'Call': 3 * MONTHLY_WORKING_DAYS,
             'Reference': 1 * MONTHLY_WORKING_DAYS,
-            'New Customer Leads': 20
+            'New Customer Leads': 10, // Ensure this exists
+            'New Loan Leads': 5,      // <--- THIS IS IMPORTANT
+            'Existing Customer Follow-up': 20
         },
-        'Investment Staff': {
+        'Sales Executive': { // Example: Adjust designations as per your actual data
+            'Visit': 20,
+            'Call': 5 * MONTHLY_WORKING_DAYS,
+            'Reference': 2 * MONTHLY_WORKING_DAYS,
+            'New Customer Leads': 20, // Ensure this exists
+            'New Loan Leads': 10,     // <--- THIS IS IMPORTANT
+            'Existing Customer Follow-up': 30
+        },
+        'Loan Officer': { // Example: Adjust designations as per your actual data
+            'Visit': 15,
+            'Call': 4 * MONTHLY_WORKING_DAYS,
+            'Reference': 1 * MONTHLY_WORKING_DAYS,
+            'New Customer Leads': 15, // Ensure this exists
+            'New Loan Leads': 15,     // <--- THIS IS IMPORTANT
+            'Existing Customer Follow-up': 25
+        },
+        'Investment Staff': { // Added for your specific designations, adjust targets as needed
             'Visit': 30,
             'Call': 5 * MONTHLY_WORKING_DAYS,
             'Reference': 1 * MONTHLY_WORKING_DAYS,
-            'New Customer Leads': 20
+            'New Customer Leads': 20,
+            'New Loan Leads': 5, // Added new loan leads for Investment Staff
+            'Existing Customer Follow-up': 10 // Example
         },
-        'Seniors': {
+        'Seniors': { // Added for your specific designations, adjust targets as needed
             'Visit': 30,
             'Call': 5 * MONTHLY_WORKING_DAYS,
             'Reference': 1 * MONTHLY_WORKING_DAYS,
-            'New Customer Leads': 20
+            'New Customer Leads': 20,
+            'New Loan Leads': 5, // Added new loan leads for Seniors
+            'Existing Customer Follow-up': 10 // Example
         },
         'Default': { // For all other designations not explicitly defined
             'Visit': 5,
             'Call': 3 * MONTHLY_WORKING_DAYS,
             'Reference': 1 * MONTHLY_WORKING_DAYS,
-            'New Customer Leads': 20
+            'New Customer Leads': 20,
+            'New Loan Leads': 5, // Added new loan leads for Default
+            'Existing Customer Follow-up': 5 // Example
         }
     };
 
@@ -99,7 +123,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const customerVisitsTable = document.getElementById('customerVisitsTable'); // NEW
     const customerReferencesTable = document.getElementById('customerReferencesTable'); // NEW
     const newCustomerLeadsTable = document.getElementById('newCustomerLeadsTable'); // NEW
-    const newLoanLeadsTable = document.getElementById('newLoanLeadsTable'); // NEW
+    const newLoanLeadsTable = document.getElementById('newLoanLeadsTable'); // NEW // <--- THIS IS IMPORTANT
 
 
     // Employee Management Forms
