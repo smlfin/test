@@ -73,39 +73,30 @@
 
             <div id="allStaffOverallPerformanceTabContent" class="tab-content">
                 <h2>All Staff Performance (Overall)</h2>
-                
-                <div id="overallPerformanceListView">
-                    <div class="table-responsive">
-                        <table class="data-table">
-                            <thead>
-                                <tr>
-                                    <th>Date</th>
-                                    <th>Customer Name</th>
-                                </tr>
-                            </thead>
-                            <tbody id="overallPerformanceTableBody">
-                                </tbody>
-                        </table>
-                    </div>
-                </div>
-
-                <div id="customerDetailView" class="customer-detail-card" style="display: none;">
-                    <button id="backToOverallListBtn" class="btn back-btn">&larr; Back to List</button>
-                    <div class="card-header">
-                        <h3>Customer Canvassing Details</h3>
-                    </div>
-                    <div class="detail-grid">
-                        <div class="detail-item"><strong>Date:</strong> <span id="detailDate"></span></div>
-                        <div class="detail-item"><strong>Branch Name:</strong> <span id="detailBranchName"></span></div>
-                        <div class="detail-item"><strong>Employee Name:</strong> <span id="detailEmployeeName"></span></div>
-                        <div class="detail-item"><strong>Designation:</strong> <span id="detailDesignation"></span></div>
-                        <div class="detail-item full-width highlight-name"><strong>Customer Name:</strong> <span id="detailCustomerName"></span></div>
-                        <div class="detail-item full-width"><strong>Address:</strong> <span id="detailAddress"></span></div>
-                        <div class="detail-item"><strong>Phone Number:</strong> <span id="detailPhoneNumber"></span></div>
-                        <div class="detail-item"><strong>Email ID:</strong> <span id="detailEmailId"></span></div>
-                        <div class="detail-item full-width"><strong>Remarks:</strong> <span id="detailRemarks"></span></div>
-                        <div class="detail-item"><strong>Follow-up Date:</strong> <span id="detailFollowupDate"></span></div>
-                    </div>
+                <div class="table-responsive">
+                    <table class="data-table staff-performance-table">
+                        <thead>
+                            <tr>
+                                <th>Employee Name</th>
+                                <th>Designation</th>
+                                <th>Branch</th>
+                                <th>Target Visits</th>
+                                <th>Actual Visits</th>
+                                <th>Visit Progress</th>
+                                <th>Target Calls</th>
+                                <th>Actual Calls</th>
+                                <th>Call Progress</th>
+                                <th>Target References</th>
+                                <th>Actual References</th>
+                                <th>Reference Progress</th>
+                                <th>Target New Leads</th>
+                                <th>Actual New Leads</th>
+                                <th>New Lead Progress</th>
+                            </tr>
+                        </thead>
+                        <tbody id="staffOverallPerformanceTableBody">
+                            </tbody>
+                    </table>
                 </div>
             </div>
 
