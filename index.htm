@@ -44,70 +44,35 @@
 
             <div id="allBranchSnapshotTabContent" class="tab-content active">
                 <h2>All Branch Snapshot</h2>
-                <div class="summary-details-container">
-                    <ul class="summary-list">
-                        <li><strong>Total Employees:</strong> <span id="totalEmployees">0</span></li>
-                        <li><strong>Total Branches:</strong> <span id="totalBranches">0</span></li>
-                        <li><strong>Participating Branches:</strong> <span id="participatingBranches">0</span></li>
-                        <li><strong>Total Canvassing Entries:</strong> <span id="totalCanvassingEntries">0</span></li>
-                    </ul>
-                </div>
-                <div class="table-responsive">
-                    <table class="all-branch-snapshot-table">
-                        <thead>
-                            <tr>
-                                <th>Branch Name</th>
-                                <th>Employees with Activity</th>
-                                <th>Total Visits</th>
-                                <th>Total Calls</th>
-                                <th>Total References</th>
-                                <th>Total New Customer Leads</th>
-                            </tr>
-                        </thead>
-                        <tbody id="branchSnapshotTableBody">
-                            </tbody>
-                    </table>
-                </div>
-            </div>
-
-            <div id="allStaffOverallPerformanceTabContent" class="tab-content">
-                <h2>All Staff Performance (Overall)</h2>
-                <div class="view-toggle-buttons">
-                    <button class="view-toggle-btn active" id="employeeSummaryViewBtn">Employee Summary</button>
-                    <button class="view-toggle-btn" id="customerActivityLogBtn">Customer Activity Log</button>
-                </div>
-
-                <div id="employeePerformanceView" class="sub-tab-content active">
-                    <h3>Employee Performance Summary</h3>
+                <div id="branchSummaryView"> <div class="summary-details-container">
+                        <ul class="summary-list">
+                            <li><strong>Total Employees:</strong> <span id="totalEmployees">0</span></li>
+                            <li><strong>Total Branches:</strong> <span id="totalBranches">0</span></li>
+                            <li><strong>Participating Branches:</strong> <span id="participatingBranches">0</span></li>
+                            <li><strong>Total Canvassing Entries:</strong> <span id="totalCanvassingEntries">0</span></li>
+                        </ul>
+                    </div>
                     <div class="table-responsive">
-                        <table class="data-table staff-performance-table">
+                        <table class="all-branch-snapshot-table">
                             <thead>
                                 <tr>
-                                    <th>Employee Name</th>
-                                    <th>Designation</th>
-                                    <th>Branch</th>
-                                    <th>Target Visits</th>
-                                    <th>Actual Visits</th>
-                                    <th>Visit Progress</th>
-                                    <th>Target Calls</th>
-                                    <th>Actual Calls</th>
-                                    <th>Call Progress</th>
-                                    <th>Target References</th>
-                                    <th>Actual References</th>
-                                    <th>Reference Progress</th>
-                                    <th>Target New Leads</th>
-                                    <th>Actual New Leads</th>
-                                    <th>New Lead Progress</th>
-                                </tr>
+                                    <th>Branch Name</th>
+                                    <th>Employees with Activity</th>
+                                    <th>Total Visits</th>
+                                    <th>Total Calls</th>
+                                    <th>Total References</th>
+                                    <th>Total New Customer Leads</th>
+                                    <th>View All Entry</th> </tr>
                             </thead>
-                            <tbody id="staffOverallPerformanceTableBody">
+                            <tbody id="branchSnapshotTableBody">
                                 </tbody>
                         </table>
                     </div>
                 </div>
 
-                <div id="customerActivityLogView" class="sub-tab-content" style="display: none;">
+                <div id="branchCustomerActivityLogView" style="display: none;">
                     <h3>Customer Activity Log</h3>
+                    <button id="backToBranchSummaryBtn" class="btn back-btn">&larr; Back to Branch Summary</button>
                     <div id="overallPerformanceListView">
                         <div class="table-responsive">
                             <table class="data-table">
@@ -144,6 +109,36 @@
                             <div class="detail-item"><strong>Follow-up Date:</strong> <span id="detailFollowupDate"></span></div>
                         </div>
                     </div>
+                </div>
+            </div>
+
+            <div id="allStaffOverallPerformanceTabContent" class="tab-content">
+                <h2>All Staff Performance (Overall)</h2>
+                <h3>Employee Performance Summary</h3>
+                <div class="table-responsive">
+                    <table class="data-table staff-performance-table">
+                        <thead>
+                            <tr>
+                                <th>Employee Name</th>
+                                <th>Designation</th>
+                                <th>Branch</th>
+                                <th>Target Visits</th>
+                                <th>Actual Visits</th>
+                                <th>Visit Progress</th>
+                                <th>Target Calls</th>
+                                <th>Actual Calls</th>
+                                <th>Call Progress</th>
+                                <th>Target References</th>
+                                <th>Actual References</th>
+                                <th>Reference Progress</th>
+                                <th>Target New Leads</th>
+                                <th>Actual New Leads</th>
+                                <th>New Lead Progress</th>
+                            </tr>
+                        </thead>
+                        <tbody id="staffOverallPerformanceTableBody">
+                            </tbody>
+                    </table>
                 </div>
             </div>
 
