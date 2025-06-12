@@ -2,7 +2,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // *** Configuration ***
     // This URL is for your Canvassing Data sheet. Ensure it's correct and published as CSV.
     // NOTE: If you are still getting 404, this URL is the problem.
-    const DATA_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTO7LujC4VSa2wGkJ2YEYSN7UeXR221ny3THaVegYfNfRm2JQGg7QR9Bxxh9SadXtK8Pi6-psl2tGsb/pub?gid=696550092&single=true&output=csv";
+    const DATA_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTO7LujC4VSa2wGkJ2YEYSN7UeXR221ny3THaVegYfNfRm2JQGg7QR9Bxxh9SadXtK8Pi6-ps2tGsb/pub?gid=696550092&single=true&output=csv";
 
     // IMPORTANT: Replace this with YOUR DEPLOYED GOOGLE APPS SCRIPT WEB APP URL
     // NOTE: If you are getting errors sending data, this URL is the problem.
@@ -76,15 +76,16 @@ document.addEventListener('DOMContentLoaded', () => {
     // Main Report Display Area (now within tab contents)
     const allBranchSnapshotTableBody = document.getElementById('branchSnapshotTableBody');
 
-    // All Staff Performance (Overall) specific elements
-    const employeeSummaryViewBtn = document.getElementById('employeeSummaryViewBtn');
-    const customerActivityLogBtn = document.getElementById('customerActivityLogBtn');
-    const employeePerformanceView = document.getElementById('employeePerformanceView');
-    const customerActivityLogView = document.getElementById('customerActivityLogView');
-
+    // All Staff Performance (Overall) specific elements (Simplified)
     const staffOverallPerformanceTableBody = document.getElementById('staffOverallPerformanceTableBody'); // For employee summary
-    const overallPerformanceTableBody = document.getElementById('overallPerformanceTableBody'); // For customer activity log
 
+    // Branch Snapshot sub-views
+    const branchSummaryView = document.getElementById('branchSummaryView');
+    const branchCustomerActivityLogView = document.getElementById('branchCustomerActivityLogView');
+    const backToBranchSummaryBtn = document.getElementById('backToBranchSummaryBtn');
+
+    // Customer Activity Log (now inside All Branch Snapshot)
+    const overallPerformanceTableBody = document.getElementById('overallPerformanceTableBody'); // For customer activity log
     const customerDetailView = document.getElementById('customerDetailView');
     const backToOverallListBtn = document.getElementById('backToOverallListBtn');
 
@@ -101,7 +102,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const detailFollowupDate = document.getElementById('detailFollowupDate');
 
 
-    // NEW: Dedicated message area element
+    // Dedicated message area element
     const statusMessageDiv = document.getElementById('statusMessage');
 
 
@@ -145,7 +146,8 @@ document.addEventListener('DOMContentLoaded', () => {
     let employeeCodeToBranchMap = {}; // {code: branch} from Canvassing Data
     let employeeCodeToDesignationMap = {}; // {code: designation} from Canvassing Data
 
-    let currentStaffSubView = 'employeeSummary'; // 'employeeSummary' or 'customerActivity'
+    // State for Branch Snapshot Tab: 'summary' or 'customerActivity'
+    let currentBranchSnapshotSubView = 'summary';
 
 
     // Utility to format date to ISO-MM-DD
@@ -314,11 +316,11 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // --- Filtering Logic ---
-    function getFilteredCanvassingData() {
+    function getFilteredCanvassingData(specificBranch = null, specificEmployeeCode = null) {
         let filteredData = allCanvassingData;
-        const selectedBranch = branchSelect.value;
-        const selectedEmployeeCode = employeeSelect.value;
-        const selectedDate = dateFilter.value; // YYYY-MM-DD format from input
+        const selectedBranch = specificBranch || branchSelect.value;
+        const selectedEmployeeCode = specificEmployeeCode || employeeSelect.value;
+        const selectedDate = dateFilter.value; //YYYY-MM-DD format from input
 
         if (selectedBranch) {
             filteredData = filteredData.filter(entry => entry[HEADER_BRANCH_NAME] === selectedBranch);
@@ -350,30 +352,45 @@ document.addEventListener('DOMContentLoaded', () => {
         } else {
             // If no branch selected, show all employees
             populateDropdown(employeeSelect, allUniqueEmployees, true);
-            employeeFilterPanel.style.display = 'block'; // Keep it visible for "All Staff" tab
+            employeeFilterPanel.style.display = 'block';
         }
-        // Re-render the active staff performance sub-view
+        // Re-render the active tab
         const activeTabButton = document.querySelector('.tab-button.active');
         if (activeTabButton.id === 'allStaffOverallPerformanceTabBtn') {
-            renderActiveStaffSubView();
+            renderEmployeePerformanceSummary();
         } else if (activeTabButton.id === 'allBranchSnapshotTabBtn') {
-            renderAllBranchSnapshot();
+            if (currentBranchSnapshotSubView === 'summary') {
+                renderAllBranchSnapshot();
+            } else {
+                // If in customer activity view, re-filter it based on new branch/employee filter
+                renderCustomerActivityLog();
+            }
         }
     });
 
     employeeSelect.addEventListener('change', () => {
         const activeTabButton = document.querySelector('.tab-button.active');
         if (activeTabButton.id === 'allStaffOverallPerformanceTabBtn') {
-            renderActiveStaffSubView();
+            renderEmployeePerformanceSummary();
         } else if (activeTabButton.id === 'allBranchSnapshotTabBtn') {
-            renderAllBranchSnapshot();
+            if (currentBranchSnapshotSubView === 'summary') {
+                renderAllBranchSnapshot();
+            } else {
+                renderCustomerActivityLog(); // Re-filter customer activity log
+            }
         }
     });
 
     dateFilter.addEventListener('change', () => {
         const activeTabButton = document.querySelector('.tab-button.active');
         if (activeTabButton.id === 'allStaffOverallPerformanceTabBtn') {
-            renderActiveStaffSubView();
+            renderEmployeePerformanceSummary();
+        } else if (activeTabButton.id === 'allBranchSnapshotTabBtn') {
+            if (currentBranchSnapshotSubView === 'summary') {
+                renderAllBranchSnapshot();
+            } else {
+                renderCustomerActivityLog(); // Re-filter customer activity log
+            }
         }
     });
 
@@ -404,12 +421,26 @@ document.addEventListener('DOMContentLoaded', () => {
         return totalActivity;
     }
 
-    // Render All Branch Snapshot
+    // Render All Branch Snapshot Summary Table
     function renderAllBranchSnapshot() {
         allBranchSnapshotTableBody.innerHTML = ''; // Clear existing content
-        const filteredData = getFilteredCanvassingData(); // Use filters for branch snapshot
+        
+        // Ensure summary view is visible and activity log is hidden
+        branchSummaryView.style.display = 'block';
+        branchCustomerActivityLogView.style.display = 'none';
+
+        const filteredData = getFilteredCanvassingData(); // Use current filters for branch snapshot
 
         const branchesToReport = branchSelect.value ? [branchSelect.value] : PREDEFINED_BRANCHES;
+
+        if (branchesToReport.length === 0) {
+            const row = allBranchSnapshotTableBody.insertRow();
+            const cell = row.insertCell();
+            cell.colSpan = 7; // Span across all columns
+            cell.textContent = 'No branch data found.';
+            cell.classList.add('no-activity-message');
+            return;
+        }
 
         branchesToReport.forEach(branch => {
             const branchActivityEntries = filteredData.filter(entry => entry[HEADER_BRANCH_NAME] === branch);
@@ -435,8 +466,34 @@ document.addEventListener('DOMContentLoaded', () => {
 
             row.insertCell().setAttribute('data-label', 'Total New Customer Leads');
             row.lastChild.textContent = totalActivity['New Customer Leads'];
+
+            // NEW: View All Entry button
+            const viewAllEntryCell = row.insertCell();
+            viewAllEntryCell.setAttribute('data-label', 'View All Entry');
+            const viewButton = document.createElement('button');
+            viewButton.textContent = 'View Entries';
+            viewButton.classList.add('btn', 'view-entries-btn');
+            viewButton.dataset.branchName = branch; // Store branch name for click handler
+            viewButton.addEventListener('click', () => {
+                showCustomerActivityForBranch(branch);
+            });
+            viewAllEntryCell.appendChild(viewButton);
         });
     }
+
+    // Function to switch to customer activity view and filter by branch
+    function showCustomerActivityForBranch(branch) {
+        currentBranchSnapshotSubView = 'customerActivity';
+        branchSelect.value = branch; // Set the branch filter to the clicked branch
+        employeeSelect.value = ''; // Clear employee filter to show all in branch
+        populateDropdown(employeeSelect, allUniqueEmployees.filter(empCode => employeeCodeToBranchMap[empCode] === branch), true); // Re-populate employee dropdown for selected branch
+
+        branchSummaryView.style.display = 'none'; // Hide summary table
+        branchCustomerActivityLogView.style.display = 'block'; // Show customer activity log
+
+        renderCustomerActivityLog(); // Render the activity log with the new filters
+    }
+
 
     // Render Non-Participating Branches Report
     function renderNonParticipatingBranches() {
@@ -466,7 +523,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
 
-    // --- All Staff Performance (Overall) Sub-Views ---
+    // --- All Staff Performance (Overall) - Employee Performance Summary Only ---
 
     // Render Employee Performance Summary
     function renderEmployeePerformanceSummary() {
@@ -477,7 +534,7 @@ document.addEventListener('DOMContentLoaded', () => {
         // Get unique employees from the filtered data, or all unique employees if no specific employee is filtered
         const employeesToReport = employeeSelect.value ? [employeeSelect.value] : allUniqueEmployees;
 
-        if (filteredData.length === 0 || employeesToReport.length === 0) {
+        if (filteredData.length === 0 && !employeeSelect.value) { // Only show no data message if no filters applied or no data at all
             const row = staffOverallPerformanceTableBody.insertRow();
             const cell = row.insertCell();
             cell.colSpan = 15; // Span across all columns
@@ -485,29 +542,23 @@ document.addEventListener('DOMContentLoaded', () => {
             cell.classList.add('no-activity-message');
             return;
         }
+        
+        let hasRenderedAnyEmployee = false;
 
         employeesToReport.forEach(employeeCode => {
             const employeeName = employeeCodeToNameMap[employeeCode] || employeeCode;
             const employeeDesignation = employeeCodeToDesignationMap[employeeCode] || 'Default';
             const employeeBranch = employeeCodeToBranchMap[employeeCode] || 'N/A';
 
-            // Filter entries specifically for this employee
+            // Filter entries specifically for this employee within the already filtered data
             const employeeEntries = filteredData.filter(entry => entry[HEADER_EMPLOYEE_CODE] === employeeCode);
 
-            // If no entries for this employee under current filters, skip them
-            if (employeeEntries.length === 0 && employeeSelect.value && employeeSelect.value === employeeCode) {
-                 // If a specific employee is selected and they have no data, show message
-                const row = staffOverallPerformanceTableBody.insertRow();
-                const cell = row.insertCell();
-                cell.colSpan = 15;
-                cell.textContent = `No activity found for employee ${employeeName} under the current filters.`;
-                cell.classList.add('no-activity-message');
-                return;
-            } else if (employeeEntries.length === 0 && !employeeSelect.value) {
-                // If no specific employee selected, and current employee has no data, skip showing them in the list.
-                // This prevents showing employees with 0 actuals if no activity for them in the filtered data.
+            // If no entries for this employee under current filters, skip them UNLESS a specific employee is selected
+            if (employeeEntries.length === 0 && !employeeSelect.value) { // Don't show employees with zero activity if no specific employee is selected
                 return;
             }
+            
+            hasRenderedAnyEmployee = true;
 
             const actuals = calculateTotalActivity(employeeEntries);
             const targets = TARGETS[employeeDesignation] || TARGETS['Default'];
@@ -558,14 +609,25 @@ document.addEventListener('DOMContentLoaded', () => {
             newLeadProgressCell.setAttribute('data-label', 'New Lead Progress');
             newLeadProgressCell.appendChild(createProgressBar(actuals['New Customer Leads'], targets['New Customer Leads']));
         });
+
+        if (!hasRenderedAnyEmployee && employeeSelect.value) {
+            // If a specific employee is selected and no data is found for them
+            const row = staffOverallPerformanceTableBody.insertRow();
+            const cell = row.insertCell();
+            cell.colSpan = 15;
+            cell.textContent = `No activity found for employee ${employeeCodeToNameMap[employeeSelect.value] || employeeSelect.value} under the current filters.`;
+            cell.classList.add('no-activity-message');
+        }
     }
 
-    // Render Customer Activity Log
+
+    // Render Customer Activity Log (now always uses getFilteredCanvassingData)
     function renderCustomerActivityLog() {
         overallPerformanceTableBody.innerHTML = ''; // Clear previous entries
         customerDetailView.style.display = 'none'; // Ensure detail view is hidden
         // overallPerformanceListView.style.display = 'block'; // Make sure list is visible
 
+        // Fetch data based on the current filters applied to the controls panel
         const filteredData = getFilteredCanvassingData();
 
         if (filteredData.length === 0) {
@@ -598,7 +660,8 @@ document.addEventListener('DOMContentLoaded', () => {
             customerNameLink.href = '#';
             customerNameLink.textContent = entry[HEADER_PROSPECT_NAME] || 'N/A';
             customerNameLink.classList.add('customer-name-link');
-            customerNameLink.dataset.entryIndex = allCanvassingData.indexOf(entry); // Use original index for retrieval
+            // Store original index for retrieval - careful if data is reordered, but for now this is fine
+            customerNameLink.dataset.entryIndex = allCanvassingData.indexOf(entry); 
 
             customerNameLink.addEventListener('click', (e) => {
                 e.preventDefault();
@@ -618,8 +681,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Render Detailed Customer Report
     function renderCustomerDetailReport(entry) {
-        customerActivityLogView.querySelector('#overallPerformanceListView').style.display = 'none'; // Hide the list view
-        customerDetailView.style.display = 'block'; // Show the detail view
+        // Hide the list view and show the detail view within the current activity log container
+        document.getElementById('overallPerformanceListView').style.display = 'none'; 
+        customerDetailView.style.display = 'block';
 
         detailDate.textContent = formatDate(entry[HEADER_DATE]);
         detailBranchName.textContent = entry[HEADER_BRANCH_NAME] || 'N/A';
@@ -636,8 +700,21 @@ document.addEventListener('DOMContentLoaded', () => {
     // Event Listener for "Back to List" button for the detailed customer report
     if (backToOverallListBtn) {
         backToOverallListBtn.addEventListener('click', () => {
-            customerActivityLogView.querySelector('#overallPerformanceListView').style.display = 'block';
+            document.getElementById('overallPerformanceListView').style.display = 'block';
             customerDetailView.style.display = 'none';
+        });
+    }
+
+    // Event Listener for "Back to Branch Summary" button
+    if (backToBranchSummaryBtn) {
+        backToBranchSummaryBtn.addEventListener('click', () => {
+            currentBranchSnapshotSubView = 'summary';
+            // Optionally reset filters if they were set by a "View All Entry" click
+            // branchSelect.value = ''; 
+            // employeeSelect.value = '';
+            // populateDropdown(employeeSelect, allUniqueEmployees, true); // Reset employee dropdown to all
+
+            renderAllBranchSnapshot(); // This will automatically hide branchCustomerActivityLogView
         });
     }
 
@@ -724,9 +801,16 @@ document.addEventListener('DOMContentLoaded', () => {
             const activeTabButton = document.querySelector('.tab-button.active');
             if (activeTabButton) {
                 if (activeTabButton.id === 'allBranchSnapshotTabBtn') {
-                    renderAllBranchSnapshot();
+                    if (currentBranchSnapshotSubView === 'summary') {
+                        renderAllBranchSnapshot();
+                    } else {
+                        // If we are in customer activity log view, re-render it with new data
+                        // but ensure branch/employee filters are reset if they were set by a "View All Entry"
+                        // Or, simply render the current view which will apply existing filters.
+                        renderCustomerActivityLog(); // This assumes filters are already applied.
+                    }
                 } else if (activeTabButton.id === 'allStaffOverallPerformanceTabBtn') {
-                    renderActiveStaffSubView(); // Re-render the currently active sub-view
+                    renderEmployeePerformanceSummary();
                 } else if (activeTabButton.id === 'nonParticipatingBranchesTabBtn') {
                     renderNonParticipatingBranches();
                 }
@@ -753,44 +837,37 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // Hide/Show filtering controls based on tab
         const controlsPanel = document.querySelector('.controls-panel');
-        employeeFilterPanel.style.display = 'none'; // Start hidden
-        dateFilterPanel.style.display = 'none'; // Start hidden
+        // Always show these for report tabs, hide for management tab
+        controlsPanel.style.display = 'flex';
+        employeeFilterPanel.style.display = 'block'; // Employee filter always visible for reports
+        dateFilterPanel.style.display = 'block'; // Date filter always visible for reports
 
-        // Reset dropdowns if we are switching away from a branch/employee dependent tab
+        // Reset dropdowns values to default 'All' when switching tabs,
+        // so reports start fresh unless specific filters are applied.
         branchSelect.value = '';
         employeeSelect.value = '';
         dateFilter.value = ''; // Reset date filter too
+        populateDropdown(employeeSelect, allUniqueEmployees, true); // Reset employee dropdown to all
 
         // Show relevant content based on tab selection
         if (tabButtonId === 'allBranchSnapshotTabBtn') {
             reportsSection.style.display = 'block';
             allBranchSnapshotTabContent.style.display = 'block';
-            controlsPanel.style.display = 'flex'; // Show controls
-            employeeFilterPanel.style.display = 'block'; // Show employee filter
-            dateFilterPanel.style.display = 'none'; // Hide date filter for this tab
-            populateDropdown(employeeSelect, allUniqueEmployees, true); // Reset employee dropdown to all
+            
+            // Reset to summary view for All Branch Snapshot
+            currentBranchSnapshotSubView = 'summary';
+            branchSummaryView.style.display = 'block';
+            branchCustomerActivityLogView.style.display = 'none'; // Hide the activity log view
+            customerDetailView.style.display = 'none'; // Ensure detail view is hidden
+            
             renderAllBranchSnapshot();
         } else if (tabButtonId === 'allStaffOverallPerformanceTabBtn') {
             reportsSection.style.display = 'block';
             allStaffOverallPerformanceTabContent.style.display = 'block';
-            controlsPanel.style.display = 'flex'; // Show controls
-            employeeFilterPanel.style.display = 'block'; // Show employee filter
-            dateFilterPanel.style.display = 'block'; // Show date filter for this tab
-            populateDropdown(employeeSelect, allUniqueEmployees, true); // Reset employee dropdown to all
-
-            // Initialize sub-view to employee summary
-            currentStaffSubView = 'employeeSummary';
-            employeeSummaryViewBtn.classList.add('active');
-            customerActivityLogBtn.classList.remove('active');
-            employeePerformanceView.style.display = 'block';
-            customerActivityLogView.style.display = 'none';
-            customerDetailView.style.display = 'none'; // Ensure detail view is hidden
-            
-            renderEmployeePerformanceSummary(); // Render the default view for this tab
+            renderEmployeePerformanceSummary(); // Only render employee summary for this tab
         } else if (tabButtonId === 'nonParticipatingBranchesTabBtn') {
             reportsSection.style.display = 'block';
             nonParticipatingBranchesTabContent.style.display = 'block';
-            controlsPanel.style.display = 'flex'; // Show controls (branch filter is useful here)
             employeeFilterPanel.style.display = 'none'; // Employee filter not directly relevant here
             dateFilterPanel.style.display = 'none'; // Date filter not directly relevant here
             renderNonParticipatingBranches();
@@ -801,14 +878,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // Function to render the currently active sub-view within All Staff Performance (Overall)
-    function renderActiveStaffSubView() {
-        if (currentStaffSubView === 'employeeSummary') {
-            renderEmployeePerformanceSummary();
-        } else if (currentStaffSubView === 'customerActivity') {
-            renderCustomerActivityLog();
-        }
-    }
 
     // Event listeners for main tab buttons
     if (allBranchSnapshotTabBtn) {
@@ -822,30 +891,6 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     if (employeeManagementTabBtn) {
         employeeManagementTabBtn.addEventListener('click', () => showTab('employeeManagementTabBtn'));
-    }
-
-    // Event listeners for sub-view toggle buttons
-    if (employeeSummaryViewBtn) {
-        employeeSummaryViewBtn.addEventListener('click', () => {
-            currentStaffSubView = 'employeeSummary';
-            employeeSummaryViewBtn.classList.add('active');
-            customerActivityLogBtn.classList.remove('active');
-            employeePerformanceView.style.display = 'block';
-            customerActivityLogView.style.display = 'none';
-            customerDetailView.style.display = 'none'; // Hide detail view when switching
-            renderEmployeePerformanceSummary();
-        });
-    }
-
-    if (customerActivityLogBtn) {
-        customerActivityLogBtn.addEventListener('click', () => {
-            currentStaffSubView = 'customerActivity';
-            customerActivityLogBtn.classList.add('active');
-            employeeSummaryViewBtn.classList.remove('active');
-            employeePerformanceView.style.display = 'none';
-            customerActivityLogView.style.display = 'block';
-            renderCustomerActivityLog(); // This will automatically hide detail view
-        });
     }
 
     // Event Listener for Add Employee Form
