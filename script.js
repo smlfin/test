@@ -75,14 +75,10 @@ document.addEventListener('DOMContentLoaded', () => {
     const branchSelect = document.getElementById('branchSelect');
     const employeeFilterPanel = document.getElementById('employeeFilterPanel');
     const employeeSelect = document.getElementById('employeeSelect');
-    // const viewOptions = document.getElementById('viewOptions'); // No longer directly used for visibility
-    const viewBranchPerformanceReportBtn = document.getElementById('viewBranchPerformanceReportBtn');
-    const viewEmployeeSummaryBtn = document.getElementById('viewEmployeeSummaryBtn');
-    const viewAllEntriesBtn = document.getElementById('viewAllEntriesBtn');
-    const viewPerformanceReportBtn = document.getElementById('viewPerformanceReportBtn');
+    const dateFilterPanel = document.getElementById('dateFilterPanel'); // Added for clarity, though not used in overall tab
+    const dateFilter = document.getElementById('dateFilter'); // Added for clarity, though not used in overall tab
 
     // Main Report Display Area (now within tab contents)
-    // No longer a single 'reportDisplay' but specific table bodies or divs
     const allBranchSnapshotTableBody = document.getElementById('branchSnapshotTableBody');
     const overallPerformanceTableBody = document.getElementById('overallPerformanceTableBody');
     const customerDetailView = document.getElementById('customerDetailView');
@@ -97,7 +93,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const detailCustomerName = document.getElementById('detailCustomerName');
     const detailAddress = document.getElementById('detailAddress');
     const detailPhoneNumber = document.getElementById('detailPhoneNumber');
-    const detailEmailId = document.getElementById('detailEmailId');
+    const detailEmailId = document.getElementById('detailEmailId'); // Assuming a header for Email ID or will use a placeholder
     const detailRemarks = document.getElementById('detailRemarks');
     const detailFollowupDate = document.getElementById('detailFollowupDate');
 
@@ -124,10 +120,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Employee Management Form Elements
     const addEmployeeForm = document.getElementById('addEmployeeForm');
-    const employeeNameInput = document.getElementById('employeeName'); // Corrected from newEmployeeNameInput
-    const employeeCodeInput = document.getElementById('employeeCode');   // Corrected from newEmployeeCodeInput
-    const employeeBranchInput = document.getElementById('employeeBranch'); // Corrected from newBranchNameInput
-    const employeeDesignationInput = document.getElementById('employeeDesignation'); // Corrected from newDesignationInput
+    const employeeNameInput = document.getElementById('employeeName');
+    const employeeCodeInput = document.getElementById('employeeCode');
+    const employeeBranchInput = document.getElementById('employeeBranch');
+    const employeeDesignationInput = document.getElementById('employeeDesignation');
     const employeeManagementMessage = document.getElementById('employeeManagementMessage');
 
     const bulkAddEmployeeForm = document.getElementById('bulkAddEmployeeForm');
@@ -146,6 +142,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let employeeCodeToDesignationMap = {}; // {code: designation} from Canvassing Data
     let selectedBranchEntries = []; // Activity entries filtered by branch
     let selectedEmployeeCodeEntries = []; // Activity entries filtered by employee code
+
 
     // Utility to format date to ISO-MM-DD
     const formatDate = (dateString) => {
@@ -281,7 +278,7 @@ document.addEventListener('DOMContentLoaded', () => {
         console.log('Final All Unique Employees (Codes from Canvassing Data):', allUniqueEmployees);
 
         // After data is loaded and maps are populated, render the initial report
-        renderAllBranchSnapshot();
+        renderAllBranchSnapshot(); // Still render this by default on load.
     }
 
     // Populate dropdown utility
@@ -301,7 +298,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // Filter employees based on selected branch (functionality remains, but for specific tab)
+    // Filter employees based on selected branch (for Branch Snapshot if applicable)
     branchSelect.addEventListener('change', () => {
         const selectedBranch = branchSelect.value;
         if (selectedBranch) {
@@ -322,26 +319,23 @@ document.addEventListener('DOMContentLoaded', () => {
             });
 
             populateDropdown(employeeSelect, sortedEmployeeCodesInBranch, true);
-            // viewOptions.style.display = 'flex'; // This panel is no longer used for tab content
             employeeSelect.value = "";
             selectedEmployeeCodeEntries = [];
 
         } else {
             employeeFilterPanel.style.display = 'none';
-            // viewOptions.style.display = 'none'; // This panel is no longer used for tab content
             selectedBranchEntries = [];
             selectedEmployeeCodeEntries = [];
         }
-        // When branch changes, ensure the correct tab content is shown for active tab
+        // Only re-render branch snapshot if that's the active tab
         const activeTabButton = document.querySelector('.tab-button.active');
         if (activeTabButton.id === 'allBranchSnapshotTabBtn') {
-            renderAllBranchSnapshot(); // Re-render for 'All Branch Snapshot' tab
-        } else if (activeTabButton.id === 'allStaffOverallPerformanceTabBtn') {
-            // No direct re-render for this tab on branch select change, as it lists all employees
+            renderAllBranchSnapshot();
         }
+        // No change needed for 'All Staff Performance (Overall)' as it displays all.
     });
 
-    // Handle employee selection (now based on employee CODE) - mainly for individual reports
+    // Handle employee selection (for individual employee reports, if implemented)
     employeeSelect.addEventListener('change', () => {
         const selectedEmployeeCode = employeeSelect.value;
         if (selectedEmployeeCode) {
@@ -349,7 +343,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 entry[HEADER_EMPLOYEE_CODE] === selectedEmployeeCode &&
                 entry[HEADER_BRANCH_NAME] === branchSelect.value
             );
-            // No automatic rendering of specific reports here, as per new tab structure
         } else {
             selectedEmployeeCodeEntries = [];
         }
@@ -388,7 +381,7 @@ document.addEventListener('DOMContentLoaded', () => {
         return { totalActivity, productInterests: [...productInterests] };
     }
 
-    // Render All Branch Snapshot
+    // Render All Branch Snapshot (retained original functionality)
     function renderAllBranchSnapshot() {
         allBranchSnapshotTableBody.innerHTML = ''; // Clear existing content
 
@@ -419,7 +412,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // Render Non-Participating Branches Report
+    // Render Non-Participating Branches Report (retained original functionality)
     function renderNonParticipatingBranches() {
         nonParticipatingBranchesList.innerHTML = '';
         noParticipationMessage.style.display = 'none';
@@ -447,15 +440,15 @@ document.addEventListener('DOMContentLoaded', () => {
     // NEW: Render "All Staff Performance (Overall)" - displays only Date and Customer Name (hyperlink)
     function renderOverallStaffPerformanceSummaryList() {
         overallPerformanceTableBody.innerHTML = ''; // Clear previous entries
-        overallPerformanceListView.style.display = 'block';
-        customerDetailView.style.display = 'none';
+        overallPerformanceListView.style.display = 'block'; // Ensure list is visible
+        customerDetailView.style.display = 'none'; // Ensure detail view is hidden
 
         if (allCanvassingData.length === 0) {
             const row = overallPerformanceTableBody.insertRow();
             const cell = row.insertCell();
             cell.colSpan = 2; // Span across two columns
             cell.textContent = 'No canvassing entries found.';
-            cell.classList.add('no-participation-message-cell');
+            cell.classList.add('no-activity-message'); // Add a class for styling
             return;
         }
 
@@ -498,23 +491,20 @@ document.addEventListener('DOMContentLoaded', () => {
         detailCustomerName.textContent = entry[HEADER_PROSPECT_NAME] || 'N/A';
         detailAddress.textContent = entry[HEADER_ADDRESS] || 'N/A';
         detailPhoneNumber.textContent = entry[HEADER_PHONE_NUMBER_WHATSAPP] || 'N/A';
-        // Note: Email ID might not be a standard header, check your sheet. Using HEADER_EMAIL_ID if it exists.
-        // For now, assuming it's not a direct column, you might need to add it or fetch from remarks.
-        // If you have an 'Email ID' column, uncomment/change below:
-        // detailEmailId.textContent = entry['Email ID'] || 'N/A';
-        detailEmailId.textContent = 'Not Available'; // Placeholder if no direct email column
+        // Check if there's a dedicated Email ID header, otherwise use a placeholder
+        detailEmailId.textContent = entry['Email ID'] || 'N/A'; // Assuming 'Email ID' is the header for email if it exists
         detailRemarks.textContent = entry[HEADER_REMARKS] || 'N/A';
         detailFollowupDate.textContent = formatDate(entry[HEADER_NEXT_FOLLOW_UP_DATE]);
     }
 
-    // Event Listener for "Back to List" button
+    // Event Listener for "Back to List" button for the detailed customer report
     if (backToOverallListBtn) {
         backToOverallListBtn.addEventListener('click', () => {
             renderOverallStaffPerformanceSummaryList(); // Go back to the list view
         });
     }
 
-    // Function to calculate performance percentage
+    // Function to calculate performance percentage (retained, though not used in overall tab directly)
     function calculatePerformance(actual, target) {
         const performance = {};
         for (const key in actual) {
@@ -527,7 +517,7 @@ document.addEventListener('DOMContentLoaded', () => {
         return performance;
     }
 
-    // Helper for progress bar styling
+    // Helper for progress bar styling (retained, though not used in overall tab directly)
     function getProgressBarClass(percentage) {
         if (isNaN(percentage)) return 'no-activity';
         const p = parseFloat(percentage);
@@ -537,7 +527,7 @@ document.addEventListener('DOMContentLoaded', () => {
         return 'danger';
     }
 
-    // Function to send data to Google Apps Script
+    // Function to send data to Google Apps Script (retained original functionality)
     async function sendDataToGoogleAppsScript(actionType, data = {}) {
         displayEmployeeManagementMessage('Processing request...', false);
 
@@ -578,37 +568,39 @@ document.addEventListener('DOMContentLoaded', () => {
             await processData(); // Re-fetch canvassing data and re-populate maps/dropdowns
             // Re-render the current report or provide a message
             const activeTabButton = document.querySelector('.tab-button.active');
-            if (activeTabButton && reportsSection.style.display === 'block') { // Only re-render if we're on a reports tab
+            if (activeTabButton) {
                 if (activeTabButton.id === 'allBranchSnapshotTabBtn') {
                     renderAllBranchSnapshot();
                 } else if (activeTabButton.id === 'allStaffOverallPerformanceTabBtn') {
-                    renderOverallStaffPerformanceSummaryList(); // Re-render the list view
+                    renderOverallStaffPerformanceSummaryList(); // Re-render the list view for overall staff
                 } else if (activeTabButton.id === 'nonParticipatingBranchesTabBtn') {
                     renderNonParticipatingBranches();
                 }
+                // No re-render for Employee Management tab, just clear messages
             }
         }
     }
 
 
-    // Function to manage tab visibility
+    // Function to manage tab visibility (retained original functionality, but updated for new overall view)
     function showTab(tabButtonId) {
+        // Deactivate all tab buttons
         document.querySelectorAll('.tab-button').forEach(button => {
             button.classList.remove('active');
         });
+        // Activate the clicked tab button
         document.getElementById(tabButtonId).classList.add('active');
 
-        // Hide all tab contents initially
+        // Hide all main content sections
         allBranchSnapshotTabContent.style.display = 'none';
         allStaffOverallPerformanceTabContent.style.display = 'none';
         nonParticipatingBranchesTabContent.style.display = 'none';
         employeeManagementSection.style.display = 'none';
 
-        reportsSection.style.display = 'none'; // Default hide reports section
-
         // Hide filtering controls by default, show only if needed by tab
         document.querySelector('.controls-panel').style.display = 'none';
-        employeeFilterPanel.style.display = 'none'; // Also hide employee specific filter
+        employeeFilterPanel.style.display = 'none';
+        dateFilterPanel.style.display = 'none'; // Ensure date filter is hidden by default
 
         // Reset dropdowns if we are switching away from a branch/employee dependent tab
         branchSelect.value = '';
@@ -623,7 +615,7 @@ document.addEventListener('DOMContentLoaded', () => {
         } else if (tabButtonId === 'allStaffOverallPerformanceTabBtn') {
             reportsSection.style.display = 'block';
             allStaffOverallPerformanceTabContent.style.display = 'block';
-            document.querySelector('.controls-panel').style.display = 'none'; // Hide controls for this tab as it shows all entries
+            document.querySelector('.controls-panel').style.display = 'none'; // Hide controls for this tab
             renderOverallStaffPerformanceSummaryList(); // Render the new customer list view
         } else if (tabButtonId === 'nonParticipatingBranchesTabBtn') {
             reportsSection.style.display = 'block';
