@@ -35,12 +35,13 @@
                         <option value="">-- Select an Employee --</option>
                     </select>
                 </div>
-
+                
                 <div id="dateFilterPanel" class="dropdown-group" style="display: none;">
                     <label for="dateFilter">Filter by Date:</label>
                     <input type="date" id="dateFilter">
                 </div>
-            </div>
+
+                </div>
 
             <div id="allBranchSnapshotTabContent" class="tab-content active">
                 <h2>All Branch Snapshot</h2>
@@ -57,9 +58,11 @@
                         <thead>
                             <tr>
                                 <th>Branch Name</th>
-                                <th>Total Employees</th>
-                                <th>Active Employees</th>
-                                <th>Total Canvassing</th>
+                                <th>Employees with Activity</th>
+                                <th>Total Visits</th>
+                                <th>Total Calls</th>
+                                <th>Total References</th>
+                                <th>Total New Customer Leads</th>
                             </tr>
                         </thead>
                         <tbody id="branchSnapshotTableBody">
@@ -70,6 +73,7 @@
 
             <div id="allStaffOverallPerformanceTabContent" class="tab-content">
                 <h2>All Staff Performance (Overall)</h2>
+                
                 <div id="overallPerformanceListView">
                     <div class="table-responsive">
                         <table class="data-table">
@@ -87,13 +91,15 @@
 
                 <div id="customerDetailView" class="customer-detail-card" style="display: none;">
                     <button id="backToOverallListBtn" class="btn back-btn">&larr; Back to List</button>
-                    <h3>Customer Canvassing Details</h3>
+                    <div class="card-header">
+                        <h3>Customer Canvassing Details</h3>
+                    </div>
                     <div class="detail-grid">
                         <div class="detail-item"><strong>Date:</strong> <span id="detailDate"></span></div>
                         <div class="detail-item"><strong>Branch Name:</strong> <span id="detailBranchName"></span></div>
                         <div class="detail-item"><strong>Employee Name:</strong> <span id="detailEmployeeName"></span></div>
                         <div class="detail-item"><strong>Designation:</strong> <span id="detailDesignation"></span></div>
-                        <div class="detail-item"><strong>Customer Name:</strong> <span id="detailCustomerName"></span></div>
+                        <div class="detail-item full-width highlight-name"><strong>Customer Name:</strong> <span id="detailCustomerName"></span></div>
                         <div class="detail-item full-width"><strong>Address:</strong> <span id="detailAddress"></span></div>
                         <div class="detail-item"><strong>Phone Number:</strong> <span id="detailPhoneNumber"></span></div>
                         <div class="detail-item"><strong>Email ID:</strong> <span id="detailEmailId"></span></div>
