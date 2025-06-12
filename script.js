@@ -579,13 +579,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
             const row = staffOverallPerformanceTableBody.insertRow();
 
-            // Employee Info
+            // Employee Info - Adjusted order for Branch and Designation
             row.insertCell().setAttribute('data-label', 'Employee Name');
             row.lastChild.textContent = employeeName;
-            row.insertCell().setAttribute('data-label', 'Designation');
-            row.lastChild.textContent = employeeDesignation;
-            row.insertCell().setAttribute('data-label', 'Branch');
+            row.insertCell().setAttribute('data-label', 'Branch'); // Changed order
             row.lastChild.textContent = employeeBranch;
+            row.insertCell().setAttribute('data-label', 'Designation'); // Changed order
+            row.lastChild.textContent = employeeDesignation;
 
             // Visit Metrics
             row.insertCell().setAttribute('data-label', 'Target Visits');
