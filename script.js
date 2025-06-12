@@ -1209,34 +1209,62 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
+    // Modified function to render customer details in a more engaging way
     function renderCustomerDetails(customerEntry) {
         customerDetailsContent.innerHTML = ''; // Clear previous details
 
+        // Helper function to create a detail row
+        const createDetailRow = (label, value) => {
+            return `
+                <div class="detail-row">
+                    <span class="detail-label">${label}:</span>
+                    <span class="detail-value">${value || 'N/A'}</span>
+                </div>
+            `;
+        };
+
         const detailsHtml = `
-            <p><strong>Date:</strong> ${formatDate(customerEntry[HEADER_DATE])}</p>
-            <p><strong>Branch Name:</strong> ${customerEntry[HEADER_BRANCH_NAME] || 'N/A'}</p>
-            <p><strong>Employee Name:</strong> ${customerEntry[HEADER_EMPLOYEE_NAME] || 'N/A'}</p>
-            <p><strong>Employee Code:</strong> ${customerEntry[HEADER_EMPLOYEE_CODE] || 'N/A'}</p>
-            <p><strong>Designation:</strong> ${customerEntry[HEADER_DESIGNATION] || 'N/A'}</p>
-            <p><strong>Activity Type:</strong> ${customerEntry[HEADER_ACTIVITY_TYPE] || 'N/A'}</p>
-            <p><strong>Type of Customer:</strong> ${customerEntry[HEADER_TYPE_OF_CUSTOMER] || 'N/A'}</p>
-            <p><strong>Lead Source:</strong> ${customerEntry[HEADER_R_LEAD_SOURCE] || 'N/A'}</p>
-            <p><strong>Prospect Name:</strong> ${customerEntry[HEADER_PROSPECT_NAME] || 'N/A'}</p>
-            <p><strong>Phone Number (Whatsapp):</strong> ${customerEntry[HEADER_PHONE_NUMBER_WHATSAPP] || 'N/A'}</p>
-            <p><strong>Address:</strong> ${customerEntry[HEADER_ADDRESS] || 'N/A'}</p>
-            <p><strong>Profession:</strong> ${customerEntry[HEADER_PROFESSION] || 'N/A'}</p>
-            <p><strong>DOB/WD:</strong> ${customerEntry[HEADER_DOB_WD] || 'N/A'}</p>
-            <p><strong>Product Interested:</strong> ${customerEntry[HEADER_PRODUCT_INTERESTED] || 'N/A'}</p>
-            <p><strong>Remarks:</strong> ${customerEntry[HEADER_REMARKS] || 'N/A'}</p>
-            <p><strong>Next Follow-up Date:</strong> ${formatDate(customerEntry[HEADER_NEXT_FOLLOW_UP_DATE])}</p>
-            <p><strong>Relation With Staff:</strong> ${customerEntry[HEADER_RELATION_WITH_STAFF] || 'N/A'}</p>
-            <h4>Family Details:</h4>
-            <p><strong>Name of wife/Husband:</strong> ${customerEntry[HEADER_FAMILY_DETAILS_1] || 'N/A'}</p>
-            <p><strong>Job of wife/Husband:</strong> ${customerEntry[HEADER_FAMILY_DETAILS_2] || 'N/A'}</p>
-            <p><strong>Names of Children:</strong> ${customerEntry[HEADER_FAMILY_DETAILS_3] || 'N/A'}</p>
-            <p><strong>Details of Children:</strong> ${customerEntry[HEADER_FAMILY_DETAILS_4] || 'N/A'}</p>
-            <h4>Customer Profile:</h4>
-            <p>${customerEntry[HEADER_PROFILE_OF_CUSTOMER] || 'N/A'}</p>
+            <div class="customer-info-section">
+                <h3>Customer Overview</h3>
+                ${createDetailRow('Prospect Name', customerEntry[HEADER_PROSPECT_NAME])}
+                ${createDetailRow('Phone Number', customerEntry[HEADER_PHONE_NUMBER_WHATSAPP])}
+                ${createDetailRow('Address', customerEntry[HEADER_ADDRESS])}
+                ${createDetailRow('Profession', customerEntry[HEADER_PROFESSION])}
+                ${createDetailRow('DOB/WD', customerEntry[HEADER_DOB_WD])}
+                ${createDetailRow('Product Interested', customerEntry[HEADER_PRODUCT_INTERESTED])}
+            </div>
+
+            <div class="customer-info-section">
+                <h3>Canvassing Activity</h3>
+                ${createDetailRow('Date', formatDate(customerEntry[HEADER_DATE]))}
+                ${createDetailRow('Branch Name', customerEntry[HEADER_BRANCH_NAME])}
+                ${createDetailRow('Employee Name', customerEntry[HEADER_EMPLOYEE_NAME])}
+                ${createDetailRow('Employee Code', customerEntry[HEADER_EMPLOYEE_CODE])}
+                ${createDetailRow('Designation', customerEntry[HEADER_DESIGNATION])}
+                ${createDetailRow('Activity Type', customerEntry[HEADER_ACTIVITY_TYPE])}
+                ${createDetailRow('Type of Customer', customerEntry[HEADER_TYPE_OF_CUSTOMER])}
+                ${createDetailRow('Lead Source', customerEntry[HEADER_R_LEAD_SOURCE])}
+                ${createDetailRow('Next Follow-up Date', formatDate(customerEntry[HEADER_NEXT_FOLLOW_UP_DATE]))}
+                ${createDetailRow('Relation With Staff', customerEntry[HEADER_RELATION_WITH_STAFF])}
+            </div>
+
+            <div class="customer-info-section full-width-section">
+                <h3>Remarks</h3>
+                <p class="remark-text">${customerEntry[HEADER_REMARKS] || 'N/A'}</p>
+            </div>
+
+            <div class="customer-info-section">
+                <h3>Family Details</h3>
+                ${createDetailRow('Spouse Name', customerEntry[HEADER_FAMILY_DETAILS_1])}
+                ${createDetailRow('Spouse Job', customerEntry[HEADER_FAMILY_DETAILS_2])}
+                ${createDetailRow('Children Names', customerEntry[HEADER_FAMILY_DETAILS_3])}
+                ${createDetailRow('Children Details', customerEntry[HEADER_FAMILY_DETAILS_4])}
+            </div>
+
+            <div class="customer-info-section full-width-section">
+                <h3>Customer Profile</h3>
+                <p class="profile-text">${customerEntry[HEADER_PROFILE_OF_CUSTOMER] || 'N/A'}</p>
+            </div>
         `;
         customerDetailsContent.innerHTML = detailsHtml;
     }
