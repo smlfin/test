@@ -13,7 +13,8 @@
             <button class="tab-button active" id="allBranchSnapshotTabBtn">All Branch Snapshot</button>
             <button class="tab-button" id="allStaffOverallPerformanceTabBtn">All Staff Performance (Overall)</button>
             <button class="tab-button" id="nonParticipatingBranchesTabBtn">Non-Participating Branches</button>
-            <button class="tab-button" id="detailedCustomerViewTabBtn">Detailed Customer View</button> <button class="tab-button" id="employeeManagementTabBtn">Employee Management</button>
+            <button class="tab-button" id="detailedCustomerViewTabBtn">Detailed Customer View</button>
+            <button class="tab-button" id="employeeManagementTabBtn">Employee Management</button>
         </nav>
     </header>
 
@@ -36,80 +37,80 @@
                     </select>
                 </div>
 
-                <div id="viewOptions" class="view-options" style="display: none;">
-                    <button class="btn" id="viewBranchPerformanceReportBtn">Branch Performance Report</button>
-                    <button class="btn" id="viewEmployeeSummaryBtn">Employee Summary (Current Month)</button>
-                    <button class="btn" id="viewAllEntriesBtn">View All Entries (Employee)</button>
-                    <button class="btn" id="viewPerformanceReportBtn">Employee Performance Report</button>
+                <div class="view-options">
+                    <button class="btn" id="viewAllBranchSnapshotBtn">View All Branch Snapshot</button>
+                    <button class="btn" id="viewOverallStaffPerformanceBtn">View Overall Staff Performance</button>
+                    <button class="btn" id="viewEmployeeSummaryBtn" style="display: none;">View Employee Summary</button>
+                    <button class="btn" id="viewAllCanvassingEntriesBtn" style="display: none;">View All Canvassing Entries</button>
                 </div>
             </div>
 
-            <div id="reportDisplay" class="report-display">
-                <p>Select a branch and/or employee to view reports.</p>
-            </div>
+            <div class="report-display" id="reportDisplay">
+                </div>
         </section>
 
-        <section id="detailedCustomerViewSection" class="report-section" style="display: none;">
+        <section id="detailedCustomerViewSection" class="detailed-customer-view-section">
             <h2>Detailed Customer View</h2>
             <div class="controls-panel">
                 <div class="dropdown-group">
-                    <label for="customerViewBranchSelect">Select Branch:</label>
-                    <select id="customerViewBranchSelect">
+                    <label for="customerBranchSelect">Select Branch:</label>
+                    <select id="customerBranchSelect">
                         <option value="">-- Select a Branch --</option>
                     </select>
                 </div>
                 <div class="dropdown-group">
-                    <label for="customerViewEmployeeSelect">Select Employee:</label>
-                    <select id="customerViewEmployeeSelect">
+                    <label for="customerEmployeeSelect">Select Employee:</label>
+                    <select id="customerEmployeeSelect">
                         <option value="">-- Select an Employee --</option>
                     </select>
                 </div>
             </div>
 
-            <div class="customer-list-display">
-                <h3>Customers Canvassed:</h3>
-                <ul id="customerCanvassedList" class="customer-list">
-                    <p>Select a branch and employee to see customers.</p>
-                </ul>
-            </div>
-
-            <div class="customer-details-display">
-                <h3>Customer Details:</h3>
-                <div id="customerDetailsContent" class="customer-details-card">
-                    <p>Select a customer from the list to view their details.</p>
+            <div class="customer-view-content">
+                <div class="customer-list-display">
+                    <h3>Customers</h3>
+                    <ul id="customerList" class="customer-list">
+                        </ul>
+                </div>
+                <div class="customer-details-display">
+                    <h3>Customer Details</h3>
+                    <div id="customerDetailsCard" class="customer-details-card">
+                        <p>Select a customer from the list to view their details.</p>
+                    </div>
                 </div>
             </div>
         </section>
 
-        <section id="employeeManagementSection" class="employee-management-section" style="display: none;">
+
+        <section id="employeeManagementSection" class="employee-management-section">
             <h2>Employee Management</h2>
-            <div id="employeeManagementMessage" class="message"></div>
+            <div id="employeeManagementMessage" class="message-container"></div>
 
             <div class="form-section">
                 <h3>Add New Employee</h3>
                 <form id="addEmployeeForm" class="employee-form">
                     <div class="form-group">
-                        <label for="newEmployeeName">Employee Name:</label>
-                        <input type="text" id="newEmployeeName" required>
+                        <label for="employeeName">Employee Name:</label>
+                        <input type="text" id="employeeName" required>
                     </div>
                     <div class="form-group">
-                        <label for="newEmployeeCode">Employee Code:</label>
-                        <input type="text" id="newEmployeeCode" required>
+                        <label for="employeeCode">Employee Code:</label>
+                        <input type="text" id="employeeCode" required>
                     </div>
                     <div class="form-group">
-                        <label for="newBranchName">Branch Name:</label>
-                        <input type="text" id="newBranchName" required>
+                        <label for="branchName">Branch Name:</label>
+                        <input type="text" id="branchName" required>
                     </div>
                     <div class="form-group">
-                        <label for="newDesignation">Designation:</label>
-                        <input type="text" id="newDesignation">
+                        <label for="designation">Designation:</label>
+                        <input type="text" id="designation" required>
                     </div>
                     <button type="submit" class="btn">Add Employee</button>
                 </form>
             </div>
 
             <div class="form-section">
-                <h3>Bulk Add Employees</h3>
+                <h3>Add Bulk Employees</h3>
                 <form id="bulkAddEmployeeForm" class="employee-form">
                     <div class="form-group">
                         <label for="bulkEmployeeBranchName">Branch Name for Bulk Entry:</label>
@@ -140,6 +141,7 @@
         <p>&copy; 2025 Employee Canvassing Dashboard</p>
     </footer>
 
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="script.js"></script>
 </body>
 </html>
