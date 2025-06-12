@@ -192,7 +192,7 @@ document.addEventListener('DOMContentLoaded', () => {
             allBranches = Array.from(branchSet).sort();
 
             populateFilters();
-            filterAndDisplayReports(); // Display reports with initial data
+            // No need to call filterAndDisplayReports here, showTab will call it
             displayStatusMessage('Data loaded successfully!', false);
 
         } catch (error) {
@@ -293,28 +293,32 @@ document.addEventListener('DOMContentLoaded', () => {
         return Array.from(uniqueEmployees.values()).sort((a,b) => a.name.localeCompare(b.name));
     }
 
-
     // Function to display reports based on filtered data and active tab
     function filterAndDisplayReports() {
         const filteredData = getFilteredData();
-        const activeTab = document.querySelector('.tab-button.active').id;
+        // Get the active tab button's ID
+        const activeTabButton = document.querySelector('.tab-button.active');
+        const activeTabId = activeTabButton ? activeTabButton.id : null; // Default to null if no active tab
 
-        switch (activeTab) {
-            case 'allBranchSnapshotTabBtn':
-                displayAllBranchSnapshot(filteredData);
-                break;
-            case 'allStaffOverallPerformanceTabBtn':
-                displayAllStaffOverallPerformance(filteredData);
-                break;
-            case 'nonParticipatingBranchesTabBtn':
-                displayNonParticipatingBranches(filteredData);
-                break;
-            case 'detailedCustomerViewTabBtn':
-                displayDetailedCustomerView(filteredData);
-                break;
-            case 'employeeManagementTabBtn':
-                // No data processing needed for this tab as it's form-based
-                break;
+        // Only display report content if a tab is active
+        if (activeTabId) {
+            switch (activeTabId) {
+                case 'allBranchSnapshotTabBtn':
+                    displayAllBranchSnapshot(filteredData);
+                    break;
+                case 'allStaffOverallPerformanceTabBtn':
+                    displayAllStaffOverallPerformance(filteredData);
+                    break;
+                case 'nonParticipatingBranchesTabBtn':
+                    displayNonParticipatingBranches(filteredData);
+                    break;
+                case 'detailedCustomerViewTabBtn':
+                    displayDetailedCustomerView(filteredData);
+                    break;
+                case 'employeeManagementTabBtn':
+                    // No data processing needed for this tab as it's form-based
+                    break;
+            }
         }
     }
 
@@ -562,28 +566,30 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // *** Event Listeners ***
+    // *** New showTab Function ***
+    function showTab(tabButtonId) {
+        // Remove active class from all buttons and content
+        tabButtons.forEach(btn => btn.classList.remove('active'));
+        tabContents.forEach(content => content.classList.remove('active'));
 
-    // Tab switching logic
-    tabButtons.forEach(button => {
-        button.addEventListener('click', () => {
-            // Remove active class from all buttons and content
-            tabButtons.forEach(btn => btn.classList.remove('active'));
-            tabContents.forEach(content => content.classList.remove('active'));
-
-            // Add active class to clicked button and corresponding content
+        // Add active class to the specified button and corresponding content
+        const button = document.getElementById(tabButtonId);
+        if (button) {
             button.classList.add('active');
-            const targetTabId = button.id.replace('Btn', ''); // e.g., 'allBranchSnapshotTab'
-            document.getElementById(targetTabId).classList.add('active');
+            const targetTabId = tabButtonId.replace('Btn', ''); // e.g., 'allBranchSnapshotTab'
+            const targetContent = document.getElementById(targetTabId);
+            if (targetContent) {
+                targetContent.classList.add('active');
+            }
 
             // Hide/Show filter panels based on active tab
-            if (button.id === 'employeeManagementTabBtn') {
+            if (tabButtonId === 'employeeManagementTabBtn') {
                 employeeFilterPanel.style.display = 'none';
                 monthYearFilterPanel.style.display = 'none';
                 branchSelect.value = ''; // Clear branch selection when in employee management
                 employeeSelect.value = ''; // Clear employee selection
                 statusMessageDiv.style.display = 'none'; // Hide general status message
-            } else if (button.id === 'allStaffOverallPerformanceTabBtn' || button.id === 'detailedCustomerViewTabBtn') {
+            } else if (tabButtonId === 'allStaffOverallPerformanceTabBtn' || tabButtonId === 'detailedCustomerViewTabBtn') {
                 employeeFilterPanel.style.display = 'block';
                 monthYearFilterPanel.style.display = 'block';
             } else {
@@ -592,6 +598,16 @@ document.addEventListener('DOMContentLoaded', () => {
             }
             // Always refilter and display reports when tab changes
             filterAndDisplayReports();
+        }
+    }
+
+
+    // *** Event Listeners ***
+
+    // Tab switching logic (now calls showTab)
+    tabButtons.forEach(button => {
+        button.addEventListener('click', () => {
+            showTab(button.id); // Call the new showTab function
         });
     });
 
@@ -708,5 +724,5 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Initial data fetch and tab display when the page loads
     processData();
-    showTab('allBranchSnapshotTabBtn');
+    showTab('allBranchSnapshotTabBtn'); // Call showTab to set initial active tab and display report
 });
