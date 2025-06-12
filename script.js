@@ -11,8 +11,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // We will IGNORE MasterEmployees sheet for data fetching and report generation
     // Employee management functions in Apps Script still use the MASTER_SHEET_ID you've set up in code.gs
     // For front-end reporting, all employee and branch data will come from Canvassing Data and predefined list.
-    const EMPLOYEE_MASTER_DATA_URL = "UNUSED"; // Marked as UNUSED for clarity, won't be fetched for reports
-
+    const EMPLOYEE_MASTER_DATA_URL = "UNUSED"; // This URL is not used for client-side data fetching.
 
     // Header constants for CSV/Sheet columns
     const HEADER_DATE_CANVASSED = 'Date Canvassed';
@@ -41,7 +40,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const totalCustomersSpan = document.getElementById('totalCustomers');
     const totalCanvassedSpan = document.getElementById('totalCanvassed');
-    const totalAchievedSpan = document.getElementById('totalAchieved');
+    const totalAchievedSpan = document = document.getElementById('totalAchieved');
     const totalAchievedPercentageSpan = document.getElementById('totalAchievedPercentage');
     const branchPerformanceTableBody = document.getElementById('branchPerformanceTable').querySelector('tbody');
     const employeePerformanceTableBody = document.getElementById('employeePerformanceTable').querySelector('tbody');
@@ -240,7 +239,6 @@ document.addEventListener('DOMContentLoaded', () => {
         months.forEach((month, index) => {
             const option = document.createElement('option');
             option.value = String(index + 1).padStart(2, '0'); // "01", "02", etc.
-            option.textContent = month;
             if (index + 1 === currentMonth) {
                 option.selected = true;
             }
