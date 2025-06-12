@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Employee Canvassing Dashboard</title>
     <link rel="stylesheet" href="style.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.0/papaparse.min.js"></script>
 </head>
 <body>
     <header>
@@ -46,6 +47,36 @@
                         <table id="allBranchSnapshotTable" class="report-table">
                             </table>
                     </div>
+
+                    <div id="employeeSpecificReportsContainer" style="display: none;">
+                        <h3>Employee Canvassing Details</h3>
+                        <div class="reports-grid">
+                            <div class="report-block">
+                                <h4>Customer Visits & Meeting Report</h4>
+                                <div class="table-container">
+                                    <table id="customerVisitsTable" class="report-table"></table>
+                                </div>
+                            </div>
+                            <div class="report-block">
+                                <h4>Customer Reference Generated</h4>
+                                <div class="table-container">
+                                    <table id="customerReferencesTable" class="report-table"></table>
+                                </div>
+                            </div>
+                            <div class="report-block">
+                                <h4>New Customer Leads Generated</h4>
+                                <div class="table-container">
+                                    <table id="newCustomerLeadsTable" class="report-table"></table>
+                                </div>
+                            </div>
+                            <div class="report-block">
+                                <h4>New Loan Leads Generated</h4>
+                                <div class="table-container">
+                                    <table id="newLoanLeadsTable" class="report-table"></table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
 
                 <div id="allStaffOverallPerformanceReport" class="report-content">
@@ -75,12 +106,20 @@
                     </div>
                 </div>
 
-
                 <div id="employeeDetailedEntriesReport" class="report-content" style="display: none;">
                     <h2 id="employeeDetailedEntriesTitle">Customer Canvassing Details for Employee: </h2>
                     <button id="backToEmployeeFilterBtn" class="btn">Back to Employee Filter</button>
                     <div class="table-container">
                         <table id="employeeDetailedEntriesTable" class="report-table detailed-entries-table">
+                            </table>
+                    </div>
+                </div>
+
+                <div id="customerDetailedEntriesReport" class="report-content" style="display: none;">
+                    <h2 id="customerDetailedEntriesTitle">Customer Canvassing Details for: </h2>
+                    <button id="backToEmployeeSpecificReportsBtn" class="btn">Back to Employee Reports</button>
+                    <div class="table-container">
+                        <table id="customerDetailedEntriesTable" class="report-table detailed-entries-table">
                             </table>
                     </div>
                 </div>
