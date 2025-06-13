@@ -14,14 +14,13 @@
             <button class="tab-button" id="allStaffOverallPerformanceTabBtn">All Staff Performance (Overall)</button>
             <button class="tab-button" id="nonParticipatingBranchesTabBtn">Non-Participating Branches</button>
             <button class="tab-button" id="detailedCustomerViewTabBtn">Detailed Customer View</button>
+            <button class="tab-button" id="followupDueTabBtn">Followup Due</button>
             <button class="tab-button" id="employeeManagementTabBtn">Employee Management</button>
-            <button class="tab-button" id="todaysFollowUpsTabBtn">Today's Follow-ups</button>
-            <button class="tab-button" id="branchStatusTargetTabBtn">Branch Status vs. Target</button>
         </nav>
     </header>
 
     <main>
-        <div id="statusMessage" class="message-container"></div> 
+        <div id="statusMessage" class="message-container"></div>
 
         <section id="reportsSection" class="report-section">
             <div class="controls-panel">
@@ -68,11 +67,38 @@
                     </select>
                 </div>
             </div>
-            <div id="customerCanvassedList" class="report-display">
+            <div id="customerCanvassedList" class="data-table-container">
                 <p>Select a branch and employee to view canvassed customers.</p>
             </div>
-            <div id="customerDetailsContent" class="report-display" style="display: none;">
+            <div id="customerDetailsContent" class="report-display" style="margin-top: 20px; display: none;">
                 </div>
+        </section>
+
+        <section id="followupDueSection" class="report-section" style="display: none;">
+            <h2>Followup Due (Today)</h2>
+            <div class="controls-panel">
+                <div class="dropdown-group">
+                    <label for="followupBranchSelect">Filter by Branch:</label>
+                    <select id="followupBranchSelect">
+                        <option value="">-- All Branches --</option>
+                    </select>
+                </div>
+                <div class="dropdown-group">
+                    <label for="followupEmployeeSelect">Filter by Employee:</label>
+                    <select id="followupEmployeeSelect">
+                        <option value="">-- All Employees --</option>
+                    </select>
+                </div>
+                <div class="dropdown-group">
+                    <label for="followupDateInput">Due Date:</label>
+                    <input type="date" id="followupDateInput">
+                </div>
+                <button class="btn" id="filterFollowupBtn">Filter</button>
+                <button class="btn" id="resetFollowupBtn">Reset</button>
+            </div>
+            <div id="followupDueDisplay" class="report-display">
+                <p>Select a date and optionally filter by branch/employee to view followups due.</p>
+            </div>
         </section>
 
         <section id="employeeManagementSection" class="report-section" style="display: none;">
@@ -92,18 +118,11 @@
                     </div>
                     <div class="form-group">
                         <label for="newBranchName">Branch Name:</label>
-                        <input type="text" id="newBranchName" list="branchNames" required>
-                        <datalist id="branchNames"></datalist>
+                        <input type="text" id="newBranchName" required>
                     </div>
                     <div class="form-group">
                         <label for="newDesignation">Designation:</label>
-                        <input type="text" id="newDesignation" list="designations" required>
-                        <datalist id="designations">
-                            <option value="Branch Manager">
-                            <option value="Investment Staff">
-                            <option value="Seniors">
-                            <option value="Default">
-                        </datalist>
+                        <input type="text" id="newDesignation" required>
                     </div>
                     <button type="submit" class="btn">Add Employee</button>
                 </form>
@@ -118,7 +137,10 @@
                     </div>
                     <div class="form-group">
                         <label for="bulkEmployeeDetails">Employee Details (Name,Code,Designation - one per line):</label>
-                        <textarea id="bulkEmployeeDetails" rows="10" placeholder="e.g.,&#10;Alice,EMP001,Manager&#10;Bob,EMP002,Sales Exec&#10;Charlie,EMP003" required></textarea>
+                        <textarea id="bulkEmployeeDetails" rows="10" placeholder="e.g.,
+Alice,EMP001,Manager
+Bob,EMP002,Sales Exec
+Charlie,EMP003" required></textarea>
                     </div>
                     <button type="submit" class="btn">Add Bulk Employees</button>
                 </form>
@@ -133,20 +155,6 @@
                     </div>
                     <button type="submit" class="btn danger-btn">Delete Employee</button>
                 </form>
-            </div>
-        </section>
-
-        <section id="todaysFollowUpsSection" class="report-section" style="display: none;">
-            <h2>Today's Follow-ups</h2>
-            <div id="todaysFollowUpsDisplay" class="report-display">
-                <p>Loading today's follow-up activities...</p>
-            </div>
-        </section>
-
-        <section id="branchStatusTargetSection" class="report-section" style="display: none;">
-            <h2>Branch Status vs. Target</h2>
-            <div id="branchStatusTargetDisplay" class="report-display">
-                <p>Loading branch status vs. target report...</p>
             </div>
         </section>
     </main>
