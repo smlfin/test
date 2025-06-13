@@ -480,3 +480,106 @@ footer {
     margin: 10px 0;
     text-align: center;
 }
+/* --- Refinements for Detailed Customer View --- */
+
+/* Ensure the main customer details area adapts well */
+@media (min-width: 768px) {
+    .customer-details-card {
+        /* On larger screens, ensure a minimum of 2 columns, spanning more if content allows */
+        grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); /* Slightly wider min column width */
+        gap: 25px; /* Increase gap for better separation between sections */
+    }
+}
+
+/* Enhancing individual info sections */
+.customer-info-section {
+    background-color: #ffffff; /* Clean background */
+    border: 1px solid #e9e9e9;
+    border-radius: 8px; /* Slightly more rounded corners */
+    padding: 20px; /* Increased padding */
+    box-shadow: 0 2px 6px rgba(0,0,0,0.08); /* More prominent but subtle shadow */
+}
+
+.customer-info-section h3 {
+    color: #388E3C; /* A slightly darker green for section headings for better contrast */
+    margin-top: 0;
+    margin-bottom: 20px; /* More space below heading */
+    padding-bottom: 12px;
+    border-bottom: 2px solid #D0D0D0; /* A clearer separator under heading */
+    font-size: 1.2em; /* Slightly larger heading font */
+    font-weight: bold;
+    text-align: left;
+}
+
+/* Refine detail rows to be more "table-like" within sections */
+.detail-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline; /* Align text baselines */
+    padding: 8px 0; /* More vertical padding for rows */
+    border-bottom: 1px solid #f0f0f0; /* Softer separator between rows */
+    margin-bottom: 0; /* Remove any default margin if present */
+}
+
+.detail-row:last-child {
+    border-bottom: none; /* No border for the last item in a section */
+    padding-bottom: 0;
+}
+
+.detail-label {
+    font-weight: bold;
+    color: #555;
+    flex-basis: 45%; /* Give label a bit more space */
+    min-width: 140px; /* Ensure labels have decent minimum width */
+    text-align: left;
+    padding-right: 15px; /* Space between label and value */
+}
+
+.detail-value {
+    color: #333;
+    flex-basis: 55%; /* Value takes remaining space */
+    text-align: right;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    font-size: 0.95em; /* Slightly adjust font size for values */
+}
+
+/* Ensure remarks/profile text remains readable and justified */
+.remark-text, .profile-text {
+    line-height: 1.7; /* Increased line height for better readability */
+    color: #444;
+    text-align: justify;
+    padding: 10px 0; /* More padding around text blocks */
+}
+
+/* Responsive adjustments for detailed customer view on smaller screens */
+@media (max-width: 767px) {
+    /* Adjustments to make stacked detail rows more professional on mobile */
+    .detail-row {
+        flex-direction: column; /* Stack label and value vertically */
+        align-items: flex-start;
+        padding: 10px 0; /* More space when stacked */
+        border-bottom: 1px solid #e0e0e0; /* Clearer separation when stacked */
+    }
+
+    .detail-label {
+        width: 100%;
+        text-align: left;
+        margin-bottom: 4px; /* Small space between label and value when stacked */
+        padding-right: 0;
+    }
+
+    .detail-value {
+        width: 100%;
+        text-align: left; /* Align value to the left when stacked */
+    }
+
+    .customer-info-section {
+        padding: 15px; /* Slightly less padding on mobile */
+    }
+
+    .customer-info-section h3 {
+        font-size: 1.1em;
+        margin-bottom: 15px;
+    }
+}
