@@ -14,7 +14,6 @@
             <button class="tab-button" id="allStaffOverallPerformanceTabBtn">All Staff Performance (Overall)</button>
             <button class="tab-button" id="nonParticipatingBranchesTabBtn">Non-Participating Branches</button>
             <button class="tab-button" id="detailedCustomerViewTabBtn">Detailed Customer View</button>
-            <button class="tab-button" id="followupDueTabBtn">Followup Due</button>
             <button class="tab-button" id="employeeManagementTabBtn">Employee Management</button>
         </nav>
     </header>
@@ -67,169 +66,25 @@
                     </select>
                 </div>
             </div>
-            <div id="customerCanvassedList" class="data-table-container">
-                <table class="customer-names-table">
-                    <thead>
-                        <tr>
-                            <th>Customer Name</th>
-                            <th>Customer ID</th>
-                            <th>Status</th>
-                            <th>Last Contact</th>
-                            </tr>
-                    </thead>
-                    <tbody>
-                        </tbody>
-                </table>
-                <p class="placeholder-message">Select a branch and employee to view canvassed customers.</p>
+
+            <div class="customer-list-display">
+                <h3>Customers Canvassed:</h3>
+                <ul id="customerCanvassedList" class="customer-list">
+                    <p>Select a branch and employee to see customers.</p>
+                    </ul>
             </div>
-            <div id="customerDetailsContent" class="report-display" style="margin-top: 20px; display: none;">
-                <div class="customer-details-card">
-                    <div class="customer-info-section">
-                        <h3>Basic Information</h3>
-                        <table class="section-detail-table">
-                            <tbody>
-                                <tr>
-                                    <td class="detail-label">Customer Name:</td>
-                                    <td class="detail-value">Jane Doe</td>
-                                </tr>
-                                <tr>
-                                    <td class="detail-label">Customer ID:</td>
-                                    <td class="detail-value">CUST-001</td>
-                                </tr>
-                                <tr>
-                                    <td class="detail-label">Contact Person:</td>
-                                    <td class="detail-value">John Smith</td>
-                                </tr>
-                                <tr>
-                                    <td class="detail-label">Phone:</td>
-                                    <td class="detail-value">+1-123-456-7890</td>
-                                </tr>
-                                <tr>
-                                    <td class="detail-label">Email:</td>
-                                    <td class="detail-value">jane.doe@example.com</td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
 
-                    <div class="customer-info-section">
-                        <h3>Family Details</h3>
-                        <table class="section-detail-table">
-                            <thead>
-                                <tr>
-                                    <th>Member Name</th>
-                                    <th>Relationship</th>
-                                    <th>Date of Birth</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr>
-                                    <td>Sarah Doe</td>
-                                    <td>Spouse</td>
-                                    <td>1985-03-15</td>
-                                </tr>
-                                <tr>
-                                    <td>Mikey Doe</td>
-                                    <td>Child</td>
-                                    <td>2010-07-22</td>
-                                </tr>
-                            </tbody>
-                        </table>
+            <div class="customer-details-display">
+                <h3>Customer Details:</h3>
+                <div id="customerDetailsContent" class="customer-details-card">
+                    <p>Select a customer from the list to view their details.</p>
                     </div>
-
-                    <div class="customer-info-section">
-                        <h3>Sales History</h3>
-                        <table class="section-detail-table">
-                            <tbody>
-                                <tr>
-                                    <td class="detail-label">Last Product:</td>
-                                    <td class="detail-value">Product X (Premium)</td>
-                                </tr>
-                                <tr>
-                                    <td class="detail-label">Purchase Date:</td>
-                                    <td class="detail-value">2024-11-20</td>
-                                </tr>
-                                <tr>
-                                    <td class="detail-label">Total Spent (YTD):</td>
-                                    <td class="detail-value">$1,500.00</td>
-                                </tr>
-                                <tr>
-                                    <td class="detail-label">Next Opportunity:</td>
-                                    <td class="detail-value">Product Y Upgrade</td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-
-                    <div class="customer-info-section full-width-section">
-                        <h3>Canvassing & Follow-up</h3>
-                        <table class="section-detail-table">
-                            <tbody>
-                                <tr>
-                                    <td class="detail-label">Employee Assigned:</td>
-                                    <td class="detail-value">Alice Johnson (EMP001)</td>
-                                </tr>
-                                <tr>
-                                    <td class="detail-label">Last Canvassed Date:</td>
-                                    <td class="detail-value">2025-06-12</td>
-                                </tr>
-                                <tr>
-                                    <td class="detail-label">Follow-up Due:</td>
-                                    <td class="detail-value">2025-06-20</td>
-                                </tr>
-                                <tr>
-                                    <td class="detail-label">Last Interaction:</td>
-                                    <td class="detail-value">Call made, customer interested in Product X.</td>
-                                </tr>
-                                <tr>
-                                    <td class="detail-label">Next Steps:</td>
-                                    <td class="detail-value">Schedule product demo.</td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-
-                    <div class="customer-info-section full-width-section">
-                        <h3>Remarks</h3>
-                        <p class="remark-text">
-                            Customer expressed strong interest in premium package. Sent detailed brochure via email.
-                            Follow-up required to confirm demo time.
-                        </p>
-                    </div>
-                </div>
             </div>
         </section>
 
-        <section id="followupDueSection" class="report-section" style="display: none;">
-            <h2>Followup Due (Today)</h2>
-            <div class="controls-panel">
-                <div class="dropdown-group">
-                    <label for="followupBranchSelect">Filter by Branch:</label>
-                    <select id="followupBranchSelect">
-                        <option value="">-- All Branches --</option>
-                    </select>
-                </div>
-                <div class="dropdown-group">
-                    <label for="followupEmployeeSelect">Filter by Employee:</label>
-                    <select id="followupEmployeeSelect">
-                        <option value="">-- All Employees --</option>
-                    </select>
-                </div>
-                <div class="dropdown-group">
-                    <label for="followupDateInput">Due Date:</label>
-                    <input type="date" id="followupDateInput">
-                </div>
-                <button class="btn" id="filterFollowupBtn">Filter</button>
-                <button class="btn" id="resetFollowupBtn">Reset</button>
-            </div>
-            <div id="followupDueDisplay" class="report-display">
-                <p>Select a date and optionally filter by branch/employee to view followups due.</p>
-            </div>
-        </section>
-
-        <section id="employeeManagementSection" class="report-section" style="display: none;">
+        <section id="employeeManagementSection" class="employee-management-section" style="display: none;">
             <h2>Employee Management</h2>
-            <div id="employeeManagementMessage" class="message-container" style="display: none;"></div>
+            <div id="employeeManagementMessage" class="message"></div>
 
             <div class="form-section">
                 <h3>Add New Employee</h3>
@@ -248,7 +103,7 @@
                     </div>
                     <div class="form-group">
                         <label for="newDesignation">Designation:</label>
-                        <input type="text" id="newDesignation" required>
+                        <input type="text" id="newDesignation">
                     </div>
                     <button type="submit" class="btn">Add Employee</button>
                 </form>
@@ -263,10 +118,7 @@
                     </div>
                     <div class="form-group">
                         <label for="bulkEmployeeDetails">Employee Details (Name,Code,Designation - one per line):</label>
-                        <textarea id="bulkEmployeeDetails" rows="10" placeholder="e.g.,
-Alice,EMP001,Manager
-Bob,EMP002,Sales Exec
-Charlie,EMP003" required></textarea>
+                        <textarea id="bulkEmployeeDetails" rows="10" placeholder="e.g.,&#10;Alice,EMP001,Manager&#10;Bob,EMP002,Sales Exec&#10;Charlie,EMP003" required></textarea>
                     </div>
                     <button type="submit" class="btn">Add Bulk Employees</button>
                 </form>
