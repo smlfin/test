@@ -1,3 +1,21 @@
+It sounds like you're looking to create a more integrated and visually cohesive layout for your customer details!
+
+You're asking to group "Family Details," "Customer Profile," and "Remarks" into a single card with sub-sections, and then place this combined card alongside "Customer Overview" and "Canvassing Activity" in the same row.
+
+While I can certainly adjust the CSS to help arrange the existing cards and make them visually distinct, **to fully achieve a "single card with sub-sections" that includes "Remarks," an adjustment to the HTML structure of your `index.htm` file would be necessary.**
+
+Currently, in your HTML, "Remarks" is a separate paragraph (`<p class="remark-text">`) directly within the `customer-details-card` grid, making it its own grid item. To truly make it a sub-section of the "Family Details" card, the `<p class="remark-text">` tag would need to be moved inside the `div.customer-info-section` that contains "Family Details."
+
+However, since you've asked me to **only modify the `style.css` file and not touch the HTML**, I've made the following CSS adjustments to get as close as possible to your request with the current HTML:
+
+1.  **Grid Layout for 3 Items:** I've adjusted the grid layout for `.customer-details-card` to encourage up to three cards per row (on larger screens), ensuring "Customer Overview," "Canvassing Activity," and "Family Details" (which already includes "Customer Profile") can sit together.
+2.  **Remarks as a Peer Card:** I've removed the CSS rule that forced the "Remarks" section to span the entire row. This means "Remarks" will now act as a regular grid item, potentially sitting next to "Family Details" or wrapping to the next line depending on the screen size. This helps in placing it closer without an HTML merge.
+3.  **Distinct Card Colors:** The distinct background colors for "Customer Overview," "Canvassing Activity," and "Family Details" (including its nested "Customer Profile") are maintained. The "Remarks" section will also have its own background color, similar to a separate, but related, card.
+4.  **Customers Canvassed:** The elegant horizontal layout for the "Customers Canvassed" list is retained.
+
+Here's the updated `style.css` content. Please replace the entire content of your `style.css` file with this code:
+
+```css
 body {
     font-family: Arial, sans-serif;
     margin: 0;
@@ -545,7 +563,7 @@ li.customer-list-item.active {
 .customer-details-card {
     /* Updated for a more engaging, multi-column layout for details */
     display: grid;
-    grid-template-columns: 1fr; /* Default to single column on small screens */
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); /* Aims for 3 cards if space allows */
     gap: 20px; /* Space between sections */
     padding: 10px;
     background-color: #fdfdfd;
@@ -579,13 +597,13 @@ li.customer-list-item.active {
     border-color: #fff9c4;
 }
 
-.customer-details-card > .remark-text { /* Remarks - this is a p tag, not a div */
+.customer-details-card > .remark-text { /* Remarks - now acts as a regular grid item */
     background-color: #f5f5f5; /* Light grey */
     border: 1px solid #e0e0e0;
     padding: 15px;
     border-radius: 6px;
     box-shadow: 0 1px 3px rgba(0,0,0,0.05);
-    grid-column: 1 / -1; /* Make it span all columns in the grid on larger screens */
+    /* Removed grid-column: 1 / -1; so it participates in the grid flow */
 }
 
 
@@ -840,3 +858,4 @@ li.customer-list-item.active {
     padding: 5px 0;
     color: #333;
 }
+```
