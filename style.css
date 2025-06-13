@@ -1,16 +1,14 @@
-/* General Body and Typography */
 body {
     font-family: 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
     margin: 0;
     padding: 0;
-    background-color: #eef1f6; /* Lighter, modern background */
-    color: #34495e; /* Darker, softer text color */
+    background-color: #f0f2f5; /* Lighter, modern background */
+    color: #333;
     line-height: 1.6;
 }
 
-/* Header and Navigation */
 header {
-    background-color: #2c3e50; /* Darker, professional header background */
+    background-color: #388E3C; /* Deeper green for header */
     color: white;
     padding: 1rem 0;
     text-align: center;
@@ -19,17 +17,16 @@ header {
     flex-direction: column;
     align-items: center;
     min-height: 90px; /* Slightly taller header */
-    position: sticky; /* Make header sticky */
-    top: 0;
-    z-index: 1000; /* Ensure it stays on top */
+    padding-bottom: 0;
+    position: relative; /* For z-index of tabs if needed */
+    z-index: 10;
 }
 
 header h1 {
     margin: 0;
-    padding-bottom: 8px; /* Reduced padding */
+    padding-bottom: 10px;
     font-size: 2.2em; /* Slightly larger heading */
     letter-spacing: 0.5px;
-    font-weight: 600;
 }
 
 /* Tab Navigation Styles */
@@ -37,100 +34,86 @@ header h1 {
     display: flex;
     justify-content: center;
     width: 100%;
-    background-color: #34495e; /* Matches header for seamless look */
-    border-top: 1px solid rgba(255,255,255,0.1); /* Subtle top border */
-    padding: 0 10px; /* Add some horizontal padding */
+    background-color: #2E7D32; /* Even darker green for tab bar */
+    border-bottom: 4px solid #4CAF50; /* Thicker, vibrant green border */
+    box-shadow: inset 0 -2px 5px rgba(0,0,0,0.1); /* Inner shadow for depth */
 }
 
 .tab-button {
-    background-color: transparent; /* Transparent by default */
-    color: #ecf0f1; /* Lighter color for inactive tabs */
-    padding: 14px 25px; /* More padding for better click area */
+    background-color: #2E7D32;
+    color: rgba(255, 255, 255, 0.8); /* Slightly muted text for inactive */
+    padding: 14px 22px; /* More padding */
     border: none;
     cursor: pointer;
-    font-size: 1em;
-    font-weight: 500;
-    transition: all 0.3s ease; /* Smoother transitions */
+    font-size: 1.15em; /* Slightly larger font */
+    transition: background-color 0.3s ease, color 0.3s ease, border-bottom 0.3s ease;
     flex-grow: 1;
-    max-width: 220px; /* Slightly reduced max width */
+    max-width: 280px; /* Adjusted max-width */
     text-align: center;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-    position: relative; /* For active tab underline */
+    font-weight: 500; /* Medium weight */
 }
 
 .tab-button:hover {
-    background-color: rgba(255,255,255,0.08); /* Subtle hover effect */
+    background-color: #388E3C; /* Lighter green on hover */
     color: white;
 }
 
 .tab-button.active {
+    background-color: #4CAF50; /* Vibrant green for active tab */
     color: white;
-    font-weight: 700;
-    background-color: #2980b9; /* Distinct blue for active tab */
-    box-shadow: inset 0 0 10px rgba(0,0,0,0.2); /* Inner shadow for depth */
+    border-bottom: 4px solid white; /* Stronger white highlight */
+    font-weight: bold;
+    box-shadow: 0 -2px 8px rgba(0,0,0,0.2); /* Shadow for active tab */
 }
 
-.tab-button.active::after {
-    content: '';
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    width: 100%;
-    height: 3px;
-    background-color: #3498db; /* Bright blue underline */
-    border-radius: 2px 2px 0 0;
-}
-
-
-/* Main Content Area */
 main {
-    padding: 25px; /* Increased padding */
-    max-width: 1300px; /* Slightly wider max-width */
+    padding: 30px; /* Increased padding */
+    max-width: 1300px; /* Wider main content area */
     margin: 30px auto; /* More margin */
-    background-color: #ffffff;
-    box-shadow: 0 5px 15px rgba(0,0,0,0.08); /* Softer, wider shadow */
-    border-radius: 10px; /* More rounded corners */
+    background-color: #fff;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1); /* More pronounced shadow */
+    border-radius: 12px; /* Softer rounded corners */
 }
 
 /* Message container styles */
 .message-container {
-    margin-bottom: 25px; /* More space below message */
+    margin-bottom: 25px; /* More spacing */
     text-align: center;
     display: none;
 }
 
 .message {
     padding: 12px 25px; /* More padding */
-    border-radius: 6px;
-    font-weight: 600;
+    border-radius: 6px; /* Slightly more rounded */
+    font-weight: 600; /* Semi-bold */
     color: white;
-    background-color: #28a745; /* Success green */
-    border: 1px solid #218838;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1); /* Subtle shadow */
     margin: 0 auto;
-    max-width: 600px; /* Constrain message width */
-    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    max-width: fit-content;
+    display: inline-block; /* Allow horizontal centering */
 }
 
 .message.error {
-    background-color: #dc3545; /* Red for errors */
-    border-color: #c82333;
+    background-color: #d32f2f; /* Darker red */
+    border: 1px solid #c62828;
 }
 .message.success {
-    background-color: #28a745; /* Green for success */
-    border-color: #218838;
+    background-color: #388E3C; /* Match header green */
+    border: 1px solid #2E7D32;
 }
 .message.info {
-    background-color: #007bff; /* Blue for info */
-    border-color: #0056b3;
+    background-color: #1976D2; /* Darker blue */
+    border: 1px solid #1565C0;
 }
 
 
 /* Section Display */
 .report-section, .employee-management-section, .detailed-customer-view-section {
     display: none;
-    padding-top: 25px; /* More padding top */
+    padding-top: 25px; /* More top padding for sections */
 }
 
 /* Controls Panel (Dropdowns and Buttons) */
@@ -138,100 +121,102 @@ main {
     display: flex;
     flex-wrap: wrap;
     gap: 20px; /* Increased gap */
-    margin-bottom: 30px; /* More space below controls */
-    padding: 20px; /* More padding */
-    background-color: #f9fbfd; /* Lighter background for controls */
-    border: 1px solid #e0e6ed; /* Softer border */
-    border-radius: 8px; /* More rounded corners */
+    margin-bottom: 25px;
+    padding: 20px; /* Increased padding */
+    background-color: #fcfcfc; /* Lighter background */
+    border: 1px solid #e0e0e0; /* Softer border */
+    border-radius: 8px;
     align-items: flex-end;
-    box-shadow: inset 0 0 8px rgba(0,0,0,0.05); /* Inner shadow for depth */
+    box-shadow: inset 0 0 8px rgba(0,0,0,0.03); /* Inner shadow for depth */
 }
 
 .dropdown-group {
     display: flex;
     flex-direction: column;
     flex: 1;
-    min-width: 220px; /* Slightly wider min-width */
+    min-width: 220px; /* Slightly wider minimum */
 }
 
 .dropdown-group label {
-    margin-bottom: 8px; /* More space below label */
-    font-weight: 600; /* Bolder label */
-    color: #495057; /* Darker label color */
+    margin-bottom: 8px; /* More spacing */
+    font-weight: 600; /* Semi-bold */
+    color: #444; /* Darker label text */
+    font-size: 0.95em;
 }
 
 select {
     padding: 12px; /* More padding */
-    border: 1px solid #ced4da; /* Softer border */
-    border-radius: 6px; /* More rounded */
+    border: 1px solid #bbb; /* Slightly darker border */
+    border-radius: 6px;
     background-color: white;
-    font-size: 1.05em; /* Slightly larger font */
+    font-size: 1em;
     cursor: pointer;
-    appearance: none; /* Remove default arrow */
-    -webkit-appearance: none;
-    -moz-appearance: none;
-    background-image: url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%20256%20256%22%3E%3Cpath%20fill%3D%22%23666%22%20d%3D%22M205.66%2099.34L128%20177l-77.66-77.66a8%208%200%200%200-11.31%2011.31l83.31%2083.32a8%208%200%200%200%2011.31%200l83.31-83.32a8%208%200%200%200-11.31-11.31z%22%2F%3E%3C%2Fsvg%3E');
-    background-repeat: no-repeat;
-    background-position: right 12px center;
-    background-size: 1em;
+    box-shadow: inset 0 1px 3px rgba(0,0,0,0.05); /* Inner shadow */
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
 }
+
+select:focus {
+    border-color: #4CAF50; /* Green highlight on focus */
+    box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.2); /* Light green glow */
+    outline: none;
+}
+
 
 .view-options {
     display: flex;
     flex-wrap: wrap;
-    gap: 12px; /* Adjusted gap */
-    margin-top: 15px; /* More margin top */
+    gap: 12px; /* Increased gap */
+    margin-top: 15px; /* More spacing */
 }
 
 .btn {
-    background-color: #3498db; /* Bright blue */
+    background-color: #4CAF50; /* Green primary button */
     color: white;
-    padding: 12px 20px; /* More padding */
+    padding: 12px 18px; /* More padding */
     border: none;
-    border-radius: 6px; /* More rounded */
+    border-radius: 6px;
     cursor: pointer;
-    font-size: 1.0em;
-    font-weight: 500;
-    transition: background-color 0.3s ease, transform 0.2s ease; /* Add transform for slight pop */
+    font-size: 1em;
+    font-weight: 600; /* Semi-bold */
+    transition: background-color 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease;
     box-shadow: 0 2px 5px rgba(0,0,0,0.1);
 }
 
 .btn:hover {
-    background-color: #2980b9; /* Darker blue on hover */
-    transform: translateY(-2px); /* Slight lift effect */
+    background-color: #388E3C; /* Darker green on hover */
+    transform: translateY(-1px); /* Slight lift effect */
     box-shadow: 0 4px 8px rgba(0,0,0,0.15);
 }
 
 .btn.active {
-    background-color: #27ae60; /* Success green for active button */
-    box-shadow: inset 0 0 5px rgba(0,0,0,0.2); /* Inner shadow */
-    transform: none; /* No lift when active */
+    background-color: #1B5E20; /* Even darker green for active */
+    box-shadow: inset 0 2px 5px rgba(0,0,0,0.2); /* Inset shadow for active */
+    transform: translateY(0); /* Reset lift for active */
 }
 
 .btn.active:hover {
-    background-color: #229a56;
+    background-color: #1B5E20; /* Keep same active background on hover */
 }
 
 .btn.danger-btn {
-    background-color: #e74c3c; /* Flat red */
+    background-color: #e53935; /* Red danger button */
 }
 .btn.danger-btn:hover {
-    background-color: #c0392b;
+    background-color: #c62828; /* Darker red on hover */
 }
 
 
 /* Report Display Area */
 .report-display {
-    background-color: #fcfdfe; /* Very light background */
-    padding: 25px;
+    background-color: #fff;
+    padding: 25px; /* More padding */
     border-radius: 10px;
-    min-height: 250px; /* More space */
-    box-shadow: 0 0 15px rgba(0,0,0,0.06); /* Softer, wider shadow */
-    border: 1px solid #e0e6ed; /* Subtle border */
+    min-height: 250px; /* Taller min-height */
+    box-shadow: 0 0 15px rgba(0,0,0,0.08); /* More pronounced shadow */
 }
 
 .report-display h2 {
-    color: #2c3e50; /* Darker heading */
+    color: #388E3C; /* Match header green */
     text-align: center;
     margin-top: 0;
     margin-bottom: 25px;
@@ -241,67 +226,64 @@ select {
 
 .report-display p {
     text-align: center;
-    color: #6c7a89; /* Softer gray */
-    font-size: 1.1em;
+    color: #666;
+    font-style: italic;
     padding: 20px;
-    background-color: #f0f4f7;
+    border: 1px dashed #e0e0e0;
     border-radius: 8px;
-    border: 1px dashed #d0d8e0;
+    background-color: #f9f9f9;
 }
 
 /* Data Table Container for Horizontal Scrolling */
 .data-table-container {
     overflow-x: auto;
     width: 100%;
-    margin-top: 25px; /* More margin */
-    padding-bottom: 10px; /* Prevent scrollbar from overlapping content */
+    margin-top: 25px; /* More top margin */
+    border: 1px solid #e0e0e0; /* Subtle border around scrollable area */
+    border-radius: 8px;
+    box-shadow: inset 0 0 5px rgba(0,0,0,0.02); /* Inner shadow */
 }
 
 
 /* General Table Styles */
 table {
     width: 100%;
-    border-collapse: separate; /* Use separate for rounded corners on cells */
-    border-spacing: 0;
-    margin-top: 25px;
+    border-collapse: collapse;
+    margin-top: 0; /* Margin handled by container */
     font-size: 0.95em; /* Slightly larger font */
-    min-width: 700px; /* Wider min-width */
-    border-radius: 8px; /* Rounded corners for the table */
-    overflow: hidden; /* Ensures rounded corners apply to content */
-    box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+    min-width: 700px; /* Increased min-width for larger screens */
+    background-color: #fff;
 }
 
 table th, table td {
-    border: 1px solid #e9ecef; /* Lighter border */
+    border: 1px solid #e0e0e0; /* Lighter, more subtle borders */
     padding: 12px 15px; /* More padding */
     text-align: left;
-    vertical-align: middle; /* Align content vertically */
 }
 
 table th {
-    background-color: #e9eff5; /* Light blue-gray header */
-    font-weight: 700; /* Bolder header */
-    color: #495057; /* Darker header text */
+    background-color: #f5f7fa; /* Light grey header background */
+    font-weight: 700; /* Bold headers */
+    color: #555;
     position: sticky;
-    top: -1px; /* Adjust for sticky header */
-    z-index: 1;
+    top: 0;
+    z-index: 2; /* Ensure headers stay on top */
     white-space: nowrap; /* Prevent headers from wrapping */
 }
 
 table tbody tr:nth-child(even) {
-    background-color: #fdfefe; /* Very light alternate row */
+    background-color: #f9f9f9; /* Subtle zebra striping */
 }
 
 table tbody tr:hover {
     background-color: #eef7ff; /* Light blue on hover */
-    box-shadow: inset 0 0 5px rgba(0,0,0,0.05); /* Inner shadow on hover */
+    cursor: pointer;
 }
 
 /* Specific Table Styles */
 .all-branch-snapshot-table th:first-child,
 .all-branch-snapshot-table td:first-child {
     width: 25%; /* Give more space for branch name */
-    font-weight: 600;
 }
 
 /* Performance Table Styles */
@@ -309,35 +291,17 @@ table tbody tr:hover {
     text-align: center;
 }
 .performance-table th[colspan="3"] {
-    background-color: #dbe4ee; /* Slightly darker background for grouped headers */
-    color: #34495e;
+    background-color: #e8eaf6; /* Light blue-grey for grouped headers */
+    color: #3f51b5; /* Dark blue text */
     font-size: 1.05em;
-}
-.performance-table td {
-    text-align: center; /* Center content in performance table cells */
+    padding: 10px 15px;
 }
 
 /* Progress Bar in Tables (Small) */
 .progress-bar-container-small {
     width: 100%;
     background-color: #e0e0e0;
-    border-radius: 10px; /* More rounded */
-    height: 18px; /* Slightly smaller height */
-    overflow: hidden;
-    text-align: center;
-    margin: auto;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-weight: bold;
-    color: white;
-    font-size: 0.75em; /* Smaller font for small bar */
-}
-
-.progress-bar-container {
-    width: 120px; /* Wider fixed width for larger progress bars */
-    background-color: #e0e0e0;
-    border-radius: 12px; /* More rounded */
+    border-radius: 5px;
     height: 22px; /* Slightly taller */
     overflow: hidden;
     text-align: center;
@@ -345,111 +309,131 @@ table tbody tr:hover {
     display: flex;
     align-items: center;
     justify-content: center;
+    font-weight: 600; /* Semi-bold */
+    color: white;
+    font-size: 0.85em; /* Smaller font for percentages */
+}
+
+.progress-bar-container {
+    width: 120px; /* Fixed width for larger progress bars */
+    background-color: #e0e0e0;
+    border-radius: 6px;
+    height: 28px; /* Taller */
+    overflow: hidden;
+    text-align: center;
+    margin: auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     font-weight: bold;
     color: white;
-    font-size: 0.85em;
+    box-shadow: inset 0 1px 3px rgba(0,0,0,0.05);
 }
 
 .progress-bar {
     height: 100%;
-    border-radius: 12px; /* Match container radius */
-    transition: width 0.6s ease-in-out, background-color 0.3s ease; /* Smoother transition */
+    border-radius: 6px;
+    transition: width 0.6s ease-in-out; /* Slower transition */
     display: flex;
     align-items: center;
     justify-content: center;
-    padding: 0 8px; /* More padding for text */
+    padding: 0 8px; /* More padding */
     box-sizing: border-box;
-    white-space: nowrap; /* Prevent text wrapping */
-    text-shadow: 1px 1px 2px rgba(0,0,0,0.2); /* Add text shadow for visibility */
+    white-space: nowrap; /* Prevent percentage text wrapping */
 }
 
-.progress-bar.success { background-color: #28a745; } /* Green */
-.progress-bar.warning-high { background-color: #ffc107; } /* Yellow */
-.progress-bar.warning-medium { background-color: #fd7e14; } /* Orange */
-.progress-bar.warning-low { background-color: #e53935; } /* Lighter Red */
-.progress-bar.danger { background-color: #c62828; } /* Dark Red */
-.progress-bar.no-activity { background-color: #6c757d; } /* Grey for N/A */
+.progress-bar.success { background-color: #4CAF50; }
+.progress-bar.warning-high { background-color: #ffb300; } /* Darker yellow */
+.progress-bar.warning-medium { background-color: #fb8c00; } /* Darker orange */
+.progress-bar.warning-low { background-color: #ef5350; } /* Soft red */
+.progress-bar.danger { background-color: #c62828; }
+.progress-bar.no-activity { background-color: #78909c; } /* Bluish grey */
 
 
 /* Branch Performance Grid (d3.PNG) */
 .branch-performance-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); /* Slightly larger min-width */
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); /* Slightly wider min-width */
     gap: 25px; /* Increased gap */
-    margin-top: 30px;
+    margin-top: 25px;
 }
 
 .employee-performance-card {
     background-color: #ffffff;
-    border: 1px solid #e0e6ed;
+    border: 1px solid #e0e0e0;
     border-radius: 10px;
-    padding: 20px; /* More padding */
-    box-shadow: 0 4px 12px rgba(0,0,0,0.07); /* Softer shadow */
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    padding: 20px; /* Increased padding */
+    box-shadow: 0 4px 10px rgba(0,0,0,0.08); /* More pronounced shadow */
+    transition: transform 0.2s ease;
+}
+.employee-performance-card:hover {
+    transform: translateY(-3px); /* Slight lift on hover */
+    box-shadow: 0 6px 15px rgba(0,0,0,0.12);
 }
 
-.employee-performance-card:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 6px 16px rgba(0,0,0,0.1);
-}
 
 .employee-performance-card h4 {
-    color: #2c3e50; /* Darker heading */
+    color: #388E3C;
     margin-top: 0;
-    margin-bottom: 20px; /* More space below heading */
+    margin-bottom: 18px; /* More spacing */
     text-align: center;
-    font-size: 1.2em; /* Slightly larger heading */
-    border-bottom: 1px solid #e0e6ed;
-    padding-bottom: 10px;
+    font-size: 1.2em; /* Larger font */
+    font-weight: 600;
 }
 
 .employee-performance-card table {
     width: 100%;
     margin-top: 0;
     min-width: unset;
-    border-radius: 0; /* Remove rounded corners for inner tables */
-    box-shadow: none; /* Remove shadow for inner tables */
+    border: none; /* No outer border for tables within cards */
+    font-size: 0.9em;
 }
 .employee-performance-card th,
 .employee-performance-card td {
-    padding: 8px 10px; /* More padding */
-    font-size: 0.9em;
-    border: 1px solid #f0f4f7; /* Lighter border */
+    padding: 8px 10px; /* Adjusted padding */
+    font-size: 0.9em; /* Slightly smaller font */
+    border: none; /* No internal borders for cleaner look */
+    border-bottom: 1px dashed #f0f0f0; /* Light dashed separator */
+}
+.employee-performance-card tr:last-child td {
+    border-bottom: none; /* No border for last row */
 }
 .employee-performance-card th {
-    background-color: #f8f9fa; /* Lighter header background */
+    background-color: transparent; /* Transparent header background */
+    color: #666;
+    font-weight: 600;
 }
 
 
 /* Summary Breakdown Card (d4.PNG) */
 .summary-breakdown-card {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); /* Slightly larger min-width */
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); /* Adjusted min-width */
     gap: 25px; /* Increased gap */
-    margin-top: 30px;
+    margin-top: 25px;
 }
 
 .summary-breakdown-card > div {
     background-color: #ffffff;
-    border: 1px solid #e0e6ed;
+    border: 1px solid #e0e0e0;
     border-radius: 10px;
     padding: 20px;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.07);
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+    transition: transform 0.2s ease;
 }
-
 .summary-breakdown-card > div:hover {
     transform: translateY(-3px);
-    box-shadow: 0 6px 16px rgba(0,0,0,0.1);
+    box-shadow: 0 6px 15px rgba(0,0,0,0.12);
 }
 
 .summary-breakdown-card h4 {
-    color: #2c3e50;
+    color: #388E3C;
     margin-top: 0;
     margin-bottom: 15px;
     font-size: 1.2em;
     text-align: center;
-    border-bottom: 1px solid #e0e6ed;
+    font-weight: 600;
+    border-bottom: 2px solid #e0e0e0;
     padding-bottom: 10px;
 }
 
@@ -460,8 +444,8 @@ table tbody tr:hover {
 }
 
 .summary-list li, .product-interest-list li {
-    padding: 8px 0; /* More padding */
-    border-bottom: 1px solid #f0f4f7; /* Solid, lighter line */
+    padding: 8px 0;
+    border-bottom: 1px dashed #eee;
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -473,7 +457,7 @@ table tbody tr:hover {
 }
 
 .summary-list strong {
-    color: #34495e;
+    color: #333;
     font-weight: 600;
 }
 
@@ -483,9 +467,9 @@ table tbody tr:hover {
 }
 
 .employee-management-section h2 {
-    color: #2c3e50;
+    color: #388E3C;
     text-align: center;
-    margin-bottom: 35px; /* More margin */
+    margin-bottom: 35px;
     font-size: 2em;
     font-weight: 700;
 }
@@ -497,45 +481,53 @@ table tbody tr:hover {
 }
 
 .form-section {
-    background-color: #ffffff; /* White background for forms */
-    border: 1px solid #e0e6ed;
+    background-color: #fcfcfc;
+    border: 1px solid #e0e0e0;
     border-radius: 10px;
-    padding: 25px; /* More padding */
-    margin-bottom: 30px; /* More margin */
-    box-shadow: 0 4px 12px rgba(0,0,0,0.07);
+    padding: 25px;
+    margin-bottom: 30px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
 }
 
 .form-section h3 {
-    color: #495057;
+    color: #555;
     margin-top: 0;
-    margin-bottom: 20px;
-    border-bottom: 1px solid #dbe4ee; /* Softer border */
-    padding-bottom: 10px;
-    font-size: 1.3em;
+    margin-bottom: 25px;
+    border-bottom: 2px solid #eee;
+    padding-bottom: 12px;
+    font-size: 1.5em;
     font-weight: 600;
 }
 
 .employee-form .form-group {
-    margin-bottom: 20px; /* More space */
+    margin-bottom: 20px; /* More spacing */
 }
 
 .employee-form label {
     display: block;
-    margin-bottom: 8px; /* More space */
+    margin-bottom: 8px;
     font-weight: 600;
-    color: #555;
+    color: #444;
     font-size: 0.95em;
 }
 
 .employee-form input[type="text"],
 .employee-form textarea {
     width: calc(100% - 24px); /* Account for padding and border */
-    padding: 12px; /* More padding */
-    border: 1px solid #ced4da;
+    padding: 12px;
+    border: 1px solid #bbb;
     border-radius: 6px;
     font-size: 1em;
-    box-sizing: border-box; /* Include padding in width */
+    box-shadow: inset 0 1px 3px rgba(0,0,0,0.05);
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
 }
+.employee-form input[type="text"]:focus,
+.employee-form textarea:focus {
+    border-color: #4CAF50;
+    box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.2);
+    outline: none;
+}
+
 
 .employee-form textarea {
     resize: vertical;
@@ -544,22 +536,24 @@ table tbody tr:hover {
 
 .employee-form button[type="submit"] {
     width: auto;
-    padding: 12px 25px; /* More padding */
-    margin-top: 15px; /* More margin */
+    padding: 12px 25px;
+    margin-top: 15px;
+    font-size: 1.05em;
 }
 
 footer {
     text-align: center;
     padding: 25px; /* More padding */
-    margin-top: 40px; /* More margin */
-    background-color: #2c3e50; /* Matches header */
-    color: white;
-    font-size: 0.95em;
+    margin-top: 40px; /* More top margin */
+    background-color: #263238; /* Darker footer background */
+    color: rgba(255, 255, 255, 0.7); /* Slightly muted text */
+    font-size: 0.9em;
+    border-radius: 0 0 12px 12px; /* Rounded bottom corners */
     box-shadow: 0 -2px 8px rgba(0,0,0,0.1);
 }
 
 
-/* --- Detailed Customer View Specific Styles --- */
+/* --- NEW: Detailed Customer View Specific Styles --- */
 #detailedCustomerViewSection {
     display: flex;
     flex-direction: column;
@@ -568,7 +562,7 @@ footer {
 }
 
 #detailedCustomerViewSection h2 {
-    color: #2c3e50;
+    color: #388E3C;
     text-align: center;
     margin-top: 0;
     margin-bottom: 25px;
@@ -579,23 +573,28 @@ footer {
 #detailedCustomerViewSection .controls-panel {
     justify-content: center;
     margin-bottom: 0;
+    box-shadow: none; /* No shadow here to blend with section */
+    border: none;
+    background-color: transparent;
+    padding-top: 0;
+    padding-bottom: 0;
 }
 
 .customer-list-display, .customer-details-display {
     background-color: #ffffff;
-    border: 1px solid #e0e6ed;
+    border: 1px solid #e0e0e0;
     border-radius: 10px;
     padding: 25px;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.07);
+    box-shadow: 0 4px 10px rgba(0,0,0,0.08);
     flex: 1;
 }
 
 .customer-list-display h3, .customer-details-display h3 {
-    color: #495057;
+    color: #555;
     margin-top: 0;
-    margin-bottom: 20px;
-    border-bottom: 1px solid #dbe4ee;
-    padding-bottom: 10px;
+    margin-bottom: 20px; /* More spacing */
+    border-bottom: 2px solid #eee; /* Thicker border */
+    padding-bottom: 12px;
     text-align: center;
     font-size: 1.3em;
     font-weight: 600;
@@ -603,19 +602,19 @@ footer {
 
 ul.customer-list {
     list-style: none;
-    padding: 0;
-    max-height: 450px; /* Taller scrollable list */
+    padding: 5px; /* Small padding inside list */
+    max-height: 450px; /* Taller max height */
     overflow-y: auto;
-    border: 1px solid #e0e6ed; /* Softer border */
+    border: 1px solid #ddd;
     border-radius: 8px;
-    background-color: #fcfdfe;
+    background-color: #fdfdfd;
 }
 
 li.customer-list-item {
-    padding: 12px 18px; /* More padding */
-    border-bottom: 1px solid #f0f4f7;
+    padding: 12px 15px; /* More padding */
+    border-bottom: 1px solid #eee;
     cursor: pointer;
-    transition: background-color 0.2s ease, font-weight 0.2s ease, color 0.2s ease;
+    transition: background-color 0.25s ease, font-weight 0.25s ease, color 0.25s ease;
     font-size: 0.95em;
 }
 
@@ -624,47 +623,45 @@ li.customer-list-item:last-child {
 }
 
 li.customer-list-item:hover {
-    background-color: #e6f7ff;
-    color: #0056b3;
+    background-color: #e3f2fd; /* Lighter blue on hover */
 }
 
 li.customer-list-item.active {
-    background-color: #d0efff;
+    background-color: #bbdefb; /* Deeper blue for active */
     font-weight: bold;
-    color: #0056b3;
-    border-left: 4px solid #3498db; /* Highlight active item */
-    padding-left: 14px; /* Adjust padding for border */
+    color: #1a237e; /* Darker blue text */
+    box-shadow: inset 3px 0 0 #4CAF50; /* Green left border for active */
 }
 
 .customer-details-card {
     display: grid;
     grid-template-columns: 1fr;
     gap: 25px; /* Increased gap */
-    padding: 15px; /* More padding */
-    background-color: #fdfdfd;
-    border: 1px solid #e0e6ed;
+    padding: 15px; /* Increased padding */
+    background-color: #fefefe;
+    border: 1px solid #f0f0f0;
     border-radius: 8px;
-    min-height: 200px;
+    min-height: 200px; /* Taller min-height */
     overflow-y: auto;
-    box-shadow: inset 0 0 8px rgba(0,0,0,0.03); /* Subtle inner shadow */
+    box-shadow: inset 0 0 8px rgba(0,0,0,0.03); /* Inner shadow */
 }
 
 .customer-info-section {
     background-color: #ffffff;
-    border: 1px solid #e9ecef;
+    border: 1px solid #e9e9e9;
     border-radius: 8px;
-    padding: 20px; /* More padding */
-    box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+    padding: 20px; /* Increased padding */
+    box-shadow: 0 2px 6px rgba(0,0,0,0.05);
 }
 
 .customer-info-section h3 {
-    color: #3498db; /* Blue for section headings */
+    color: #4CAF50;
     margin-top: 0;
-    margin-bottom: 15px;
+    margin-bottom: 18px; /* More spacing */
     padding-bottom: 10px;
-    border-bottom: 2px solid #e0e6ed;
+    border-bottom: 2px solid #e0e0e0;
     font-size: 1.2em;
-    font-weight: 600;
+    font-weight: 700;
     text-align: left;
 }
 
@@ -672,7 +669,7 @@ li.customer-list-item.active {
     display: flex;
     justify-content: space-between;
     padding: 8px 0; /* More padding */
-    border-bottom: 1px dashed #f0f4f7; /* Lighter dashed line */
+    border-bottom: 1px dashed #f5f5f5;
     font-size: 0.95em;
 }
 
@@ -681,26 +678,27 @@ li.customer-list-item.active {
 }
 
 .detail-label {
-    font-weight: 600; /* Bolder label */
+    font-weight: 600; /* Semi-bold */
     color: #555;
-    flex-basis: 35%; /* Adjust basis */
-    min-width: 140px;
+    flex-basis: 40%;
+    min-width: 140px; /* Wider min-width */
     text-align: left;
 }
 
 .detail-value {
-    color: #34495e;
-    flex-basis: 65%;
+    color: #333;
+    flex-basis: 60%;
     text-align: right;
     word-wrap: break-word;
     overflow-wrap: break-word;
 }
 
 .remark-text, .profile-text {
-    line-height: 1.7; /* Increased line height */
+    line-height: 1.7; /* Increased line-height */
     color: #444;
     text-align: justify;
-    padding: 10px 0; /* More padding */
+    padding: 10px 0;
+    font-size: 0.95em;
 }
 
 .full-width-section {
@@ -711,12 +709,11 @@ li.customer-list-item.active {
 /* --- Responsive Design --- */
 @media (min-width: 768px) {
     .report-tabs {
-        justify-content: flex-start;
-        padding: 0 20px; /* Add more horizontal padding */
+        justify-content: center; /* Still center tabs for better visual balance */
     }
     .tab-button {
         flex-grow: 0;
-        max-width: none;
+        max-width: 250px; /* Re-apply max width for consistent tab size */
     }
 
     .controls-panel {
@@ -736,7 +733,7 @@ li.customer-list-item.active {
 
     .customer-list-display {
         flex: 1;
-        max-width: 400px; /* Wider max-width for list */
+        max-width: 380px; /* Slightly wider max-width */
     }
     .customer-details-display {
         flex: 2;
@@ -751,6 +748,7 @@ li.customer-list-item.active {
 @media (max-width: 767px) {
     header {
         padding: 15px 10px;
+        min-height: 70px;
     }
 
     header h1 {
@@ -765,24 +763,22 @@ li.customer-list-item.active {
 
     .tab-button {
         flex: 1 1 auto;
-        padding: 10px 10px;
+        padding: 10px 8px;
         font-size: 0.9em;
         margin: 2px;
-    }
-    .tab-button.active::after {
-        height: 2px; /* Thinner underline on mobile */
     }
 
     main {
         padding: 15px;
-        margin: 20px auto;
+        margin: 15px auto;
+        border-radius: 8px;
     }
 
     .controls-panel {
         flex-direction: column;
         align-items: stretch;
-        gap: 15px;
         padding: 15px;
+        gap: 15px;
     }
 
     .dropdown-group {
@@ -793,12 +789,12 @@ li.customer-list-item.active {
     .view-options {
         flex-direction: column;
         align-items: stretch;
-        gap: 8px;
+        gap: 10px;
     }
 
     .btn {
         width: 100%;
-        padding: 10px 15px;
+        padding: 12px 15px;
         font-size: 0.95em;
     }
 
@@ -813,20 +809,20 @@ li.customer-list-item.active {
     }
 
     table tr {
-        margin-bottom: 10px;
+        margin-bottom: 15px; /* More space between rows */
         display: block;
-        border: 1px solid #e0e6ed; /* Softer border */
+        border: 1px solid #ddd;
         border-radius: 8px;
-        background-color: #ffffff;
-        box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        background-color: #fff;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.05);
     }
 
     table td {
         display: block;
         text-align: right;
-        border-bottom: 1px solid #f0f4f7;
+        border-bottom: 1px solid #eee;
         position: relative;
-        padding-left: 50%;
+        padding-left: 55%; /* More space for data-label */
         font-size: 0.9em;
     }
 
@@ -838,51 +834,44 @@ li.customer-list-item.active {
         padding-right: 10px;
         white-space: nowrap;
         text-align: left;
-        font-weight: 600; /* Bolder label */
+        font-weight: bold;
         color: #555;
-        top: 50%;
-        transform: translateY(-50%); /* Vertically center label */
+        overflow: hidden; /* Hide overflowing labels */
+        text-overflow: ellipsis;
     }
 
-    .performance-table th[colspan="3"],
+    .performance-table th[colspan="3"] {
+        display: none;
+    }
     .performance-table thead tr:last-child {
         display: none;
     }
     .performance-table td[data-label="Metric"]::before {
         display: none;
     }
-    .performance-table td {
-        text-align: center; /* Center content in performance table cells on mobile */
-        padding-left: 15px; /* Adjust padding as label is gone */
-    }
-
 
     /* Adjust for specific table cell in mobile view for all branch snapshot */
     .all-branch-snapshot-table td[data-label="Branch Name"] {
         text-align: center;
-        font-size: 1.2em; /* Larger font */
+        font-size: 1.2em;
         padding-top: 15px;
         padding-bottom: 15px;
-        border-bottom: 2px solid #e0e6ed; /* Stronger separator */
+        background-color: #f0f2f5; /* Slight different background for branch name */
+        border-bottom: 2px solid #e0e0e0;
+        font-weight: 600;
     }
-    .all-branch-snapshot-table td:not([data-label="Branch Name"])::before {
-        left: 10px; /* Align labels correctly */
-        top: auto; /* Remove transform if not needed */
-        transform: none;
-    }
-
 
     /* Responsive adjustments for summary breakdown card (d4.PNG) */
     .summary-breakdown-card {
         grid-template-columns: 1fr;
-        gap: 15px;
+        gap: 20px;
     }
 
     /* Customer details responsiveness */
     .detail-row {
         flex-direction: column;
         align-items: flex-start;
-        padding: 6px 0;
+        padding: 10px 0;
     }
 
     .detail-label {
@@ -891,41 +880,48 @@ li.customer-list-item.active {
         width: 100%;
         text-align: left;
         margin-bottom: 4px;
-        font-size: 0.9em; /* Smaller label font */
+        font-size: 1em;
     }
 
     .detail-value {
         flex-basis: auto;
         width: 100%;
         text-align: left;
-        font-size: 1em; /* Slightly larger value font */
+        font-size: 0.95em;
+    }
+
+    .customer-list-display, .customer-details-display {
+        padding: 18px;
+    }
+
+    ul.customer-list {
+        max-height: 300px; /* Shorter list for mobile */
     }
 }
 
 /* No participation message style */
 .no-participation-message {
-    color: #e74c3c; /* Red */
+    color: #d32f2f; /* Darker red */
     font-weight: 700; /* Bolder */
-    font-size: 1.2em; /* Larger font */
+    font-size: 1.2em;
     margin: 15px 0;
     text-align: center;
-    padding: 15px;
-    background-color: #fef0f0;
-    border: 1px solid #e74c3c;
+    padding: 10px;
+    background-color: #ffebee; /* Light red background */
+    border: 1px solid #ef9a9a;
     border-radius: 8px;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
 }
 .non-participating-branch-list {
     list-style: decimal inside;
     padding-left: 20px;
     margin-top: 20px;
     font-size: 1em;
-    line-height: 1.8;
+    color: #444;
 }
 .non-participating-branch-list li {
-    padding: 5px 0;
-    color: #34495e;
-    border-bottom: 1px dashed #f0f4f7;
+    padding: 8px 0;
+    color: #333;
+    border-bottom: 1px dotted #e0e0e0;
 }
 .non-participating-branch-list li:last-child {
     border-bottom: none;
