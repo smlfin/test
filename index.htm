@@ -1,8 +1,3 @@
-Sure, here's the full HTML code for your `index.htm` file, incorporating all the discussed changes, especially the corrected structure for the "Detailed Customer View" section.
-
-Please replace the *entire content* of your `index.htm` file with this code.
-
-```html
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -18,14 +13,12 @@ Please replace the *entire content* of your `index.htm` file with this code.
             <button class="tab-button active" id="allBranchSnapshotTabBtn">All Branch Snapshot</button>
             <button class="tab-button" id="allStaffOverallPerformanceTabBtn">All Staff Performance (Overall)</button>
             <button class="tab-button" id="nonParticipatingBranchesTabBtn">Non-Participating Branches</button>
-            <button class="tab-button" id="detailedCustomerViewTabBtn">Detailed Customer View</button>
-            <button class="tab-button" id="followupDueTabBtn">Follow-up Due</button>
-            <button class="tab-button" id="employeeManagementTabBtn">Employee Management</button>
+            <button class="tab-button" id="detailedCustomerViewTabBtn">Detailed Customer View</button> <button class="tab-button" id="employeeManagementTabBtn">Employee Management</button>
         </nav>
     </header>
 
     <main>
-        <div id="statusMessage" class="message-container"></div>
+        <div id="statusMessage" class="message-container"></div> 
 
         <section id="reportsSection" class="report-section">
             <div class="controls-panel">
@@ -43,228 +36,73 @@ Please replace the *entire content* of your `index.htm` file with this code.
                     </select>
                 </div>
 
-                <div class="view-options">
-                    <button id="viewBranchSnapshotBtn" class="btn active">View Branch Snapshot</button>
-                    <button id="viewOverallPerformanceBtn" class="btn">View Overall Performance</button>
-                    <button id="viewEmployeePerformanceBtn" class="btn">View Employee Performance</button>
+                <div id="viewOptions" class="view-options" style="display: none;">
+                    <button class="btn" id="viewBranchPerformanceReportBtn">Branch Performance Report</button>
+                    <button class="btn" id="viewEmployeeSummaryBtn">Employee Summary (Current Month)</button>
+                    <button class="btn" id="viewAllEntriesBtn">View All Entries (Employee)</button>
+                    <button class="btn" id="viewPerformanceReportBtn">Employee Performance Report</button>
                 </div>
             </div>
 
-            <div class="report-display">
-                <h2>Branch Performance Snapshot</h2>
-                <div class="data-table-container">
-                    <table id="allBranchSnapshotTable" class="all-branch-snapshot-table">
-                        <thead>
-                            <tr>
-                                <th>Branch Name</th>
-                                <th>Total Employees</th>
-                                <th>Canvassed Today</th>
-                                <th>This Week</th>
-                                <th>This Month</th>
-                                <th>Overall Target % Achieved</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            </tbody>
-                    </table>
-                </div>
-
-                <div id="performanceReport" style="display: none;">
-                    <h2>Overall Performance Report</h2>
-                    <div class="data-table-container">
-                        <table id="overallPerformanceTable" class="performance-table">
-                            <thead>
-                                <tr>
-                                    <th rowspan="2">Employee Name</th>
-                                    <th rowspan="2">Employee Code</th>
-                                    <th colspan="3">Canvassing Performance</th>
-                                    <th rowspan="2">Overall Target Achieved (%)</th>
-                                </tr>
-                                <tr>
-                                    <th>Today</th>
-                                    <th>This Week</th>
-                                    <th>This Month</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                </tbody>
-                        </table>
-                    </div>
-                </div>
-
-                <div id="employeePerformanceReport" style="display: none;">
-                    <h2>Employee Performance Details</h2>
-                    <div class="branch-performance-grid" id="employeePerformanceGrid">
-                        </div>
-                </div>
+            <div id="reportDisplay" class="report-display">
+                <p>Select a branch and/or employee to view reports.</p>
             </div>
         </section>
 
-        <section id="nonParticipatingBranchesSection" class="report-section">
-            <h2>Non-Participating Branches</h2>
-            <div class="report-display">
-                <p>Below is a list of branches that have not recorded any canvassing activity.</p>
-                <div class="no-participation-message" id="noParticipationMessage" style="display: none;">
-                    There are no non-participating branches found. All branches are actively canvassing!
-                </div>
-                <ul id="nonParticipatingBranchList" class="non-participating-branch-list">
-                    </ul>
-            </div>
-        </section>
-
-        <section id="detailedCustomerViewSection" class="report-section">
+        <section id="detailedCustomerViewSection" class="report-section" style="display: none;">
             <h2>Detailed Customer View</h2>
             <div class="controls-panel">
                 <div class="dropdown-group">
-                    <label for="detailedCustomerBranchSelect">Select Branch:</label>
-                    <select id="detailedCustomerBranchSelect">
+                    <label for="customerViewBranchSelect">Select Branch:</label>
+                    <select id="customerViewBranchSelect">
                         <option value="">-- Select a Branch --</option>
-                        </select>
+                    </select>
                 </div>
-
                 <div class="dropdown-group">
-                    <label for="detailedCustomerEmployeeSelect">Select Employee:</label>
-                    <select id="detailedCustomerEmployeeSelect">
+                    <label for="customerViewEmployeeSelect">Select Employee:</label>
+                    <select id="customerViewEmployeeSelect">
                         <option value="">-- Select an Employee --</option>
-                        </select>
+                    </select>
                 </div>
             </div>
 
             <div class="customer-list-display">
                 <h3>Customers Canvassed:</h3>
                 <ul id="customerCanvassedList" class="customer-list">
-                    <li class="customer-list-item">John Doe</li>
-                    <li class="customer-list-item">Jane Smith</li>
-                    <li class="customer-list-item">Peter Jones</li>
-                    <li class="customer-list-item">Alice Brown</li>
-                    <li class="customer-list-item">Robert King</li>
-                    <li class="customer-list-item">Emily White</li>
-                    <li class="customer-list-item">Michael Green</li>
-                    <li class="customer-list-item">Sarah Black</li>
-                    <li class="customer-list-item">David Grey</li>
-                    <li class="customer-list-item">Laura White</li>
+                    <p>Select a branch and employee to see customers.</p>
                 </ul>
             </div>
 
-            <div class="customer-details-card">
-
-                <div class="customer-info-section">
-                    <h3>Customer Overview</h3>
-                    <div class="detail-row"><span class="detail-label">Customer ID:</span><span class="detail-value">CUST001</span></div>
-                    <div class="detail-row"><span class="detail-label">Name:</span><span class="detail-value">John Doe</span></div>
-                    <div class="detail-row"><span class="detail-label">Status:</span><span class="detail-value">Active</span></div>
-                    <div class="detail-row"><span class="detail-label">Address:</span><span class="detail-value">123 Main St, Anytown</span></div>
-                    <div class="detail-row"><span class="detail-label">Contact:</span><span class="detail-value">555-1234</span></div>
-                    <div class="detail-row"><span class="detail-label">Customer Since:</span><span class="detail-value">2020-01-15</span></div>
-                </div>
-
-                <div class="customer-info-section">
-                    <h3>Canvassing Activity</h3>
-                    <div class="detail-row"><span class="detail-label">Total Canvassed Visits:</span><span class="detail-value">5</span></div>
-                    <div class="detail-row"><span class="detail-label">Last Canvassed Date:</span><span class="detail-value">2025-06-10</span></div>
-                    <div class="detail-row"><span class="detail-label">Canvassed By:</span><span class="detail-value">EMP007 - Alice Brown</span></div>
-                    <div class="detail-row"><span class="detail-label">Current Status:</span><span class="detail-value">Follow-up Due</span></div>
-                    <div class="detail-row"><span class="detail-label">Product Interest:</span><span class="detail-value">Home Loan</span></div>
-                </div>
-
-                <div class="customer-info-section">
-                    <h3>Family Details</h3>
-                    <div class="detail-row"><span class="detail-label">Marital Status:</span><span class="detail-value">Married</span></div>
-                    <div class="detail-row"><span class="detail-label">Spouse Name:</span><span class="detail-value">Jane Doe</span></div>
-                    <div class="detail-row"><span class="detail-label">Number of Dependents:</span><span class="detail-value">2</span></div>
-                    <div class="detail-row"><span class="detail-label">Children's Ages:</span><span class="detail-value">7, 12</span></div>
-
-                    <div class="customer-profile-in-card">
-                        <h4>Customer Profile</h4>
-                        <div class="detail-row"><span class="detail-label">Age Group:</span><span class="detail-value">30-39</span></div>
-                        <div class="detail-row"><span class="detail-label">Income Level:</span><span class="detail-value">High</span></div>
-                        <div class="detail-row"><span class="detail-label">Profession:</span><span class="detail-value">Software Engineer</span></div>
-                        <div class="detail-row"><span class="detail-label">Hobbies:</span><span class="detail-value">Reading, Hiking</span></div>
-                    </div>
-                </div>
-
-                <p class="remark-text">
-                    **Remarks:** Customer expressed strong interest in consolidating existing loans and exploring new investment opportunities. Mentioned a preference for digital banking solutions. Follow-up call scheduled for next week. Needs detailed explanation of investment plans.
-                </p>
-
-            </div> </section>
-
-        <section id="followupDueSection" class="report-section">
-            <h2>Follow-up Due Customers</h2>
-            <div class="controls-panel">
-                <div class="dropdown-group">
-                    <label for="followupBranchSelect">Select Branch:</label>
-                    <select id="followupBranchSelect">
-                        <option value="">-- Select a Branch --</option>
-                        </select>
-                </div>
-                <div class="dropdown-group">
-                    <label for="followupEmployeeSelect">Select Employee:</label>
-                    <select id="followupEmployeeSelect">
-                        <option value="">-- Select an Employee --</option>
-                        </select>
-                </div>
-            </div>
-
-            <div class="report-display">
-                <h3>Customers Requiring Follow-up</h3>
-                <div class="data-table-container">
-                    <table id="followupTable">
-                        <thead>
-                            <tr>
-                                <th>Customer Name</th>
-                                <th>Customer ID</th>
-                                <th>Last Contact Date</th>
-                                <th>Follow-up Date</th>
-                                <th>Assigned Employee</th>
-                                <th>Remarks</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td data-label="Customer Name">Sarah Davis</td>
-                                <td data-label="Customer ID">CUST005</td>
-                                <td data-label="Last Contact Date">2025-06-08</td>
-                                <td data-label="Follow-up Date">2025-06-15</td>
-                                <td data-label="Assigned Employee">EMP001 - Alice Smith</td>
-                                <td data-label="Remarks">Discussed new savings plans.</td>
-                            </tr>
-                            <tr>
-                                <td data-label="Customer Name">Michael Brown</td>
-                                <td data-label="Customer ID">CUST012</td>
-                                <td data-label="Last Contact Date">2025-06-05</td>
-                                <td data-label="Follow-up Date">2025-06-12</td>
-                                <td data-label="Assigned Employee">EMP003 - Bob Johnson</td>
-                                <td data-label="Remarks">Customer interested in car loan.</td>
-                            </tr>
-                        </tbody>
-                    </table>
+            <div class="customer-details-display">
+                <h3>Customer Details:</h3>
+                <div id="customerDetailsContent" class="customer-details-card">
+                    <p>Select a customer from the list to view their details.</p>
                 </div>
             </div>
         </section>
 
-        <section id="employeeManagementTab" class="employee-management-section">
+        <section id="employeeManagementSection" class="employee-management-section" style="display: none;">
             <h2>Employee Management</h2>
-            <div class="status-message"></div>
+            <div id="employeeManagementMessage" class="message"></div>
 
             <div class="form-section">
                 <h3>Add New Employee</h3>
                 <form id="addEmployeeForm" class="employee-form">
                     <div class="form-group">
-                        <label for="employeeBranchName">Branch Name:</label>
-                        <input type="text" id="employeeBranchName" required>
+                        <label for="newEmployeeName">Employee Name:</label>
+                        <input type="text" id="newEmployeeName" required>
                     </div>
                     <div class="form-group">
-                        <label for="employeeName">Employee Name:</label>
-                        <input type="text" id="employeeName" required>
+                        <label for="newEmployeeCode">Employee Code:</label>
+                        <input type="text" id="newEmployeeCode" required>
                     </div>
                     <div class="form-group">
-                        <label for="employeeCode">Employee Code:</label>
-                        <input type="text" id="employeeCode" required>
+                        <label for="newBranchName">Branch Name:</label>
+                        <input type="text" id="newBranchName" required>
                     </div>
                     <div class="form-group">
-                        <label for="employeeDesignation">Designation:</label>
-                        <input type="text" id="employeeDesignation" required>
+                        <label for="newDesignation">Designation:</label>
+                        <input type="text" id="newDesignation">
                     </div>
                     <button type="submit" class="btn">Add Employee</button>
                 </form>
@@ -305,4 +143,3 @@ Please replace the *entire content* of your `index.htm` file with this code.
     <script src="script.js"></script>
 </body>
 </html>
-```
