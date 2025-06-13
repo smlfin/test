@@ -1,0 +1,932 @@
+/* General Body and Typography */
+body {
+    font-family: 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #eef1f6; /* Lighter, modern background */
+    color: #34495e; /* Darker, softer text color */
+    line-height: 1.6;
+}
+
+/* Header and Navigation */
+header {
+    background-color: #2c3e50; /* Darker, professional header background */
+    color: white;
+    padding: 1rem 0;
+    text-align: center;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.15); /* More pronounced shadow */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-height: 90px; /* Slightly taller header */
+    position: sticky; /* Make header sticky */
+    top: 0;
+    z-index: 1000; /* Ensure it stays on top */
+}
+
+header h1 {
+    margin: 0;
+    padding-bottom: 8px; /* Reduced padding */
+    font-size: 2.2em; /* Slightly larger heading */
+    letter-spacing: 0.5px;
+    font-weight: 600;
+}
+
+/* Tab Navigation Styles */
+.report-tabs {
+    display: flex;
+    justify-content: center;
+    width: 100%;
+    background-color: #34495e; /* Matches header for seamless look */
+    border-top: 1px solid rgba(255,255,255,0.1); /* Subtle top border */
+    padding: 0 10px; /* Add some horizontal padding */
+}
+
+.tab-button {
+    background-color: transparent; /* Transparent by default */
+    color: #ecf0f1; /* Lighter color for inactive tabs */
+    padding: 14px 25px; /* More padding for better click area */
+    border: none;
+    cursor: pointer;
+    font-size: 1em;
+    font-weight: 500;
+    transition: all 0.3s ease; /* Smoother transitions */
+    flex-grow: 1;
+    max-width: 220px; /* Slightly reduced max width */
+    text-align: center;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    position: relative; /* For active tab underline */
+}
+
+.tab-button:hover {
+    background-color: rgba(255,255,255,0.08); /* Subtle hover effect */
+    color: white;
+}
+
+.tab-button.active {
+    color: white;
+    font-weight: 700;
+    background-color: #2980b9; /* Distinct blue for active tab */
+    box-shadow: inset 0 0 10px rgba(0,0,0,0.2); /* Inner shadow for depth */
+}
+
+.tab-button.active::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 3px;
+    background-color: #3498db; /* Bright blue underline */
+    border-radius: 2px 2px 0 0;
+}
+
+
+/* Main Content Area */
+main {
+    padding: 25px; /* Increased padding */
+    max-width: 1300px; /* Slightly wider max-width */
+    margin: 30px auto; /* More margin */
+    background-color: #ffffff;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.08); /* Softer, wider shadow */
+    border-radius: 10px; /* More rounded corners */
+}
+
+/* Message container styles */
+.message-container {
+    margin-bottom: 25px; /* More space below message */
+    text-align: center;
+    display: none;
+}
+
+.message {
+    padding: 12px 25px; /* More padding */
+    border-radius: 6px;
+    font-weight: 600;
+    color: white;
+    background-color: #28a745; /* Success green */
+    border: 1px solid #218838;
+    margin: 0 auto;
+    max-width: 600px; /* Constrain message width */
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+
+.message.error {
+    background-color: #dc3545; /* Red for errors */
+    border-color: #c82333;
+}
+.message.success {
+    background-color: #28a745; /* Green for success */
+    border-color: #218838;
+}
+.message.info {
+    background-color: #007bff; /* Blue for info */
+    border-color: #0056b3;
+}
+
+
+/* Section Display */
+.report-section, .employee-management-section, .detailed-customer-view-section {
+    display: none;
+    padding-top: 25px; /* More padding top */
+}
+
+/* Controls Panel (Dropdowns and Buttons) */
+.controls-panel {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px; /* Increased gap */
+    margin-bottom: 30px; /* More space below controls */
+    padding: 20px; /* More padding */
+    background-color: #f9fbfd; /* Lighter background for controls */
+    border: 1px solid #e0e6ed; /* Softer border */
+    border-radius: 8px; /* More rounded corners */
+    align-items: flex-end;
+    box-shadow: inset 0 0 8px rgba(0,0,0,0.05); /* Inner shadow for depth */
+}
+
+.dropdown-group {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    min-width: 220px; /* Slightly wider min-width */
+}
+
+.dropdown-group label {
+    margin-bottom: 8px; /* More space below label */
+    font-weight: 600; /* Bolder label */
+    color: #495057; /* Darker label color */
+}
+
+select {
+    padding: 12px; /* More padding */
+    border: 1px solid #ced4da; /* Softer border */
+    border-radius: 6px; /* More rounded */
+    background-color: white;
+    font-size: 1.05em; /* Slightly larger font */
+    cursor: pointer;
+    appearance: none; /* Remove default arrow */
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    background-image: url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%20256%20256%22%3E%3Cpath%20fill%3D%22%23666%22%20d%3D%22M205.66%2099.34L128%20177l-77.66-77.66a8%208%200%200%200-11.31%2011.31l83.31%2083.32a8%208%200%200%200%2011.31%200l83.31-83.32a8%208%200%200%200-11.31-11.31z%22%2F%3E%3C%2Fsvg%3E');
+    background-repeat: no-repeat;
+    background-position: right 12px center;
+    background-size: 1em;
+}
+
+.view-options {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px; /* Adjusted gap */
+    margin-top: 15px; /* More margin top */
+}
+
+.btn {
+    background-color: #3498db; /* Bright blue */
+    color: white;
+    padding: 12px 20px; /* More padding */
+    border: none;
+    border-radius: 6px; /* More rounded */
+    cursor: pointer;
+    font-size: 1.0em;
+    font-weight: 500;
+    transition: background-color 0.3s ease, transform 0.2s ease; /* Add transform for slight pop */
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+
+.btn:hover {
+    background-color: #2980b9; /* Darker blue on hover */
+    transform: translateY(-2px); /* Slight lift effect */
+    box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+}
+
+.btn.active {
+    background-color: #27ae60; /* Success green for active button */
+    box-shadow: inset 0 0 5px rgba(0,0,0,0.2); /* Inner shadow */
+    transform: none; /* No lift when active */
+}
+
+.btn.active:hover {
+    background-color: #229a56;
+}
+
+.btn.danger-btn {
+    background-color: #e74c3c; /* Flat red */
+}
+.btn.danger-btn:hover {
+    background-color: #c0392b;
+}
+
+
+/* Report Display Area */
+.report-display {
+    background-color: #fcfdfe; /* Very light background */
+    padding: 25px;
+    border-radius: 10px;
+    min-height: 250px; /* More space */
+    box-shadow: 0 0 15px rgba(0,0,0,0.06); /* Softer, wider shadow */
+    border: 1px solid #e0e6ed; /* Subtle border */
+}
+
+.report-display h2 {
+    color: #2c3e50; /* Darker heading */
+    text-align: center;
+    margin-top: 0;
+    margin-bottom: 25px;
+    font-size: 1.8em;
+    font-weight: 600;
+}
+
+.report-display p {
+    text-align: center;
+    color: #6c7a89; /* Softer gray */
+    font-size: 1.1em;
+    padding: 20px;
+    background-color: #f0f4f7;
+    border-radius: 8px;
+    border: 1px dashed #d0d8e0;
+}
+
+/* Data Table Container for Horizontal Scrolling */
+.data-table-container {
+    overflow-x: auto;
+    width: 100%;
+    margin-top: 25px; /* More margin */
+    padding-bottom: 10px; /* Prevent scrollbar from overlapping content */
+}
+
+
+/* General Table Styles */
+table {
+    width: 100%;
+    border-collapse: separate; /* Use separate for rounded corners on cells */
+    border-spacing: 0;
+    margin-top: 25px;
+    font-size: 0.95em; /* Slightly larger font */
+    min-width: 700px; /* Wider min-width */
+    border-radius: 8px; /* Rounded corners for the table */
+    overflow: hidden; /* Ensures rounded corners apply to content */
+    box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+}
+
+table th, table td {
+    border: 1px solid #e9ecef; /* Lighter border */
+    padding: 12px 15px; /* More padding */
+    text-align: left;
+    vertical-align: middle; /* Align content vertically */
+}
+
+table th {
+    background-color: #e9eff5; /* Light blue-gray header */
+    font-weight: 700; /* Bolder header */
+    color: #495057; /* Darker header text */
+    position: sticky;
+    top: -1px; /* Adjust for sticky header */
+    z-index: 1;
+    white-space: nowrap; /* Prevent headers from wrapping */
+}
+
+table tbody tr:nth-child(even) {
+    background-color: #fdfefe; /* Very light alternate row */
+}
+
+table tbody tr:hover {
+    background-color: #eef7ff; /* Light blue on hover */
+    box-shadow: inset 0 0 5px rgba(0,0,0,0.05); /* Inner shadow on hover */
+}
+
+/* Specific Table Styles */
+.all-branch-snapshot-table th:first-child,
+.all-branch-snapshot-table td:first-child {
+    width: 25%; /* Give more space for branch name */
+    font-weight: 600;
+}
+
+/* Performance Table Styles */
+.performance-table th {
+    text-align: center;
+}
+.performance-table th[colspan="3"] {
+    background-color: #dbe4ee; /* Slightly darker background for grouped headers */
+    color: #34495e;
+    font-size: 1.05em;
+}
+.performance-table td {
+    text-align: center; /* Center content in performance table cells */
+}
+
+/* Progress Bar in Tables (Small) */
+.progress-bar-container-small {
+    width: 100%;
+    background-color: #e0e0e0;
+    border-radius: 10px; /* More rounded */
+    height: 18px; /* Slightly smaller height */
+    overflow: hidden;
+    text-align: center;
+    margin: auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    color: white;
+    font-size: 0.75em; /* Smaller font for small bar */
+}
+
+.progress-bar-container {
+    width: 120px; /* Wider fixed width for larger progress bars */
+    background-color: #e0e0e0;
+    border-radius: 12px; /* More rounded */
+    height: 22px; /* Slightly taller */
+    overflow: hidden;
+    text-align: center;
+    margin: auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    color: white;
+    font-size: 0.85em;
+}
+
+.progress-bar {
+    height: 100%;
+    border-radius: 12px; /* Match container radius */
+    transition: width 0.6s ease-in-out, background-color 0.3s ease; /* Smoother transition */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 8px; /* More padding for text */
+    box-sizing: border-box;
+    white-space: nowrap; /* Prevent text wrapping */
+    text-shadow: 1px 1px 2px rgba(0,0,0,0.2); /* Add text shadow for visibility */
+}
+
+.progress-bar.success { background-color: #28a745; } /* Green */
+.progress-bar.warning-high { background-color: #ffc107; } /* Yellow */
+.progress-bar.warning-medium { background-color: #fd7e14; } /* Orange */
+.progress-bar.warning-low { background-color: #e53935; } /* Lighter Red */
+.progress-bar.danger { background-color: #c62828; } /* Dark Red */
+.progress-bar.no-activity { background-color: #6c757d; } /* Grey for N/A */
+
+
+/* Branch Performance Grid (d3.PNG) */
+.branch-performance-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); /* Slightly larger min-width */
+    gap: 25px; /* Increased gap */
+    margin-top: 30px;
+}
+
+.employee-performance-card {
+    background-color: #ffffff;
+    border: 1px solid #e0e6ed;
+    border-radius: 10px;
+    padding: 20px; /* More padding */
+    box-shadow: 0 4px 12px rgba(0,0,0,0.07); /* Softer shadow */
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.employee-performance-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 6px 16px rgba(0,0,0,0.1);
+}
+
+.employee-performance-card h4 {
+    color: #2c3e50; /* Darker heading */
+    margin-top: 0;
+    margin-bottom: 20px; /* More space below heading */
+    text-align: center;
+    font-size: 1.2em; /* Slightly larger heading */
+    border-bottom: 1px solid #e0e6ed;
+    padding-bottom: 10px;
+}
+
+.employee-performance-card table {
+    width: 100%;
+    margin-top: 0;
+    min-width: unset;
+    border-radius: 0; /* Remove rounded corners for inner tables */
+    box-shadow: none; /* Remove shadow for inner tables */
+}
+.employee-performance-card th,
+.employee-performance-card td {
+    padding: 8px 10px; /* More padding */
+    font-size: 0.9em;
+    border: 1px solid #f0f4f7; /* Lighter border */
+}
+.employee-performance-card th {
+    background-color: #f8f9fa; /* Lighter header background */
+}
+
+
+/* Summary Breakdown Card (d4.PNG) */
+.summary-breakdown-card {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); /* Slightly larger min-width */
+    gap: 25px; /* Increased gap */
+    margin-top: 30px;
+}
+
+.summary-breakdown-card > div {
+    background-color: #ffffff;
+    border: 1px solid #e0e6ed;
+    border-radius: 10px;
+    padding: 20px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.07);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.summary-breakdown-card > div:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 6px 16px rgba(0,0,0,0.1);
+}
+
+.summary-breakdown-card h4 {
+    color: #2c3e50;
+    margin-top: 0;
+    margin-bottom: 15px;
+    font-size: 1.2em;
+    text-align: center;
+    border-bottom: 1px solid #e0e6ed;
+    padding-bottom: 10px;
+}
+
+.summary-list, .product-interest-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.summary-list li, .product-interest-list li {
+    padding: 8px 0; /* More padding */
+    border-bottom: 1px solid #f0f4f7; /* Solid, lighter line */
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.95em;
+}
+
+.summary-list li:last-child, .product-interest-list li:last-child {
+    border-bottom: none;
+}
+
+.summary-list strong {
+    color: #34495e;
+    font-weight: 600;
+}
+
+/* Employee Management Section */
+.employee-management-section {
+    padding: 25px;
+}
+
+.employee-management-section h2 {
+    color: #2c3e50;
+    text-align: center;
+    margin-bottom: 35px; /* More margin */
+    font-size: 2em;
+    font-weight: 700;
+}
+
+.employee-management-section .message {
+    text-align: center;
+    margin-bottom: 25px;
+    font-size: 1.1em;
+}
+
+.form-section {
+    background-color: #ffffff; /* White background for forms */
+    border: 1px solid #e0e6ed;
+    border-radius: 10px;
+    padding: 25px; /* More padding */
+    margin-bottom: 30px; /* More margin */
+    box-shadow: 0 4px 12px rgba(0,0,0,0.07);
+}
+
+.form-section h3 {
+    color: #495057;
+    margin-top: 0;
+    margin-bottom: 20px;
+    border-bottom: 1px solid #dbe4ee; /* Softer border */
+    padding-bottom: 10px;
+    font-size: 1.3em;
+    font-weight: 600;
+}
+
+.employee-form .form-group {
+    margin-bottom: 20px; /* More space */
+}
+
+.employee-form label {
+    display: block;
+    margin-bottom: 8px; /* More space */
+    font-weight: 600;
+    color: #555;
+    font-size: 0.95em;
+}
+
+.employee-form input[type="text"],
+.employee-form textarea {
+    width: calc(100% - 24px); /* Account for padding and border */
+    padding: 12px; /* More padding */
+    border: 1px solid #ced4da;
+    border-radius: 6px;
+    font-size: 1em;
+    box-sizing: border-box; /* Include padding in width */
+}
+
+.employee-form textarea {
+    resize: vertical;
+    min-height: 100px; /* Taller textarea */
+}
+
+.employee-form button[type="submit"] {
+    width: auto;
+    padding: 12px 25px; /* More padding */
+    margin-top: 15px; /* More margin */
+}
+
+footer {
+    text-align: center;
+    padding: 25px; /* More padding */
+    margin-top: 40px; /* More margin */
+    background-color: #2c3e50; /* Matches header */
+    color: white;
+    font-size: 0.95em;
+    box-shadow: 0 -2px 8px rgba(0,0,0,0.1);
+}
+
+
+/* --- Detailed Customer View Specific Styles --- */
+#detailedCustomerViewSection {
+    display: flex;
+    flex-direction: column;
+    gap: 25px; /* Increased gap */
+    padding-top: 25px;
+}
+
+#detailedCustomerViewSection h2 {
+    color: #2c3e50;
+    text-align: center;
+    margin-top: 0;
+    margin-bottom: 25px;
+    font-size: 2em;
+    font-weight: 700;
+}
+
+#detailedCustomerViewSection .controls-panel {
+    justify-content: center;
+    margin-bottom: 0;
+}
+
+.customer-list-display, .customer-details-display {
+    background-color: #ffffff;
+    border: 1px solid #e0e6ed;
+    border-radius: 10px;
+    padding: 25px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.07);
+    flex: 1;
+}
+
+.customer-list-display h3, .customer-details-display h3 {
+    color: #495057;
+    margin-top: 0;
+    margin-bottom: 20px;
+    border-bottom: 1px solid #dbe4ee;
+    padding-bottom: 10px;
+    text-align: center;
+    font-size: 1.3em;
+    font-weight: 600;
+}
+
+ul.customer-list {
+    list-style: none;
+    padding: 0;
+    max-height: 450px; /* Taller scrollable list */
+    overflow-y: auto;
+    border: 1px solid #e0e6ed; /* Softer border */
+    border-radius: 8px;
+    background-color: #fcfdfe;
+}
+
+li.customer-list-item {
+    padding: 12px 18px; /* More padding */
+    border-bottom: 1px solid #f0f4f7;
+    cursor: pointer;
+    transition: background-color 0.2s ease, font-weight 0.2s ease, color 0.2s ease;
+    font-size: 0.95em;
+}
+
+li.customer-list-item:last-child {
+    border-bottom: none;
+}
+
+li.customer-list-item:hover {
+    background-color: #e6f7ff;
+    color: #0056b3;
+}
+
+li.customer-list-item.active {
+    background-color: #d0efff;
+    font-weight: bold;
+    color: #0056b3;
+    border-left: 4px solid #3498db; /* Highlight active item */
+    padding-left: 14px; /* Adjust padding for border */
+}
+
+.customer-details-card {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 25px; /* Increased gap */
+    padding: 15px; /* More padding */
+    background-color: #fdfdfd;
+    border: 1px solid #e0e6ed;
+    border-radius: 8px;
+    min-height: 200px;
+    overflow-y: auto;
+    box-shadow: inset 0 0 8px rgba(0,0,0,0.03); /* Subtle inner shadow */
+}
+
+.customer-info-section {
+    background-color: #ffffff;
+    border: 1px solid #e9ecef;
+    border-radius: 8px;
+    padding: 20px; /* More padding */
+    box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+}
+
+.customer-info-section h3 {
+    color: #3498db; /* Blue for section headings */
+    margin-top: 0;
+    margin-bottom: 15px;
+    padding-bottom: 10px;
+    border-bottom: 2px solid #e0e6ed;
+    font-size: 1.2em;
+    font-weight: 600;
+    text-align: left;
+}
+
+.detail-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 8px 0; /* More padding */
+    border-bottom: 1px dashed #f0f4f7; /* Lighter dashed line */
+    font-size: 0.95em;
+}
+
+.detail-row:last-child {
+    border-bottom: none;
+}
+
+.detail-label {
+    font-weight: 600; /* Bolder label */
+    color: #555;
+    flex-basis: 35%; /* Adjust basis */
+    min-width: 140px;
+    text-align: left;
+}
+
+.detail-value {
+    color: #34495e;
+    flex-basis: 65%;
+    text-align: right;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+}
+
+.remark-text, .profile-text {
+    line-height: 1.7; /* Increased line height */
+    color: #444;
+    text-align: justify;
+    padding: 10px 0; /* More padding */
+}
+
+.full-width-section {
+    grid-column: 1 / -1;
+}
+
+
+/* --- Responsive Design --- */
+@media (min-width: 768px) {
+    .report-tabs {
+        justify-content: flex-start;
+        padding: 0 20px; /* Add more horizontal padding */
+    }
+    .tab-button {
+        flex-grow: 0;
+        max-width: none;
+    }
+
+    .controls-panel {
+        flex-direction: row;
+        align-items: flex-end;
+    }
+
+    .dropdown-group {
+        flex: none;
+        width: auto;
+    }
+
+    /* For detailed customer view on larger screens */
+    #detailedCustomerViewSection {
+        flex-direction: row;
+    }
+
+    .customer-list-display {
+        flex: 1;
+        max-width: 400px; /* Wider max-width for list */
+    }
+    .customer-details-display {
+        flex: 2;
+    }
+
+    .customer-details-card {
+        grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); /* Slightly wider min-width */
+        gap: 25px;
+    }
+}
+
+@media (max-width: 767px) {
+    header {
+        padding: 15px 10px;
+    }
+
+    header h1 {
+        font-size: 1.8em;
+        padding-bottom: 5px;
+    }
+
+    .report-tabs {
+        flex-wrap: wrap;
+        padding: 5px;
+    }
+
+    .tab-button {
+        flex: 1 1 auto;
+        padding: 10px 10px;
+        font-size: 0.9em;
+        margin: 2px;
+    }
+    .tab-button.active::after {
+        height: 2px; /* Thinner underline on mobile */
+    }
+
+    main {
+        padding: 15px;
+        margin: 20px auto;
+    }
+
+    .controls-panel {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 15px;
+        padding: 15px;
+    }
+
+    .dropdown-group {
+        min-width: unset;
+        width: 100%;
+    }
+
+    .view-options {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 8px;
+    }
+
+    .btn {
+        width: 100%;
+        padding: 10px 15px;
+        font-size: 0.95em;
+    }
+
+    /* Responsive table for smaller screens */
+    table, .employee-performance-card table {
+        border: 0;
+        min-width: unset;
+    }
+
+    table thead {
+        display: none;
+    }
+
+    table tr {
+        margin-bottom: 10px;
+        display: block;
+        border: 1px solid #e0e6ed; /* Softer border */
+        border-radius: 8px;
+        background-color: #ffffff;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    }
+
+    table td {
+        display: block;
+        text-align: right;
+        border-bottom: 1px solid #f0f4f7;
+        position: relative;
+        padding-left: 50%;
+        font-size: 0.9em;
+    }
+
+    table td::before {
+        content: attr(data-label);
+        position: absolute;
+        left: 10px; /* More left padding */
+        width: 45%;
+        padding-right: 10px;
+        white-space: nowrap;
+        text-align: left;
+        font-weight: 600; /* Bolder label */
+        color: #555;
+        top: 50%;
+        transform: translateY(-50%); /* Vertically center label */
+    }
+
+    .performance-table th[colspan="3"],
+    .performance-table thead tr:last-child {
+        display: none;
+    }
+    .performance-table td[data-label="Metric"]::before {
+        display: none;
+    }
+    .performance-table td {
+        text-align: center; /* Center content in performance table cells on mobile */
+        padding-left: 15px; /* Adjust padding as label is gone */
+    }
+
+
+    /* Adjust for specific table cell in mobile view for all branch snapshot */
+    .all-branch-snapshot-table td[data-label="Branch Name"] {
+        text-align: center;
+        font-size: 1.2em; /* Larger font */
+        padding-top: 15px;
+        padding-bottom: 15px;
+        border-bottom: 2px solid #e0e6ed; /* Stronger separator */
+    }
+    .all-branch-snapshot-table td:not([data-label="Branch Name"])::before {
+        left: 10px; /* Align labels correctly */
+        top: auto; /* Remove transform if not needed */
+        transform: none;
+    }
+
+
+    /* Responsive adjustments for summary breakdown card (d4.PNG) */
+    .summary-breakdown-card {
+        grid-template-columns: 1fr;
+        gap: 15px;
+    }
+
+    /* Customer details responsiveness */
+    .detail-row {
+        flex-direction: column;
+        align-items: flex-start;
+        padding: 6px 0;
+    }
+
+    .detail-label {
+        flex-basis: auto;
+        min-width: auto;
+        width: 100%;
+        text-align: left;
+        margin-bottom: 4px;
+        font-size: 0.9em; /* Smaller label font */
+    }
+
+    .detail-value {
+        flex-basis: auto;
+        width: 100%;
+        text-align: left;
+        font-size: 1em; /* Slightly larger value font */
+    }
+}
+
+/* No participation message style */
+.no-participation-message {
+    color: #e74c3c; /* Red */
+    font-weight: 700; /* Bolder */
+    font-size: 1.2em; /* Larger font */
+    margin: 15px 0;
+    text-align: center;
+    padding: 15px;
+    background-color: #fef0f0;
+    border: 1px solid #e74c3c;
+    border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+}
+.non-participating-branch-list {
+    list-style: decimal inside;
+    padding-left: 20px;
+    margin-top: 20px;
+    font-size: 1em;
+    line-height: 1.8;
+}
+.non-participating-branch-list li {
+    padding: 5px 0;
+    color: #34495e;
+    border-bottom: 1px dashed #f0f4f7;
+}
+.non-participating-branch-list li:last-child {
+    border-bottom: none;
+}
