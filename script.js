@@ -503,8 +503,10 @@ document.addEventListener('DOMContentLoaded', () => {
         Object.values(branchActivity.employees).forEach(employee => {
             const card = document.createElement('div');
             card.className = 'employee-performance-card';
+            // FIX: Simplified this line to resolve SyntaxError: missing } in template string
+            // The original complex lookup for branch name caused the error.
             card.innerHTML = `
-                <h4>${employee.name} (${Object.keys(employeesData).find(b => employeesData[b].includes(employee.name + ' (' + Object.keys(customersData).find(code => customersData[code] && customersData[code][0] && customersData[code][0].details[HEADER_EMPLOYEE_CODE] === employee.name.split(' (')[1].slice(0,-1))) + ')'))})</h4>
+                <h4>${employee.name}</h4> 
                 <table>
                     <tbody>
                         <tr><td>Total Canvassed:</td><td><strong>${employee.totalCanvassed}</strong></td></tr>
