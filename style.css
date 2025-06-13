@@ -553,7 +553,91 @@ footer {
 }
 
 
-/* --- NEW: Detailed Customer View Specific Styles --- */
+/* --- DETAILED CUSTOMER VIEW REPORT DISPLAY IMPROVEMENTS --- */
+
+/* Parent Container for Customer Details Cards */
+.customer-details-card {
+    display: grid;
+    /* Arranges items in a responsive grid. minmax ensures items are at least 280px wide but can grow. */
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 20px; /* Space between cards */
+    padding: 20px; /* Padding inside the main card area */
+    background-color: #fcfcfc; /* Very light background for the grid container */
+    border: 1px solid #e0e0e0;
+    border-radius: 10px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.08); /* Soft, subtle shadow */
+    min-height: unset; /* Remove fixed min-height, let content dictate */
+    overflow-y: visible; /* Allow content to overflow if needed for shadows */
+}
+
+/* Styling for each info section (Overview, Canvassing Activity, Family Details) */
+.customer-info-section {
+    background-color: #ffffff; /* White background for main info cards */
+    border: 1px solid #e9e9e9;
+    border-radius: 8px;
+    padding: 20px; /* Padding inside each info card */
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05); /* Softer shadow for individual cards */
+    display: flex; /* Use flexbox to center content */
+    flex-direction: column;
+    height: 100%; /* Ensure cards fill grid cell height */
+}
+
+.customer-info-section h3 {
+    color: #4CAF50; /* Green heading for these sections */
+    margin-top: 0;
+    margin-bottom: 18px;
+    padding-bottom: 10px;
+    border-bottom: 2px solid #e0e0e0;
+    font-size: 1.2em;
+    font-weight: 700;
+    text-align: center; /* Center headings */
+}
+
+/* Styling for Remarks and Profile text as cards */
+.remark-text, .profile-text {
+    background-color: #e0f2f7; /* Light blue background for remarks/profile */
+    border: 1px solid #c2e9f4;
+    border-radius: 8px;
+    padding: 20px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    line-height: 1.7;
+    color: #444;
+    text-align: justify;
+    font-size: 0.95em;
+    height: 100%; /* Ensure cards fill grid cell height */
+    overflow-y: auto; /* Enable scrolling if content is too long */
+}
+
+/* Ensure detail rows inside info cards are styled */
+.customer-info-section .detail-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 8px 0;
+    border-bottom: 1px dashed #f5f5f5;
+    font-size: 0.95em;
+}
+
+.customer-info-section .detail-row:last-child {
+    border-bottom: none;
+}
+
+.customer-info-section .detail-label {
+    font-weight: 600;
+    color: #555;
+    flex-basis: 40%;
+    min-width: 140px;
+    text-align: left;
+}
+
+.customer-info-section .detail-value {
+    color: #333;
+    flex-basis: 60%;
+    text-align: right;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+}
+
+/* --- NEW: Detailed Customer View Specific Styles (Existing from previous step, ensure compatibility) --- */
 #detailedCustomerViewSection {
     display: flex;
     flex-direction: column;
@@ -633,79 +717,6 @@ li.customer-list-item.active {
     box-shadow: inset 3px 0 0 #4CAF50; /* Green left border for active */
 }
 
-.customer-details-card {
-    display: grid;
-    grid-template-columns: 1fr;
-    gap: 25px; /* Increased gap */
-    padding: 15px; /* Increased padding */
-    background-color: #fefefe;
-    border: 1px solid #f0f0f0;
-    border-radius: 8px;
-    min-height: 200px; /* Taller min-height */
-    overflow-y: auto;
-    box-shadow: inset 0 0 8px rgba(0,0,0,0.03); /* Inner shadow */
-}
-
-.customer-info-section {
-    background-color: #ffffff;
-    border: 1px solid #e9e9e9;
-    border-radius: 8px;
-    padding: 20px; /* Increased padding */
-    box-shadow: 0 2px 6px rgba(0,0,0,0.05);
-}
-
-.customer-info-section h3 {
-    color: #4CAF50;
-    margin-top: 0;
-    margin-bottom: 18px; /* More spacing */
-    padding-bottom: 10px;
-    border-bottom: 2px solid #e0e0e0;
-    font-size: 1.2em;
-    font-weight: 700;
-    text-align: left;
-}
-
-.detail-row {
-    display: flex;
-    justify-content: space-between;
-    padding: 8px 0; /* More padding */
-    border-bottom: 1px dashed #f5f5f5;
-    font-size: 0.95em;
-}
-
-.detail-row:last-child {
-    border-bottom: none;
-}
-
-.detail-label {
-    font-weight: 600; /* Semi-bold */
-    color: #555;
-    flex-basis: 40%;
-    min-width: 140px; /* Wider min-width */
-    text-align: left;
-}
-
-.detail-value {
-    color: #333;
-    flex-basis: 60%;
-    text-align: right;
-    word-wrap: break-word;
-    overflow-wrap: break-word;
-}
-
-.remark-text, .profile-text {
-    line-height: 1.7; /* Increased line-height */
-    color: #444;
-    text-align: justify;
-    padding: 10px 0;
-    font-size: 0.95em;
-}
-
-.full-width-section {
-    grid-column: 1 / -1;
-}
-
-
 /* --- Responsive Design --- */
 @media (min-width: 768px) {
     .report-tabs {
@@ -740,8 +751,8 @@ li.customer-list-item.active {
     }
 
     .customer-details-card {
-        grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); /* Slightly wider min-width */
-        gap: 25px;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); /* Adjusted min-width for new cards */
+        gap: 20px;
     }
 }
 
