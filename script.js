@@ -6,7 +6,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // IMPORTANT: Replace this with YOUR DEPLOYED GOOGLE APPS SCRIPT WEB APP URL
     // NOTE: If you are getting errors sending data, this URL is the problem.
-    const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzEYf0CKgwP0O4-z1lup1lDZImD1dQVEveLWsHwa_7T5ltndfIuRWXVZqFD03_proD/exec"; // <-- PASTE YOUR NEWLY DEPLOYED WEB APP URL HERE
+    const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzEYf0CKgwP0O4-z1lup1lDZImD1dQVEveLWsHwa_7T5ltndfIuRWXVZqFDj03_proD/exec"; // <-- PASTE YOUR NEWLY DEPLOYED WEB APP URL HERE
 
     // We will IGNORE MasterEmployees sheet for data fetching and report generation
     // Employee management functions in Apps Script still use the MASTER_SHEET_ID you've set up in code.gs
@@ -45,7 +45,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Predefined list of branches for selection and reporting
     const PREDEFINED_BRANCHES = [
-        'Central', 'North', 'South', 'East', 'West', 'Overseas'
+        "Angamaly", "Corporate Office", "Edappally", "Harippad", "Koduvayur",
+        "Kuzhalmannam", "Mattanchery", "Mavelikara", "Nedumkandom", "Nenmara",
+        "Paravoor", "Perumbavoor", "Thiruwillamala", "Thodupuzha", "Chengannur",
+        "Alathur", "Kottayam", "Kattapana", "Muvattupuzha", "Thiruvalla",
+        "Pathanamthitta", "HO KKM"
     ];
 
     // CSV Headers (ensure these match your Google Sheet headers exactly)
