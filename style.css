@@ -579,7 +579,7 @@ li.customer-list-item.active {
     border-color: #fff9c4;
 }
 
-/* REMOVED: .customer-details-card > .remark-text { ... } - This rule was making remarks a separate card. */
+/* THIS RULE IS REMOVED: .customer-details-card > .remark-text { ... } */
 
 
 .customer-info-section h3 {
