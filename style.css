@@ -350,40 +350,63 @@ table tbody tr:hover {
     grid-column: 1 / -1; /* Spans all columns available in the grid */
 }
 
-/* Refine detail rows to be more "table-like" within sections */
-.detail-row {
-    display: flex;
-    justify-content: space-between;
-    align-items: baseline; /* Align text baselines */
-    padding: 8px 0; /* More vertical padding for rows */
-    border-bottom: 1px solid #f0f0f0; /* Softer separator between rows */
-    margin-bottom: 0; /* Remove any default margin if present */
+/* --- Styling for Tables within Sections (.section-detail-table) --- */
+.customer-info-section .section-detail-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 15px; /* Space between heading and table */
+    border: 1px solid #e0e0e0; /* Border for the inner table */
+    border-radius: 5px; /* Slight rounding for inner table */
+    overflow: hidden; /* Ensures border-radius is applied correctly */
 }
 
-.detail-row:last-child {
-    border-bottom: none; /* No border for the last item in a section */
-    padding-bottom: 0;
+.customer-info-section .section-detail-table th,
+.customer-info-section .section-detail-table td {
+    padding: 10px 15px;
+    border: 1px solid #e0e0e0; /* Inner borders for cells */
+    text-align: left;
 }
 
-.detail-label {
+.customer-info-section .section-detail-table thead {
+    background-color: #e8f5e9; /* Very light green for inner table headers */
+    color: #388E3C; /* Darker green text for inner table headers */
+}
+
+.customer-info-section .section-detail-table th {
+    font-weight: bold;
+    font-size: 0.95em;
+    text-transform: capitalize; /* Keep headers readable, not all uppercase */
+}
+
+.customer-info-section .section-detail-table tbody tr:nth-child(odd) {
+    background-color: #ffffff; /* White for odd rows */
+}
+
+.customer-info-section .section-detail-table tbody tr:nth-child(even) {
+    background-color: #f6fcf6; /* Very light green tint for even rows */
+}
+
+.customer-info-section .section-detail-table tbody tr:hover {
+    background-color: #e0f2e0; /* Slightly more noticeable hover for inner rows */
+    cursor: default; /* No pointer cursor unless clickable rows */
+}
+
+/* If you need specific label/value styling within these inner tables, apply it here */
+.customer-info-section .section-detail-table .detail-label {
     font-weight: bold;
     color: #555;
-    flex-basis: 45%; /* Give label a bit more space */
-    min-width: 140px; /* Ensure labels have decent minimum width */
-    text-align: left;
-    padding-right: 15px; /* Space between label and value */
+    width: 40%; /* Adjust as needed */
+    vertical-align: top; /* Align label to top if value wraps */
 }
 
-.detail-value {
+.customer-info-section .section-detail-table .detail-value {
     color: #333;
-    flex-basis: 55%; /* Value takes remaining space */
-    text-align: right;
+    width: 60%; /* Adjust as needed */
     word-wrap: break-word;
     overflow-wrap: break-word;
-    font-size: 0.95em; /* Slightly adjust font size for values */
 }
 
-/* Styling for remarks and profile text blocks */
+/* Styling for remarks and profile text blocks (kept as p tags, not tables) */
 .remark-text, .profile-text {
     line-height: 1.7; /* Increased line height for better readability */
     color: #444;
@@ -567,27 +590,38 @@ footer {
         padding-bottom: 8px;
     }
 
-    .detail-row {
-        flex-direction: column; /* Stack label and value vertically on small screens */
-        align-items: flex-start; /* Align stacked items to the left */
-        padding: 10px 0; /* More space when stacked */
-        border-bottom: 1px solid #e0e0e0; /* Clearer separation when stacked */
+    /* Adjustments for tables within sections on mobile */
+    .customer-info-section .section-detail-table th,
+    .customer-info-section .section-detail-table td {
+        display: block; /* Make inner table cells block level */
+        width: 100%; /* Take full width */
+        padding: 8px 15px; /* Consistent padding */
+        text-align: left; /* Align text left */
+        border-bottom: 1px solid #e0e0e0; /* Add bottom border for separation */
     }
 
-    .detail-label {
-        flex-basis: auto; /* Remove fixed basis */
-        min-width: auto;
-        width: 100%; /* Label takes full width */
+    .customer-info-section .section-detail-table th:last-child,
+    .customer-info-section .section-detail-table td:last-child {
+        border-bottom: none; /* No border on last cell of a row */
+    }
+
+    /* Hide inner table headers on mobile if not needed (they will stack) */
+    .customer-info-section .section-detail-table thead {
+        display: none;
+    }
+
+    /* If label/value are inside cells, ensure they stack or are clear */
+    .customer-info-section .section-detail-table .detail-label {
+        width: 100%;
         text-align: left;
-        margin-bottom: 4px; /* Space between label and value */
-        padding-right: 0;
+        margin-bottom: 2px; /* Small space between label and value */
     }
 
-    .detail-value {
-        flex-basis: auto; /* Remove fixed basis */
-        width: 100%; /* Value takes full width */
-        text-align: left; /* Align value to the left */
+    .customer-info-section .section-detail-table .detail-value {
+        width: 100%;
+        text-align: left;
     }
+
 
     .remark-text, .profile-text {
         padding: 5px 0;
