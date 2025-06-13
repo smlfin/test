@@ -1,16 +1,642 @@
-/* Request 1: Detailed Customer View Improvements */
+body {
+    font-family: 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #f0f2f5; /* Lighter, modern background */
+    color: #333;
+    line-height: 1.6;
+}
 
-/*
-   The reordering for customer-details-card children is already present
-   in your current style.css and correctly sets the order as:
-   1. Canvassing Activity (original nth-of-type(2))
-   2. Customer Overview (original nth-of-type(1))
-   3. Family Details (original nth-of-type(3))
-   4. Remarks
-   5. Customer Profile (now visually grouped with Family Details)
+header {
+    background-color: #388E3C; /* Deeper green for header */
+    color: white;
+    padding: 1rem 0;
+    text-align: center;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.15); /* More pronounced shadow */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-height: 90px; /* Slightly taller header */
+    padding-bottom: 0;
+    position: relative; /* For z-index of tabs if needed */
+    z-index: 10;
+}
+
+header h1 {
+    margin: 0;
+    padding-bottom: 10px;
+    font-size: 2.2em; /* Slightly larger heading */
+    letter-spacing: 0.5px;
+}
+
+/* Tab Navigation Styles */
+.report-tabs {
+    display: flex;
+    justify-content: center;
+    width: 100%;
+    background-color: #2E7D32; /* Even darker green for tab bar */
+    border-bottom: 4px solid #4CAF50; /* Thicker, vibrant green border */
+    box-shadow: inset 0 -2px 5px rgba(0,0,0,0.1); /* Inner shadow for depth */
+}
+
+.tab-button {
+    background-color: #2E7D32;
+    color: rgba(255, 255, 255, 0.8); /* Slightly muted text for inactive */
+    padding: 14px 22px; /* More padding */
+    border: none;
+    cursor: pointer;
+    font-size: 1.15em; /* Slightly larger font */
+    transition: background-color 0.3s ease, color 0.3s ease, border-bottom 0.3s ease;
+    flex-grow: 1;
+    max-width: 280px; /* Adjusted max-width */
+    text-align: center;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    font-weight: 500; /* Medium weight */
+}
+
+.tab-button:hover {
+    background-color: #388E3C; /* Lighter green on hover */
+    color: white;
+}
+
+.tab-button.active {
+    background-color: #4CAF50; /* Vibrant green for active tab */
+    color: white;
+    border-bottom: 4px solid white; /* Stronger white highlight */
+    font-weight: bold;
+    box-shadow: 0 -2px 8px rgba(0,0,0,0.2); /* Shadow for active tab */
+}
+
+main {
+    padding: 30px; /* Increased padding */
+    max-width: 1300px; /* Wider main content area */
+    margin: 30px auto; /* More margin */
+    background-color: #fff;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1); /* More pronounced shadow */
+    border-radius: 12px; /* Softer rounded corners */
+}
+
+/* Message container styles */
+.message-container {
+    margin-bottom: 25px; /* More spacing */
+    text-align: center;
+    display: none;
+}
+
+.message {
+    padding: 12px 25px; /* More padding */
+    border-radius: 6px; /* Slightly more rounded */
+    font-weight: 600; /* Semi-bold */
+    color: white;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1); /* Subtle shadow */
+    margin: 0 auto;
+    max-width: fit-content;
+    display: inline-block; /* Allow horizontal centering */
+}
+
+.message.error {
+    background-color: #d32f2f; /* Darker red */
+    border: 1px solid #c62828;
+}
+.message.success {
+    background-color: #388E3C; /* Match header green */
+    border: 1px solid #2E7D32;
+}
+.message.info {
+    background-color: #1976D2; /* Darker blue */
+    border: 1px solid #1565C0;
+}
+
+
+/* Section Display */
+.report-section, .employee-management-section, .detailed-customer-view-section {
+    display: none;
+    padding-top: 25px; /* More top padding for sections */
+}
+
+/* Controls Panel (Dropdowns and Buttons) */
+.controls-panel {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px; /* Increased gap */
+    margin-bottom: 25px;
+    padding: 20px; /* Increased padding */
+    background-color: #fcfcfc; /* Lighter background */
+    border: 1px solid #e0e0e0; /* Softer border */
+    border-radius: 8px;
+    align-items: flex-end;
+    box-shadow: inset 0 0 8px rgba(0,0,0,0.03); /* Inner shadow for depth */
+}
+
+.dropdown-group {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    min-width: 220px; /* Slightly wider minimum */
+}
+
+.dropdown-group label {
+    margin-bottom: 8px; /* More spacing */
+    font-weight: 600; /* Semi-bold */
+    color: #444; /* Darker label text */
+    font-size: 0.95em;
+}
+
+select {
+    padding: 12px; /* More padding */
+    border: 1px solid #bbb; /* Slightly darker border */
+    border-radius: 6px;
+    background-color: white;
+    font-size: 1em;
+    cursor: pointer;
+    box-shadow: inset 0 1px 3px rgba(0,0,0,0.05); /* Inner shadow */
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+select:focus {
+    border-color: #4CAF50; /* Green highlight on focus */
+    box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.2); /* Light green glow */
+    outline: none;
+}
+
+
+.view-options {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px; /* Increased gap */
+    margin-top: 15px; /* More spacing */
+}
+
+.btn {
+    background-color: #4CAF50; /* Green primary button */
+    color: white;
+    padding: 12px 18px; /* More padding */
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 1em;
+    font-weight: 600; /* Semi-bold */
+    transition: background-color 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+
+.btn:hover {
+    background-color: #388E3C; /* Darker green on hover */
+    transform: translateY(-1px); /* Slight lift effect */
+    box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+}
+
+.btn.active {
+    background-color: #1B5E20; /* Even darker green for active */
+    box-shadow: inset 0 2px 5px rgba(0,0,0,0.2); /* Inset shadow for active */
+    transform: translateY(0); /* Reset lift for active */
+}
+
+.btn.active:hover {
+    background-color: #1B5E20; /* Keep same active background on hover */
+}
+
+.btn.danger-btn {
+    background-color: #e53935; /* Red danger button */
+}
+.btn.danger-btn:hover {
+    background-color: #c62828; /* Darker red on hover */
+}
+
+
+/* Report Display Area */
+.report-display {
+    background-color: #fff;
+    padding: 25px; /* More padding */
+    border-radius: 10px;
+    min-height: 250px; /* Taller min-height */
+    box-shadow: 0 0 15px rgba(0,0,0,0.08); /* More pronounced shadow */
+}
+
+.report-display h2 {
+    color: #388E3C; /* Match header green */
+    text-align: center;
+    margin-top: 0;
+    margin-bottom: 25px;
+    font-size: 1.8em;
+    font-weight: 600;
+}
+
+.report-display p {
+    text-align: center;
+    color: #666;
+    font-style: italic;
+    padding: 20px;
+    border: 1px dashed #e0e0e0;
+    border-radius: 8px;
+    background-color: #f9f9f9;
+}
+
+/* Data Table Container for Horizontal Scrolling */
+.data-table-container {
+    overflow-x: auto;
+    width: 100%;
+    margin-top: 25px; /* More top margin */
+    border: 1px solid #e0e0e0; /* Subtle border around scrollable area */
+    border-radius: 8px;
+    box-shadow: inset 0 0 5px rgba(0,0,0,0.02); /* Inner shadow */
+}
+
+
+/* General Table Styles */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 0; /* Margin handled by container */
+    font-size: 0.95em; /* Slightly larger font */
+    min-width: 700px; /* Increased min-width for larger screens */
+    background-color: #fff;
+}
+
+table th, table td {
+    border: 1px solid #e0e0e0; /* Lighter, more subtle borders */
+    padding: 12px 15px; /* More padding */
+    text-align: left;
+}
+
+table th {
+    background-color: #f5f7fa; /* Light grey header background */
+    font-weight: 700; /* Bold headers */
+    color: #555;
+    position: sticky;
+    top: 0;
+    z-index: 2; /* Ensure headers stay on top */
+    white-space: nowrap; /* Prevent headers from wrapping */
+}
+
+table tbody tr:nth-child(even) {
+    background-color: #f9f9f9; /* Subtle zebra striping */
+}
+
+table tbody tr:hover {
+    background-color: #eef7ff; /* Light blue on hover */
+    cursor: pointer;
+}
+
+/* Specific Table Styles */
+.all-branch-snapshot-table th:first-child,
+.all-branch-snapshot-table td:first-child {
+    width: 25%; /* Give more space for branch name */
+}
+
+/* Performance Table Styles */
+.performance-table th {
+    text-align: center;
+}
+.performance-table th[colspan="3"] {
+    background-color: #e8eaf6; /* Light blue-grey for grouped headers */
+    color: #3f51b5; /* Dark blue text */
+    font-size: 1.05em;
+    padding: 10px 15px;
+}
+
+/* Progress Bar in Tables (Small) */
+.progress-bar-container-small {
+    width: 100%;
+    background-color: #e0e0e0;
+    border-radius: 5px;
+    height: 22px; /* Slightly taller */
+    overflow: hidden;
+    text-align: center;
+    margin: auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600; /* Semi-bold */
+    color: white;
+    font-size: 0.85em; /* Smaller font for percentages */
+}
+
+.progress-bar-container {
+    width: 120px; /* Fixed width for larger progress bars */
+    background-color: #e0e0e0;
+    border-radius: 6px;
+    height: 28px; /* Taller */
+    overflow: hidden;
+    text-align: center;
+    margin: auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    color: white;
+    box-shadow: inset 0 1px 3px rgba(0,0,0,0.05);
+}
+
+.progress-bar {
+    height: 100%;
+    border-radius: 6px;
+    transition: width 0.6s ease-in-out; /* Slower transition */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 8px; /* More padding */
+    box-sizing: border-box;
+    white-space: nowrap; /* Prevent percentage text wrapping */
+}
+
+.progress-bar.success { background-color: #4CAF50; }
+.progress-bar.warning-high { background-color: #ffb300; } /* Darker yellow */
+.progress-bar.warning-medium { background-color: #fb8c00; } /* Darker orange */
+.progress-bar.warning-low { background-color: #ef5350; } /* Soft red */
+.progress-bar.danger { background-color: #c62828; }
+.progress-bar.no-activity { background-color: #78909c; } /* Bluish grey */
+
+
+/* Branch Performance Grid (d3.PNG) */
+.branch-performance-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); /* Slightly wider min-width */
+    gap: 25px; /* Increased gap */
+    margin-top: 25px;
+}
+
+.employee-performance-card {
+    background-color: #ffffff;
+    border: 1px solid #e0e0e0;
+    border-radius: 10px;
+    padding: 20px; /* Increased padding */
+    box-shadow: 0 4px 10px rgba(0,0,0,0.08); /* More pronounced shadow */
+    transition: transform 0.2s ease;
+}
+.employee-performance-card:hover {
+    transform: translateY(-3px); /* Slight lift on hover */
+    box-shadow: 0 6px 15px rgba(0,0,0,0.12);
+}
+
+
+.employee-performance-card h4 {
+    color: #388E3C;
+    margin-top: 0;
+    margin-bottom: 18px; /* More spacing */
+    text-align: center;
+    font-size: 1.2em; /* Larger font */
+    font-weight: 600;
+}
+
+.employee-performance-card table {
+    width: 100%;
+    margin-top: 0;
+    min-width: unset;
+    border: none; /* No outer border for tables within cards */
+    font-size: 0.9em;
+}
+.employee-performance-card th,
+.employee-performance-card td {
+    padding: 8px 10px; /* Adjusted padding */
+    font-size: 0.9em; /* Slightly smaller font */
+    border: none; /* No internal borders for cleaner look */
+    border-bottom: 1px dashed #f0f0f0; /* Light dashed separator */
+}
+.employee-performance-card tr:last-child td {
+    border-bottom: none; /* No border for last row */
+}
+.employee-performance-card th {
+    background-color: transparent; /* Transparent header background */
+    color: #666;
+    font-weight: 600;
+}
+
+
+/* Summary Breakdown Card (d4.PNG) */
+.summary-breakdown-card {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); /* Adjusted min-width */
+    gap: 25px; /* Increased gap */
+    margin-top: 25px;
+}
+
+.summary-breakdown-card > div {
+    background-color: #ffffff;
+    border: 1px solid #e0e0e0;
+    border-radius: 10px;
+    padding: 20px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+    transition: transform 0.2s ease;
+}
+.summary-breakdown-card > div:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 6px 15px rgba(0,0,0,0.12);
+}
+
+.summary-breakdown-card h4 {
+    color: #388E3C;
+    margin-top: 0;
+    margin-bottom: 15px;
+    font-size: 1.2em;
+    text-align: center;
+    font-weight: 600;
+    border-bottom: 2px solid #e0e0e0;
+    padding-bottom: 10px;
+}
+
+.summary-list, .product-interest-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.summary-list li, .product-interest-list li {
+    padding: 8px 0;
+    border-bottom: 1px dashed #eee;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.95em;
+}
+
+.summary-list li:last-child, .product-interest-list li:last-child {
+    border-bottom: none;
+}
+
+.summary-list strong {
+    color: #333;
+    font-weight: 600;
+}
+
+/* Employee Management Section */
+.employee-management-section {
+    padding: 25px;
+}
+
+.employee-management-section h2 {
+    color: #388E3C;
+    text-align: center;
+    margin-bottom: 35px;
+    font-size: 2em;
+    font-weight: 700;
+}
+
+.employee-management-section .message {
+    text-align: center;
+    margin-bottom: 25px;
+    font-size: 1.1em;
+}
+
+.form-section {
+    background-color: #fcfcfc;
+    border: 1px solid #e0e0e0;
+    border-radius: 10px;
+    padding: 25px;
+    margin-bottom: 30px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+}
+
+.form-section h3 {
+    color: #555;
+    margin-top: 0;
+    margin-bottom: 25px;
+    border-bottom: 2px solid #eee;
+    padding-bottom: 12px;
+    font-size: 1.5em;
+    font-weight: 600;
+}
+
+.employee-form .form-group {
+    margin-bottom: 20px; /* More spacing */
+}
+
+.employee-form label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 600;
+    color: #444;
+    font-size: 0.95em;
+}
+
+.employee-form input[type="text"],
+.employee-form textarea {
+    width: calc(100% - 24px); /* Account for padding and border */
+    padding: 12px;
+    border: 1px solid #bbb;
+    border-radius: 6px;
+    font-size: 1em;
+    box-shadow: inset 0 1px 3px rgba(0,0,0,0.05);
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+.employee-form input[type="text"]:focus,
+.employee-form textarea:focus {
+    border-color: #4CAF50;
+    box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.2);
+    outline: none;
+}
+
+
+.employee-form textarea {
+    resize: vertical;
+    min-height: 100px; /* Taller textarea */
+}
+
+.employee-form button[type="submit"] {
+    width: auto;
+    padding: 12px 25px;
+    margin-top: 15px;
+    font-size: 1.05em;
+}
+
+footer {
+    text-align: center;
+    padding: 25px; /* More padding */
+    margin-top: 40px; /* More top margin */
+    background-color: #263238; /* Darker footer background */
+    color: rgba(255, 255, 255, 0.7); /* Slightly muted text */
+    font-size: 0.9em;
+    border-radius: 0 0 12px 12px; /* Rounded bottom corners */
+    box-shadow: 0 -2px 8px rgba(0,0,0,0.1);
+}
+
+
+/* --- DETAILED CUSTOMER VIEW REPORT DISPLAY IMPROVEMENTS --- */
+
+/* Parent Container for Customer Details Cards */
+.customer-details-card {
+    display: grid;
+    /* Arranges items in a responsive grid. minmax ensures items are at least 280px wide but can grow. */
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 20px; /* Space between cards */
+    padding: 20px; /* Padding inside the main card area */
+    background-color: #fcfcfc; /* Very light background for the grid container */
+    border: 1px solid #e0e0e0;
+    border-radius: 10px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.08); /* Soft, subtle shadow */
+    min-height: unset; /* Remove fixed min-height, let content dictate */
+    overflow-y: visible; /* Allow content to overflow if needed for shadows */
+}
+
+/* Reordering the cards using order property */
+/* These rules assume you have all 3 .customer-info-section divs as direct children */
+.customer-details-card > .customer-info-section:nth-of-type(1) { /* Customer Overview - Original 1st div */
+    order: 2; /* Move to 2nd position */
+}
+
+.customer-details-card > .customer-info-section:nth-of-type(2) { /* Canvassing Activity - Original 2nd div */
+    order: 1; /* Move to 1st position */
+}
+
+.customer-details-card > .customer-info-section:nth-of-type(3) { /* Family Details - Original 3rd div */
+    order: 3; /* Stay in 3rd position */
+}
+
+.customer-details-card > .remark-text { /* Remarks - Original 4th child (p tag) */
+    order: 4; /* Stay in 4th position */
+}
+
+/* The .profile-text as a separate card is now handled inside Family Details.
+   This rule is commented out as it's no longer a direct child for reordering.
+.customer-details-card > .profile-text {
+    order: 5;
+}
 */
 
-/* 1. Add distinct background and border colors to each primary card */
+
+/* Styling for each info section (Overview, Canvassing Activity, Family Details) */
+.customer-info-section {
+    background-color: #ffffff; /* White background for main info cards */
+    border: 1px solid #e9e9e9;
+    border-radius: 8px;
+    padding: 20px; /* Padding inside each info card */
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05); /* Softer shadow for individual cards */
+    display: flex; /* Use flexbox to center content */
+    flex-direction: column;
+    height: 100%; /* Ensure cards fill grid cell height */
+}
+
+.customer-info-section h3 {
+    color: #4CAF50; /* Green heading for these sections */
+    margin-top: 0;
+    margin-bottom: 18px;
+    padding-bottom: 10px;
+    border-bottom: 2px solid #e0e0e0;
+    font-size: 1.2em;
+    font-weight: 700;
+    text-align: center; /* Center headings */
+}
+
+/* Styling for Remarks card (if it's a separate <p class="remark-text">) */
+.remark-text {
+    background-color: #e0f2f7; /* Light blue background for remarks */
+    border: 1px solid #c2e9f4;
+    border-radius: 8px;
+    padding: 20px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    line-height: 1.7;
+    color: #444;
+    text-align: justify;
+    font-size: 0.95em;
+    height: 100%; /* Ensure cards fill grid cell height */
+    overflow-y: auto; /* Enable scrolling if content is too long */
+}
+
+/* Add distinct background and border colors to each primary card */
+/* These target the sections based on their *original* order in the HTML,
+   which are then reordered by the 'order' property above. */
 .customer-details-card > .customer-info-section:nth-of-type(2) { /* Canvassing Activity */
     background-color: #e8f5e9; /* Light Green */
     border-color: #a5d6a7;
@@ -26,14 +652,8 @@
     border-color: #ce93d8;
 }
 
-/* Existing Remarks card color (can adjust if needed) */
-.remark-text {
-    background-color: #e0f7fa; /* Light Cyan */
-    border-color: #b2ebf2;
-}
 
-/* 2. Style for Customer Profile content when placed INSIDE Family Details card */
-/* This assumes you've updated your HTML as described above */
+/* Style for Customer Profile content when placed INSIDE Family Details card */
 .customer-profile-in-card {
     margin-top: 20px; /* Space above this section */
     padding-top: 15px; /* Padding below the new heading */
@@ -63,10 +683,329 @@
     border-bottom: none;
 }
 
-/* Remove original .profile-text styling if it's no longer a separate card */
-/* This rule should be removed if you follow the HTML modification. */
-/* If you cannot modify HTML, this original .profile-text would remain a separate card. */
-.profile-text {
-    /* Keep its existing styles, or give it a new distinct color if not merging */
-    /* Example: background-color: #ffebee; border-color: #ffcdd2; */
+/* Ensure detail rows inside info cards are styled horizontally */
+.customer-info-section .detail-row {
+    display: flex;
+    justify-content: space-between; /* Keeps label and value spread out */
+    align-items: baseline; /* Align to the top if content wraps */
+    padding: 8px 0;
+    border-bottom: 1px dashed #f5f5f5;
+    font-size: 0.95em;
+}
+
+.customer-info-section .detail-row:last-child {
+    border-bottom: none;
+}
+
+.customer-info-section .detail-label {
+    font-weight: 600;
+    color: #555;
+    flex-shrink: 0; /* Prevent label from shrinking */
+    white-space: nowrap; /* Keep label on one line */
+    overflow: hidden; /* Hide overflow */
+    text-overflow: ellipsis; /* Add ellipsis for overflow */
+    text-align: left;
+    margin-right: 10px; /* Small space between label and value */
+}
+
+.customer-info-section .detail-value {
+    color: #333;
+    flex-grow: 1; /* Allow value to grow and take available space */
+    white-space: nowrap; /* Keep value on one line */
+    overflow: hidden; /* Hide overflow */
+    text-overflow: ellipsis; /* Add ellipsis for overflow */
+    text-align: right; /* Align value to the right */
+}
+
+
+/* --- NEW: Detailed Customer View Specific Styles --- */
+#detailedCustomerViewSection {
+    display: flex;
+    flex-direction: column;
+    gap: 25px; /* Increased gap */
+    padding-top: 25px;
+}
+
+#detailedCustomerViewSection h2 {
+    color: #388E3C;
+    text-align: center;
+    margin-top: 0;
+    margin-bottom: 25px;
+    font-size: 2em;
+    font-weight: 700;
+}
+
+#detailedCustomerViewSection .controls-panel {
+    justify-content: center;
+    margin-bottom: 0;
+    box-shadow: none; /* No shadow here to blend with section */
+    border: none;
+    background-color: transparent;
+    padding-top: 0;
+    padding-bottom: 0;
+}
+
+.customer-list-display {
+    background-color: #ffffff;
+    border: 1px solid #e0e0e0;
+    border-radius: 10px;
+    padding: 25px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+    flex: 1;
+}
+
+.customer-list-display h3 {
+    color: #555;
+    margin-top: 0;
+    margin-bottom: 20px; /* More spacing */
+    border-bottom: 2px solid #eee; /* Thicker border */
+    padding-bottom: 12px;
+    text-align: center;
+    font-size: 1.3em;
+    font-weight: 600;
+}
+
+/* Customers Canvassed: Compact Display (targeting ul.customer-list directly) */
+ul.customer-list {
+    list-style: none;
+    padding: 5px; /* Small padding inside list */
+    max-height: 450px; /* Taller max height */
+    overflow-y: auto;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    background-color: #fdfdfd;
+
+    /* New styles for compact display */
+    display: flex; /* Enable flexbox for horizontal layout */
+    flex-wrap: wrap; /* Allow items to wrap to the next line */
+    gap: 8px 10px; /* Vertical and horizontal space between items */
+    padding: 10px; /* Adjust padding for flex items */
+    border: none; /* Remove list's border, let items define visual separation */
+    max-height: 200px; /* Reduce height to encourage wrapping for space saving */
+    overflow-y: auto; /* Keep scrolling if content still exceeds new height */
+}
+
+li.customer-list-item {
+    background-color: #e3f2fd; /* Light blue tag background */
+    color: #1565C0; /* Darker blue text */
+    padding: 6px 12px; /* Padding inside each tag */
+    border-radius: 20px; /* Rounded pill shape */
+    font-size: 0.85em; /* Smaller font size */
+    font-weight: 500;
+    border: 1px solid #90CAF9;
+    white-space: nowrap; /* Prevent text from wrapping within a tag */
+    box-shadow: 0 1px 3px rgba(0,0,0,0.05); /* Subtle shadow */
+    transition: background-color 0.2s ease;
+    margin: 0; /* Remove default list item margins */
+    border-bottom: none; /* Remove individual list item borders as gap handles spacing */
+    flex-shrink: 0; /* Prevent items from shrinking too much */
+}
+
+li.customer-list-item:last-child {
+    border-bottom: none;
+}
+
+li.customer-list-item:hover {
+    background-color: #bbdefb; /* Slightly darker on hover */
+    cursor: default; /* Change cursor to default, as it's a display item */
+}
+
+li.customer-list-item.active {
+    background-color: #90CAF9; /* Deeper blue for active */
+    font-weight: bold;
+    color: #1a237e; /* Darker blue text */
+    box-shadow: inset 0 0 5px rgba(0,0,0,0.2); /* Inset shadow for active */
+    transform: none; /* Reset transform */
+}
+
+
+/* --- Responsive Design --- */
+@media (min-width: 768px) {
+    .report-tabs {
+        justify-content: center; /* Still center tabs for better visual balance */
+    }
+    .tab-button {
+        flex-grow: 0;
+        max-width: 250px; /* Re-apply max width for consistent tab size */
+    }
+
+    .controls-panel {
+        flex-direction: row;
+        align-items: flex-end;
+    }
+
+    .dropdown-group {
+        flex: none;
+        width: auto;
+    }
+
+    /* For detailed customer view on larger screens */
+    #detailedCustomerViewSection {
+        flex-direction: row;
+    }
+
+    .customer-list-display {
+        flex: 1;
+        max-width: 380px; /* Slightly wider max-width */
+    }
+    /* .customer-details-display was a placeholder, now handled by customer-details-card */
+    /* .customer-details-display { flex: 2; } */
+
+
+    .customer-details-card {
+        flex: 2; /* Allow the card grid to take more space */
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); /* Adjusted min-width for new cards */
+        gap: 20px;
+    }
+}
+
+@media (max-width: 767px) {
+    header {
+        padding: 15px 10px;
+        min-height: 70px;
+    }
+
+    header h1 {
+        font-size: 1.8em;
+        padding-bottom: 5px;
+    }
+
+    .report-tabs {
+        flex-wrap: wrap;
+        padding: 5px;
+    }
+
+    .tab-button {
+        flex: 1 1 auto;
+        padding: 10px 8px;
+        font-size: 0.9em;
+        margin: 2px;
+    }
+
+    main {
+        padding: 15px;
+        margin: 15px auto;
+        border-radius: 8px;
+    }
+
+    .controls-panel {
+        flex-direction: column;
+        align-items: stretch;
+        padding: 15px;
+        gap: 15px;
+    }
+
+    .dropdown-group {
+        min-width: unset;
+        width: 100%;
+    }
+
+    .view-options {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 10px;
+    }
+
+    .btn {
+        width: 100%;
+        padding: 12px 15px;
+        font-size: 0.95em;
+    }
+
+    /* Responsive table for smaller screens */
+    table, .employee-performance-card table {
+        border: 0;
+        min-width: unset;
+    }
+
+    table thead {
+        display: none;
+    }
+
+    table tr {
+        margin-bottom: 15px; /* More space between rows */
+        display: block;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        background-color: #fff;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+    }
+
+    table td {
+        display: block;
+        text-align: right;
+        border-bottom: 1px solid #eee;
+        position: relative;
+        padding-left: 55%; /* More space for data-label */
+        font-size: 0.9em;
+    }
+
+    table td::before {
+        content: attr(data-label);
+        position: absolute;
+        left: 10px; /* More left padding */
+        width: 45%;
+        padding-right: 10px;
+        white-space: nowrap;
+        text-align: left;
+        font-weight: bold;
+        color: #555;
+        overflow: hidden; /* Hide overflowing labels */
+        text-overflow: ellipsis;
+    }
+
+    .performance-table th[colspan="3"] {
+        display: none;
+    }
+    .performance-table thead tr:last-child {
+        display: none;
+    }
+    .performance-table td[data-label="Metric"]::before {
+        display: none;
+    }
+
+    /* Adjust for specific table cell in mobile view for all branch snapshot */
+    .all-branch-snapshot-table td[data-label="Branch Name"] {
+        text-align: center;
+        font-size: 1.2em;
+        padding-top: 15px;
+        padding-bottom: 15px;
+        background-color: #f0f2f5; /* Slight different background for branch name */
+        border-bottom: 2px solid #e0e0e0;
+        font-weight: 600;
+    }
+
+    /* Responsive adjustments for summary breakdown card (d4.PNG) */
+    .summary-breakdown-card {
+        grid-template-columns: 1fr;
+        gap: 20px;
+    }
+}
+
+/* No participation message style */
+.no-participation-message {
+    color: #d32f2f; /* Darker red */
+    font-weight: 700; /* Bolder */
+    font-size: 1.2em;
+    margin: 15px 0;
+    text-align: center;
+    padding: 10px;
+    background-color: #ffebee; /* Light red background */
+    border: 1px solid #ef9a9a;
+    border-radius: 8px;
+}
+.non-participating-branch-list {
+    list-style: decimal inside;
+    padding-left: 20px;
+    margin-top: 20px;
+    font-size: 1em;
+    color: #444;
+}
+.non-participating-branch-list li {
+    padding: 8px 0;
+    color: #333;
+    border-bottom: 1px dotted #e0e0e0;
+}
+.non-participating-branch-list li:last-child {
+    border-bottom: none;
 }
