@@ -32,7 +32,6 @@ header h1 {
     width: 100%;
     background-color: #388E3C; /* Slightly darker green for tabs */
     border-bottom: 3px solid #1B5E20; /* Darker border at the bottom of tabs */
-    flex-wrap: wrap; /* Allow tabs to wrap on smaller screens */
 }
 
 .tab-button {
@@ -43,11 +42,11 @@ header h1 {
     cursor: pointer;
     font-size: 1.1em;
     transition: background-color 0.3s ease, color 0.3s ease;
-    flex-grow: 1; /* Allow buttons to grow and shrink */
-    max-width: 200px; /* Limit max width for individual tabs */
+    flex-grow: 1; /* Allow tabs to grow and fill space */
+    max-width: 250px; /* Limit max width for each tab */
     text-align: center;
-    white-space: nowrap; /* Prevent text wrapping inside buttons */
-    overflow: hidden;
+    white-space: nowrap; /* Prevent text wrapping */
+    overflow: hidden; /* Hide overflow text */
     text-overflow: ellipsis; /* Add ellipsis for overflow */
 }
 
@@ -57,7 +56,7 @@ header h1 {
 
 .tab-button.active {
     background-color: #1B5E20; /* Even darker green for active tab */
-    color: white;
+    border-bottom: 3px solid white; /* Highlight active tab with a white border */
     font-weight: bold;
 }
 
@@ -66,186 +65,172 @@ main {
     max-width: 1200px;
     margin: 20px auto;
     background-color: #fff;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
     border-radius: 8px;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
 }
 
+/* Message container styles */
 .message-container {
-    padding: 15px;
     margin-bottom: 20px;
+    text-align: center;
+    display: none; /* Hidden by default, shown by JS */
+}
+
+.message {
+    padding: 10px 20px;
     border-radius: 5px;
     font-weight: bold;
-    text-align: center;
+    color: white;
+    background-color: #4CAF50; /* Default info/success */
+    border: 1px solid #388E3C;
+    margin: 0 auto;
+    max-width: fit-content;
 }
 
-.message-container.success {
-    background-color: #e6ffe6;
-    color: #4CAF50;
-    border: 1px solid #4CAF50;
+.message.error {
+    background-color: #e53935; /* Red for errors */
+    border-color: #c62828;
+}
+.message.success {
+    background-color: #4CAF50; /* Green for success */
+    border-color: #388E3C;
+}
+.message.info {
+    background-color: #2196F3; /* Blue for info */
+    border-color: #1976D2;
 }
 
-.message-container.error {
-    background-color: #ffe6e6;
-    color: #f44336;
-    border: 1px solid #f44336;
-}
 
-/* General Report Section Styles */
-.report-section {
-    display: none; /* Hidden by default, managed by JavaScript */
+/* Section Display */
+.report-section, .employee-management-section, .detailed-customer-view-section {
+    display: none; /* Hidden by default, shown by JS based on active tab */
     padding-top: 20px;
 }
 
-.report-section.active {
-    display: block;
-}
-
-.report-section h2 {
-    color: #4CAF50;
-    text-align: center;
-    margin-bottom: 25px;
-    border-bottom: 2px solid #e0e0e0;
-    padding-bottom: 10px;
-}
-
-/* Controls Panel Styles (Dropdowns, Buttons) */
+/* Controls Panel (Dropdowns and Buttons) */
 .controls-panel {
     display: flex;
-    flex-wrap: wrap;
-    gap: 20px; /* Space between control groups */
-    margin-bottom: 25px;
+    flex-wrap: wrap; /* Allow wrapping on smaller screens */
+    gap: 15px;
+    margin-bottom: 20px;
     padding: 15px;
     background-color: #f9f9f9;
-    border-radius: 8px;
     border: 1px solid #eee;
-    justify-content: center; /* Center items in the controls panel */
+    border-radius: 5px;
     align-items: flex-end; /* Align items to the bottom */
 }
 
-.dropdown-group, .form-group {
+.dropdown-group {
     display: flex;
     flex-direction: column;
-    align-items: flex-start;
+    flex: 1; /* Allow dropdowns to take available space */
+    min-width: 200px; /* Minimum width for each dropdown */
 }
 
-.controls-panel label, .form-group label {
-    margin-bottom: 8px;
+.dropdown-group label {
+    margin-bottom: 5px;
     font-weight: bold;
     color: #555;
 }
 
-.controls-panel select, .controls-panel input[type="date"],
-.form-group input[type="text"], .form-group textarea {
-    padding: 10px 12px;
-    border: 1px solid #ddd;
-    border-radius: 5px;
+select {
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    background-color: white;
     font-size: 1em;
-    width: 200px; /* Consistent width for inputs/selects */
-    max-width: 100%; /* Ensure responsiveness */
-    box-sizing: border-box; /* Include padding in width */
-}
-
-.controls-panel select:focus, .controls-panel input[type="date"]:focus,
-.form-group input[type="text"]:focus, .form-group textarea:focus {
-    border-color: #4CAF50;
-    outline: none;
-    box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.2);
-}
-
-.controls-panel .btn, .form-section .btn {
-    padding: 10px 20px;
-    background-color: #4CAF50;
-    color: white;
-    border: none;
-    border-radius: 5px;
     cursor: pointer;
-    font-size: 1em;
-    transition: background-color 0.3s ease, transform 0.2s ease;
-    margin-top: 20px; /* Space above buttons in controls panel */
-}
-
-.controls-panel .btn:hover, .form-section .btn:hover {
-    background-color: #388E3C;
-    transform: translateY(-2px);
-}
-
-.controls-panel .btn:active, .form-section .btn:active {
-    transform: translateY(0);
-}
-
-.btn.danger-btn {
-    background-color: #f44336;
-}
-
-.btn.danger-btn:hover {
-    background-color: #d32f2f;
 }
 
 .view-options {
     display: flex;
     flex-wrap: wrap;
     gap: 10px;
-    justify-content: center;
     margin-top: 10px;
 }
 
-.view-options .btn {
-    margin-top: 0; /* Remove extra margin from general btn rule */
+.btn {
+    background-color: #007bff;
+    color: white;
+    padding: 10px 15px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 1em;
+    transition: background-color 0.3s ease;
+}
+
+.btn:hover {
+    background-color: #0056b3;
+}
+
+.btn.active {
+    background-color: #28a745; /* Green for active button */
+}
+
+.btn.active:hover {
+    background-color: #218838;
+}
+
+.btn.danger-btn {
+    background-color: #dc3545;
+}
+.btn.danger-btn:hover {
+    background-color: #c82333;
 }
 
 
 /* Report Display Area */
 .report-display {
-    min-height: 200px;
-    background-color: #fdfdfd;
-    border: 1px solid #e0e0e0;
-    border-radius: 8px;
+    background-color: #fff;
     padding: 20px;
-    overflow-x: auto; /* Enable horizontal scrolling for tables */
-    text-align: center; /* Default text alignment */
-    color: #555;
-    display: flex; /* Use flex for centering placeholder message */
-    justify-content: center;
-    align-items: center;
+    border-radius: 8px;
+    min-height: 200px; /* Ensure space even when empty */
+    box-shadow: 0 0 10px rgba(0,0,0,0.05);
+}
+
+.report-display h2 {
+    color: #4CAF50;
+    text-align: center;
+    margin-top: 0;
+    margin-bottom: 20px;
 }
 
 .report-display p {
-    margin: 0;
-    font-style: italic;
+    text-align: center;
+    color: #666;
 }
 
-
-/* --- General Table Styles --- */
+/* Data Table Container for Horizontal Scrolling */
 .data-table-container {
-    overflow-x: auto; /* Enable horizontal scrolling for tables */
+    overflow-x: auto; /* Enable horizontal scrolling */
+    width: 100%; /* Ensure it takes full width */
     margin-top: 20px;
-    background-color: #fdfdfd;
-    border: 1px solid #e0e0e0;
-    border-radius: 8px;
-    padding: 15px;
 }
 
+
+/* General Table Styles */
 table {
     width: 100%;
     border-collapse: collapse;
-    margin: 0; /* Remove default table margin */
-    text-align: left;
+    margin-top: 20px;
+    font-size: 0.9em;
+    min-width: 600px; /* Ensure a minimum width for better presentation */
 }
 
 table th, table td {
-    padding: 12px 15px;
-    border: 1px solid #e0e0e0;
-}
-
-table thead {
-    background-color: #4CAF50;
-    color: white;
+    border: 1px solid #ddd;
+    padding: 8px;
+    text-align: left;
 }
 
 table th {
+    background-color: #f2f2f2;
     font-weight: bold;
-    text-transform: uppercase;
-    font-size: 0.9em;
+    color: #555;
+    position: sticky;
+    top: 0;
+    z-index: 1; /* Keep headers above content when scrolling */
 }
 
 table tbody tr:nth-child(even) {
@@ -253,170 +238,171 @@ table tbody tr:nth-child(even) {
 }
 
 table tbody tr:hover {
-    background-color: #e6f7ff;
-    cursor: pointer;
+    background-color: #f1f1f1;
 }
 
-/* Specific styling for customer names table within detailed customer view */
-.customer-names-table {
-    /* No additional styling needed here, general table styles apply */
+/* Specific Table Styles */
+.all-branch-snapshot-table th:first-child,
+.all-branch-snapshot-table td:first-child {
+    width: 20%; /* Give more space for branch name */
 }
 
-.customer-names-table .customer-list-item {
-    transition: background-color 0.3s ease;
+/* Performance Table Styles */
+.performance-table th {
+    text-align: center;
+}
+.performance-table th[colspan="3"] {
+    background-color: #e0e0e0; /* Different background for grouped headers */
 }
 
-.customer-names-table .customer-list-item.active {
-    background-color: #d0efff; /* Active state for selected customer */
+/* Progress Bar in Tables (Small) */
+.progress-bar-container-small {
+    width: 100%;
+    background-color: #e0e0e0;
+    border-radius: 5px;
+    height: 20px;
+    overflow: hidden; /* Hide overflowing text */
+    text-align: center;
+    margin: auto; /* Center the bar */
+    display: flex; /* Use flex to center content vertically */
+    align-items: center;
+    justify-content: center;
     font-weight: bold;
-    color: #2196F3;
+    color: white; /* Text color for the bar */
 }
 
-/* Hide placeholder message when table is populated */
-.customer-names-table + .placeholder-message {
-    display: block; /* Show by default */
+.progress-bar-container {
+    width: 100px; /* Fixed width for larger progress bars */
+    background-color: #e0e0e0;
+    border-radius: 5px;
+    height: 25px;
+    overflow: hidden;
+    text-align: center;
+    margin: auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    color: white;
 }
 
-.customer-names-table.populated + .placeholder-message {
-    display: none; /* Hide when table has content (add 'populated' class via JS) */
+.progress-bar {
+    height: 100%;
+    border-radius: 5px;
+    transition: width 0.5s ease-in-out;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 5px; /* Add some padding for text */
+    box-sizing: border-box; /* Include padding in width calculation */
 }
 
+.progress-bar.success { background-color: #28a745; } /* Green */
+.progress-bar.warning-high { background-color: #ffc107; } /* Yellow */
+.progress-bar.warning-medium { background-color: #fd7e14; } /* Orange */
+.progress-bar.warning-low { background-color: #e53935; } /* Lighter Red */
+.progress-bar.danger { background-color: #c62828; } /* Dark Red */
+.progress-bar.no-activity { background-color: #6c757d; } /* Grey for N/A */
 
-/* --- Detailed Customer View Specific Styles --- */
-#detailedCustomerViewSection {
-    display: none; /* Hidden by default, shown by JS */
-}
 
-#detailedCustomerViewSection.active {
-    display: block;
-}
-
-#detailedCustomerViewSection .controls-panel {
-    justify-content: flex-start; /* Align controls to the left */
-}
-
-/* The main container for customer details (the card itself) */
-#customerDetailsContent {
-    display: none; /* Hidden by default, shown by JS when customer selected */
-    /* Ensure the report-display styles don't conflict with customer-details-card flex/grid */
-    min-height: auto;
-    background-color: transparent;
-    border: none;
-    padding: 0;
-}
-
-.customer-details-card {
+/* Branch Performance Grid (d3.PNG) */
+.branch-performance-grid {
     display: grid;
-    grid-template-columns: 1fr; /* Default to single column on small screens */
-    gap: 20px; /* Gap between sections */
-    background-color: #fdfdfd; /* Light background for the overall card */
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); /* Responsive grid */
+    gap: 20px;
+    margin-top: 20px;
+}
+
+.employee-performance-card {
+    background-color: #fefefe;
     border: 1px solid #e0e0e0;
     border-radius: 8px;
-    padding: 25px; /* Padding inside the card */
-    box-shadow: 0 4px 15px rgba(0,0,0,0.08); /* More prominent shadow for the card */
-    text-align: left; /* Ensure text aligns left within the card */
+    padding: 15px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
 }
 
-/* Responsive grid for customer details card */
-@media (min-width: 768px) {
-    .customer-details-card {
-        grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); /* At least 2 columns, adjust as needed */
-        gap: 25px; /* Increased gap for better separation between sections */
-    }
-}
-
-/* Style for individual information sections within the card */
-.customer-info-section {
-    background-color: #ffffff; /* Clean background */
-    border: 1px solid #e9e9e9;
-    border-radius: 8px; /* Slightly more rounded corners */
-    padding: 20px; /* Increased padding */
-    box-shadow: 0 2px 6px rgba(0,0,0,0.08); /* More prominent but subtle shadow */
-}
-
-.customer-info-section h3 {
-    color: #388E3C; /* A slightly darker green for section headings for better contrast */
+.employee-performance-card h4 {
+    color: #4CAF50;
     margin-top: 0;
-    margin-bottom: 20px; /* More space below heading */
-    padding-bottom: 12px;
-    border-bottom: 2px solid #D0D0D0; /* A clearer separator under heading */
-    font-size: 1.2em; /* Slightly larger heading font */
-    font-weight: bold;
-    text-align: left;
+    margin-bottom: 15px;
+    text-align: center;
+    font-size: 1.1em;
 }
 
-/* Sections that should span full width in a multi-column layout */
-.full-width-section {
-    grid-column: 1 / -1; /* Spans all columns available in the grid */
-}
-
-/* --- Styling for Tables within Sections (.section-detail-table) --- */
-.customer-info-section .section-detail-table {
+.employee-performance-card table {
     width: 100%;
-    border-collapse: collapse;
-    margin-top: 15px; /* Space between heading and table */
-    border: 1px solid #e0e0e0; /* Border for the inner table */
-    border-radius: 5px; /* Slight rounding for inner table */
-    overflow: hidden; /* Ensures border-radius is applied correctly */
+    margin-top: 0;
+    min-width: unset; /* Override general table min-width for cards */
+}
+.employee-performance-card th,
+.employee-performance-card td {
+    padding: 6px;
+    font-size: 0.85em;
 }
 
-.customer-info-section .section-detail-table th,
-.customer-info-section .section-detail-table td {
-    padding: 10px 15px;
-    border: 1px solid #e0e0e0; /* Inner borders for cells */
-    text-align: left;
+/* Summary Breakdown Card (d4.PNG) */
+.summary-breakdown-card {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 20px;
+    margin-top: 20px;
 }
 
-.customer-info-section .section-detail-table thead {
-    background-color: #e8f5e9; /* Very light green for inner table headers */
-    color: #388E3C; /* Darker green text for inner table headers */
+.summary-breakdown-card > div {
+    background-color: #fefefe;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    padding: 15px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
 }
 
-.customer-info-section .section-detail-table th {
-    font-weight: bold;
-    font-size: 0.95em;
-    text-transform: capitalize; /* Keep headers readable, not all uppercase */
+.summary-breakdown-card h4 {
+    color: #4CAF50;
+    margin-top: 0;
+    margin-bottom: 10px;
+    font-size: 1.1em;
+    text-align: center;
 }
 
-.customer-info-section .section-detail-table tbody tr:nth-child(odd) {
-    background-color: #ffffff; /* White for odd rows */
+.summary-list, .product-interest-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
 }
 
-.customer-info-section .section-detail-table tbody tr:nth-child(even) {
-    background-color: #f6fcf6; /* Very light green tint for even rows */
+.summary-list li, .product-interest-list li {
+    padding: 5px 0;
+    border-bottom: 1px dashed #eee;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
 }
 
-.customer-info-section .section-detail-table tbody tr:hover {
-    background-color: #e0f2e0; /* Slightly more noticeable hover for inner rows */
-    cursor: default; /* No pointer cursor unless clickable rows */
+.summary-list li:last-child, .product-interest-list li:last-child {
+    border-bottom: none;
 }
 
-/* If you need specific label/value styling within these inner tables, apply it here */
-.customer-info-section .section-detail-table .detail-label {
-    font-weight: bold;
-    color: #555;
-    width: 40%; /* Adjust as needed */
-    vertical-align: top; /* Align label to top if value wraps */
-}
-
-.customer-info-section .section-detail-table .detail-value {
+.summary-list strong {
     color: #333;
-    width: 60%; /* Adjust as needed */
-    word-wrap: break-word;
-    overflow-wrap: break-word;
 }
 
-/* Styling for remarks and profile text blocks (kept as p tags, not tables) */
-.remark-text, .profile-text {
-    line-height: 1.7; /* Increased line height for better readability */
-    color: #444;
-    text-align: justify;
-    padding: 10px 0; /* More padding around text blocks */
-    margin: 0; /* Remove default paragraph margin */
+/* Employee Management Section */
+.employee-management-section {
+    padding: 20px;
 }
 
+.employee-management-section h2 {
+    color: #4CAF50;
+    text-align: center;
+    margin-bottom: 30px;
+}
 
-/* Employee Management Form Styles */
+.employee-management-section .message {
+    text-align: center;
+    margin-bottom: 20px;
+    font-size: 1.1em;
+}
+
 .form-section {
     background-color: #f9f9f9;
     border: 1px solid #eee;
@@ -427,37 +413,44 @@ table tbody tr:hover {
 }
 
 .form-section h3 {
-    color: #4CAF50;
+    color: #555;
     margin-top: 0;
     margin-bottom: 20px;
+    border-bottom: 1px solid #eee;
     padding-bottom: 10px;
-    border-bottom: 1px solid #e0e0e0;
-}
-
-.employee-form {
-    display: flex;
-    flex-direction: column;
-    gap: 15px;
 }
 
 .employee-form .form-group {
-    flex-direction: row; /* Labels and inputs side-by-side */
-    align-items: center;
-    gap: 15px; /* Space between label and input */
+    margin-bottom: 15px;
 }
 
 .employee-form label {
-    flex-basis: 150px; /* Fixed width for labels */
-    min-width: 120px;
-    text-align: right;
+    display: block;
+    margin-bottom: 5px;
+    font-weight: bold;
+    color: #555;
 }
 
-.employee-form input[type="text"], .employee-form textarea {
-    flex-grow: 1; /* Input takes remaining space */
-    width: auto; /* Override fixed width from general controls-panel */
+.employee-form input[type="text"],
+.employee-form textarea {
+    width: calc(100% - 22px); /* Account for padding and border */
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 1em;
 }
 
-/* Footer Styles */
+.employee-form textarea {
+    resize: vertical;
+    min-height: 80px;
+}
+
+.employee-form button[type="submit"] {
+    width: auto;
+    padding: 10px 20px;
+    margin-top: 10px;
+}
+
 footer {
     text-align: center;
     padding: 20px;
@@ -468,11 +461,188 @@ footer {
 }
 
 
-/* --- Responsive Design Adjustments --- */
+/* --- NEW: Detailed Customer View Specific Styles --- */
+#detailedCustomerViewSection {
+    display: flex; /* Use flexbox for layout of customer list and details */
+    flex-direction: column; /* Stack vertically by default */
+    gap: 20px; /* Space between list and details */
+    padding-top: 20px;
+}
+
+#detailedCustomerViewSection h2 {
+    color: #4CAF50;
+    text-align: center;
+    margin-top: 0;
+    margin-bottom: 20px;
+}
+
+#detailedCustomerViewSection .controls-panel {
+    justify-content: center; /* Center dropdowns */
+    margin-bottom: 0; /* Remove extra margin */
+}
+
+.customer-list-display, .customer-details-display {
+    background-color: #fefefe;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    padding: 20px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    flex: 1; /* Allow these sections to grow */
+}
+
+.customer-list-display h3, .customer-details-display h3 {
+    color: #555;
+    margin-top: 0;
+    margin-bottom: 15px;
+    border-bottom: 1px solid #eee;
+    padding-bottom: 10px;
+    text-align: center;
+}
+
+ul.customer-list {
+    list-style: none;
+    padding: 0;
+    max-height: 400px; /* Max height for scrollable list */
+    overflow-y: auto; /* Enable vertical scrolling */
+    border: 1px solid #ddd;
+    border-radius: 5px;
+}
+
+li.customer-list-item {
+    padding: 10px 15px;
+    border-bottom: 1px solid #eee;
+    cursor: pointer;
+    transition: background-color 0.2s ease, font-weight 0.2s ease;
+}
+
+li.customer-list-item:last-child {
+    border-bottom: none;
+}
+
+li.customer-list-item:hover {
+    background-color: #e6f7ff; /* Light blue on hover */
+}
+
+li.customer-list-item.active {
+    background-color: #d0efff; /* Slightly darker blue for active */
+    font-weight: bold;
+    color: #0056b3;
+}
+
+.customer-details-card {
+    /* Updated for a more engaging, multi-column layout for details */
+    display: grid;
+    grid-template-columns: 1fr; /* Default to single column on small screens */
+    gap: 20px; /* Space between sections */
+    padding: 10px;
+    background-color: #fdfdfd;
+    border: 1px solid #f0f0f0;
+    border-radius: 5px;
+    min-height: 150px;
+    overflow-y: auto;
+}
+
+.customer-info-section {
+    background-color: #ffffff;
+    border: 1px solid #e9e9e9;
+    border-radius: 6px;
+    padding: 15px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+}
+
+.customer-info-section h3 {
+    color: #4CAF50; /* Green for section headings */
+    margin-top: 0;
+    margin-bottom: 15px;
+    padding-bottom: 8px;
+    border-bottom: 2px solid #e0e0e0; /* Subtle line under heading */
+    font-size: 1.1em;
+    font-weight: bold;
+    text-align: left; /* Align section heading left */
+}
+
+.detail-row {
+    display: flex; /* Use flexbox for label-value alignment */
+    justify-content: space-between; /* Space out label and value */
+    padding: 5px 0;
+    border-bottom: 1px dashed #f5f5f5; /* Light dashed line for separation */
+}
+
+.detail-row:last-child {
+    border-bottom: none; /* No border for the last item in a section */
+}
+
+.detail-label {
+    font-weight: bold;
+    color: #555;
+    flex-basis: 40%; /* Give label a base width */
+    min-width: 120px; /* Ensure labels don't get too small */
+    text-align: left;
+}
+
+.detail-value {
+    color: #333;
+    flex-basis: 60%; /* Value takes remaining space */
+    text-align: right; /* Align value to the right */
+    word-wrap: break-word; /* Break long words */
+    overflow-wrap: break-word; /* Ensure wrapping works */
+}
+
+.remark-text, .profile-text {
+    line-height: 1.6;
+    color: #444;
+    text-align: justify; /* Justify text for paragraphs */
+    padding: 5px 0;
+}
+
+.full-width-section {
+    grid-column: 1 / -1; /* Make these sections span all columns */
+}
+
+
+/* --- Responsive Design --- */
+@media (min-width: 768px) {
+    .report-tabs {
+        justify-content: flex-start; /* Align tabs to start on larger screens */
+    }
+    .tab-button {
+        flex-grow: 0; /* Don't grow unnecessarily */
+        max-width: none; /* Remove max width constraint */
+    }
+
+    .controls-panel {
+        flex-direction: row;
+        align-items: flex-end;
+    }
+
+    .dropdown-group {
+        flex: none; /* Don't flex grow */
+        width: auto; /* Auto width */
+    }
+
+    /* For detailed customer view on larger screens */
+    #detailedCustomerViewSection {
+        flex-direction: row; /* Layout side-by-side */
+    }
+
+    .customer-list-display {
+        flex: 1; /* Take one part of the space */
+        max-width: 350px; /* Give it a reasonable max-width */
+    }
+    .customer-details-display {
+        flex: 2; /* Take two parts of the space, making it wider */
+    }
+
+    .customer-details-card {
+        /* On larger screens, use a 2-column grid for sections */
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 20px;
+    }
+}
+
 @media (max-width: 767px) {
     header {
-        padding: 15px 0;
-        min-height: auto;
+        padding: 15px 10px;
     }
 
     header h1 {
@@ -481,146 +651,121 @@ footer {
     }
 
     .report-tabs {
-        flex-direction: column; /* Stack tabs vertically on small screens */
-        border-bottom: none;
+        flex-wrap: wrap; /* Allow tabs to wrap on smaller screens */
+        padding: 5px;
     }
 
     .tab-button {
-        padding: 10px 15px;
-        font-size: 1em;
-        border-bottom: 1px solid rgba(255,255,255,0.1); /* Separator between stacked tabs */
-        max-width: none; /* Allow full width */
-        flex-grow: 1;
-    }
-
-    .tab-button:last-child {
-        border-bottom: none;
+        flex: 1 1 auto; /* Allow tabs to stretch or wrap as needed */
+        padding: 10px 10px;
+        font-size: 0.9em;
+        margin: 2px; /* Small margin between wrapped tabs */
     }
 
     main {
         padding: 15px;
-        margin: 15px auto;
     }
 
     .controls-panel {
-        flex-direction: column; /* Stack controls vertically */
-        align-items: stretch; /* Stretch items to fill width */
-        gap: 15px;
+        flex-direction: column;
+        align-items: stretch;
     }
 
-    .dropdown-group, .form-group {
+    .dropdown-group {
+        min-width: unset;
         width: 100%;
-        align-items: flex-start; /* Align content to the left */
-    }
-
-    .controls-panel select, .controls-panel input[type="date"],
-    .form-group input[type="text"], .form-group textarea {
-        width: 100%; /* Full width for inputs on mobile */
-    }
-
-    .controls-panel .btn, .form-section .btn {
-        width: 100%; /* Full width buttons */
-        margin-top: 15px;
     }
 
     .view-options {
         flex-direction: column;
-        gap: 10px;
+        align-items: stretch;
     }
 
-    .view-options .btn {
-        width: 100%;
+    .btn {
+        width: 100%; /* Full width buttons */
     }
 
-    /* General table adjustments for mobile */
+    /* Responsive table for smaller screens */
+    table, .employee-performance-card table {
+        border: 0;
+        min-width: unset; /* Remove min-width for mobile */
+    }
+
     table thead {
-        display: none; /* Hide headers on small screens */
-    }
-
-    table, table tbody, table tr, table td {
-        display: block; /* Make table elements behave like blocks */
-        width: 100%;
+        display: none; /* Hide headers on smaller screens */
     }
 
     table tr {
-        margin-bottom: 15px;
-        border: 1px solid #e0e0e0;
-        border-radius: 8px;
+        margin-bottom: 10px;
+        display: block;
+        border: 1px solid #ddd;
+        border-radius: 5px;
         background-color: #fff;
-        box-shadow: 0 1px 4px rgba(0,0,0,0.05);
-        padding-bottom: 10px; /* Space inside the card-like row */
     }
 
     table td {
-        border: none; /* Remove individual cell borders */
+        display: block;
+        text-align: right;
+        border-bottom: 1px solid #eee;
         position: relative;
         padding-left: 50%; /* Space for data-label */
-        text-align: right;
-        padding-top: 8px; /* Spacing for stacked content */
-        padding-bottom: 8px;
+        font-size: 0.9em;
     }
 
     table td::before {
-        content: attr(data-label); /* Display data-label as pseudo-element */
+        content: attr(data-label);
         position: absolute;
-        left: 15px;
-        width: calc(50% - 30px); /* Adjust width of label */
+        left: 6px;
+        width: 45%;
         padding-right: 10px;
         white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        font-weight: bold;
         text-align: left;
+        font-weight: bold;
         color: #555;
     }
 
-    /* Adjustments for tables within sections on mobile */
-    .customer-info-section .section-detail-table th,
-    .customer-info-section .section-detail-table td {
-        display: block; /* Make inner table cells block level */
-        width: 100%; /* Take full width */
-        padding: 8px 15px; /* Consistent padding */
-        text-align: left; /* Align text left */
-        border-bottom: 1px solid #e0e0e0; /* Add bottom border for separation */
+    .performance-table th[colspan="3"] {
+        display: none; /* Hide main metric headers on mobile for simplicity */
+    }
+    .performance-table thead tr:last-child {
+        display: none; /* Hide sub-headers on mobile for simplicity */
+    }
+    .performance-table td[data-label="Metric"]::before {
+        display: none; /* No data-label for metric itself as it's the primary content */
     }
 
-    .customer-info-section .section-detail-table th:last-child,
-    .customer-info-section .section-detail-table td:last-child {
-        border-bottom: none; /* No border on last cell of a row */
+    /* Adjust for specific table cell in mobile view for all branch snapshot */
+    .all-branch-snapshot-table td[data-label="Branch Name"] {
+        text-align: center; /* Center the branch name on mobile */
+        font-size: 1.1em;
+        padding-top: 15px;
+        padding-bottom: 15px;
     }
 
-    /* Hide inner table headers on mobile if not needed (they will stack) */
-    .customer-info-section .section-detail-table thead {
-        display: none;
+    /* Responsive adjustments for summary breakdown card (d4.PNG) */
+    .summary-breakdown-card {
+        grid-template-columns: 1fr; /* Stack sections vertically on mobile */
+        gap: 15px;
     }
 
-    /* If label/value are inside cells, ensure they stack or are clear */
-    .customer-info-section .section-detail-table .detail-label {
-        width: 100%;
+    /* Customer details responsiveness */
+    .detail-row {
+        flex-direction: column; /* Stack label and value vertically on small screens */
+        align-items: flex-start; /* Align stacked items to the left */
+    }
+
+    .detail-label {
+        flex-basis: auto; /* Remove fixed basis */
+        min-width: auto;
+        width: 100%; /* Label takes full width */
         text-align: left;
-        margin-bottom: 2px; /* Small space between label and value */
+        margin-bottom: 2px; /* Space between label and value */
     }
 
-    .customer-info-section .section-detail-table .detail-value {
-        width: 100%;
-        text-align: left;
-    }
-
-
-    .remark-text, .profile-text {
-        padding: 5px 0;
-    }
-
-    /* Employee Management form adjustments for mobile */
-    .employee-form .form-group {
-        flex-direction: column; /* Stack label and input */
-        align-items: flex-start;
-        gap: 5px;
-    }
-
-    .employee-form label {
-        width: 100%;
-        text-align: left;
+    .detail-value {
+        flex-basis: auto; /* Remove fixed basis */
+        width: 100%; /* Value takes full width */
+        text-align: left; /* Align value to the left */
     }
 }
 
@@ -631,4 +776,13 @@ footer {
     font-size: 1.1em;
     margin: 10px 0;
     text-align: center;
+}
+.non-participating-branch-list {
+    list-style: decimal inside; /* Numbered list */
+    padding-left: 20px;
+    margin-top: 20px;
+}
+.non-participating-branch-list li {
+    padding: 5px 0;
+    color: #333;
 }
