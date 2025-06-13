@@ -545,7 +545,7 @@ li.customer-list-item.active {
 .customer-details-card {
     /* Updated for a more engaging, multi-column layout for details */
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); /* Default to single column on small screens, adjusts to multiple */
+    grid-template-columns: 1fr; /* Default to single column on small screens */
     gap: 20px; /* Space between sections */
     padding: 10px;
     background-color: #fdfdfd;
@@ -643,8 +643,7 @@ li.customer-list-item.active {
 
 
 .full-width-section {
-    /* This class is applied to elements that should span full width within their parent container (e.g., within a card) */
-    grid-column: 1 / -1; /* Make these sections span all columns if their parent is a grid */
+    grid-column: 1 / -1; /* Make these sections span all columns */
 }
 
 
