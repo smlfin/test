@@ -570,6 +570,30 @@ footer {
     overflow-y: visible; /* Allow content to overflow if needed for shadows */
 }
 
+/* Reordering the cards using order property */
+.customer-details-card > .customer-info-section:nth-of-type(1) { /* Customer Overview - Original 1st div */
+    order: 2; /* Move to 2nd position */
+}
+
+.customer-details-card > .customer-info-section:nth-of-type(2) { /* Canvassing Activity - Original 2nd div */
+    order: 1; /* Move to 1st position */
+}
+
+.customer-details-card > .customer-info-section:nth-of-type(3) { /* Family Details - Original 3rd div */
+    order: 3; /* Stay in 3rd position */
+}
+
+.customer-details-card > .remark-text { /* Remarks - Original 4th child (p tag) */
+    order: 4; /* Stay in 4th position */
+}
+
+.customer-details-card > .profile-text { /* Customer Profile - Original 5th child (p tag) */
+    order: 5; /* Stay in 5th position */
+    /* Due to script.js constraints, this remains a separate card. */
+    /* You cannot include it inside "Family Details" card using CSS alone. */
+}
+
+
 /* Styling for each info section (Overview, Canvassing Activity, Family Details) */
 .customer-info-section {
     background-color: #ffffff; /* White background for main info cards */
@@ -608,13 +632,15 @@ footer {
     overflow-y: auto; /* Enable scrolling if content is too long */
 }
 
-/* Ensure detail rows inside info cards are styled */
+/* Ensure detail rows inside info cards are styled horizontally */
 .customer-info-section .detail-row {
     display: flex;
-    justify-content: space-between;
+    justify-content: space-between; /* Keeps label and value spread out */
+    align-items: flex-start; /* Align to the top if content wraps */
     padding: 8px 0;
     border-bottom: 1px dashed #f5f5f5;
     font-size: 0.95em;
+    flex-wrap: wrap; /* Allow items to wrap if space is too small */
 }
 
 .customer-info-section .detail-row:last-child {
@@ -624,18 +650,20 @@ footer {
 .customer-info-section .detail-label {
     font-weight: 600;
     color: #555;
-    flex-basis: 40%;
-    min-width: 140px;
+    flex-basis: 40%; /* Give label more space */
+    min-width: 140px; /* Ensure label doesn't shrink too much */
     text-align: left;
+    margin-bottom: 0; /* Remove margin-bottom to keep horizontal */
 }
 
 .customer-info-section .detail-value {
     color: #333;
-    flex-basis: 60%;
-    text-align: right;
+    flex-basis: 60%; /* Give value more space */
+    text-align: right; /* Align value to the right */
     word-wrap: break-word;
     overflow-wrap: break-word;
 }
+
 
 /* --- NEW: Detailed Customer View Specific Styles (Existing from previous step, ensure compatibility) --- */
 #detailedCustomerViewSection {
@@ -877,37 +905,8 @@ li.customer-list-item.active {
         grid-template-columns: 1fr;
         gap: 20px;
     }
-
-    /* Customer details responsiveness */
-    .detail-row {
-        flex-direction: column;
-        align-items: flex-start;
-        padding: 10px 0;
-    }
-
-    .detail-label {
-        flex-basis: auto;
-        min-width: auto;
-        width: 100%;
-        text-align: left;
-        margin-bottom: 4px;
-        font-size: 1em;
-    }
-
-    .detail-value {
-        flex-basis: auto;
-        width: 100%;
-        text-align: left;
-        font-size: 0.95em;
-    }
-
-    .customer-list-display, .customer-details-display {
-        padding: 18px;
-    }
-
-    ul.customer-list {
-        max-height: 300px; /* Shorter list for mobile */
-    }
+    /* The .detail-row changes for horizontal display are handled outside this media query
+       to ensure they apply by default for space-saving. */
 }
 
 /* No participation message style */
