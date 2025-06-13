@@ -1,0 +1,443 @@
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #f4f4f4;
+    color: #333;
+}
+
+header {
+    background-color: #4CAF50;
+    color: white;
+    padding: 1rem 0;
+    text-align: center;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-height: 80px;
+    padding-bottom: 0; /* Adjust padding to make room for tabs below */
+}
+
+header h1 {
+    margin: 0;
+    padding-bottom: 10px;
+    font-size: 2em;
+}
+
+/* Tab Navigation Styles */
+.report-tabs {
+    display: flex;
+    justify-content: center; /* Center the tabs */
+    width: 100%;
+    background-color: #388E3C; /* Slightly darker green for tabs */
+    border-bottom: 3px solid #1B5E20; /* Darker border at the bottom of tabs */
+}
+
+.tab-button {
+    background-color: #388E3C;
+    color: white;
+    padding: 12px 20px;
+    border: none;
+    cursor: pointer;
+    font-size: 1.1em;
+    transition: background-color 0.3s ease, color 0.3s ease;
+    border-radius: 5px 5px 0 0; /* Rounded top corners */
+    margin: 0 5px; /* Space between buttons */
+}
+
+.tab-button.active {
+    background-color: #4CAF50; /* Brighter green for active tab */
+    color: white;
+    font-weight: bold;
+    border-bottom: none; /* Remove bottom border for active tab */
+}
+
+.tab-button:hover:not(.active) {
+    background-color: #5cb85c; /* Lighter green on hover for inactive tabs */
+}
+
+
+/* Main Content Area */
+main {
+    padding: 20px;
+    max-width: 1200px;
+    margin: 20px auto;
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0,0,0,0.1);
+}
+
+/* Section Styling */
+.report-section, .form-section-container {
+    margin-bottom: 30px;
+    padding: 20px;
+    border: 1px solid #eee;
+    border-radius: 8px;
+    background-color: #fff;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+}
+
+.report-section h2, .form-section-container h2 {
+    color: #333;
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+/* Controls Panel (Dropdowns, Filters) */
+.controls-panel {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    justify-content: center;
+    margin-bottom: 20px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid #eee;
+}
+
+.dropdown-group, .view-options {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+}
+
+.dropdown-group label, .view-options label {
+    margin-bottom: 5px;
+    font-weight: bold;
+    color: #555;
+}
+
+.dropdown-group select, .view-options input[type="date"] {
+    padding: 8px 12px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 1em;
+    min-width: 180px;
+}
+
+.date-range-display {
+    text-align: center;
+    margin-top: 15px;
+    font-size: 1.1em;
+    font-weight: bold;
+    color: #4CAF50;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    justify-content: center;
+}
+
+.btn-clear-filter {
+    background-color: #FF5722; /* Orange */
+    color: white;
+    padding: 6px 10px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.9em;
+    transition: background-color 0.3s ease;
+}
+
+.btn-clear-filter:hover {
+    background-color: #E64A19; /* Darker orange */
+}
+
+
+/* Summary Cards (for All Branch Snapshot) */
+.summary-breakdown-card {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 20px;
+    background-color: #f9f9f9;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: inset 0 0 8px rgba(0,0,0,0.05);
+    margin-bottom: 20px;
+    justify-content: center; /* Center items if they don't fill grid */
+}
+
+.summary-details-container {
+    background-color: #e8f5e9; /* Light green background */
+    padding: 15px;
+    border-radius: 6px;
+    text-align: center;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    border: 1px solid #dcdcdc;
+}
+
+.summary-details-container .summary-label {
+    font-size: 0.9em;
+    color: #666;
+    margin-bottom: 5px;
+}
+
+.summary-details-container .summary-value {
+    font-size: 1.8em;
+    font-weight: bold;
+    color: #388E3C; /* Darker green for values */
+    margin: 0;
+}
+
+
+/* Table Styling */
+.table-container {
+    overflow-x: auto;
+    margin-top: 20px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+}
+
+.data-table {
+    width: 100%;
+    border-collapse: collapse;
+    min-width: 700px; /* Ensure table doesn't get too small */
+}
+
+.data-table th, .data-table td {
+    padding: 12px 15px;
+    text-align: left;
+    border-bottom: 1px solid #ddd;
+}
+
+.data-table th {
+    background-color: #4CAF50;
+    color: white;
+    font-weight: bold;
+    text-transform: uppercase;
+    font-size: 0.9em;
+}
+
+.data-table tbody tr:nth-child(even) {
+    background-color: #f9f9f9;
+}
+
+.data-table tbody tr:hover {
+    background-color: #f1f1f1;
+}
+
+.data-table td.center {
+    text-align: center;
+}
+
+.data-table td.employee-name-cell {
+    cursor: pointer;
+    color: #007bff; /* Blue to indicate it's clickable */
+    text-decoration: underline;
+}
+.data-table td.employee-name-cell:hover {
+    color: #0056b3;
+}
+
+
+/* Employee Performance Section */
+.employee-header {
+    text-align: center;
+    margin-bottom: 20px;
+    padding-bottom: 15px;
+    border-bottom: 1px solid #eee;
+}
+.employee-header h2 {
+    color: #4CAF50;
+    margin-bottom: 5px;
+}
+.employee-header p {
+    margin: 5px 0;
+    color: #555;
+    font-size: 1.1em;
+}
+.employee-header span {
+    font-weight: bold;
+    color: #333;
+}
+
+
+/* Form Styling (Add/Delete Employee) */
+.form-section {
+    background-color: #f9f9f9;
+    padding: 25px;
+    border-radius: 8px;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+    margin-top: 20px;
+    border: 1px solid #eee;
+}
+
+.form-section h3 {
+    text-align: center;
+    color: #4CAF50;
+    margin-bottom: 20px;
+}
+
+.employee-form .form-group {
+    margin-bottom: 15px;
+}
+
+.employee-form label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: bold;
+    color: #555;
+}
+
+.employee-form input[type="text"],
+.employee-form input[type="number"],
+.employee-form textarea {
+    width: calc(100% - 22px); /* Adjust for padding and border */
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    box-sizing: border-box;
+    font-size: 1em;
+}
+
+.remove-entry-btn {
+    background-color: #f44336; /* Red color */
+    color: white;
+    border: none;
+    padding: 8px 12px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.9em;
+    align-self: flex-end; /* Align to the bottom of the flex container */
+    margin-bottom: 0;
+    line-height: 1; /* For better vertical alignment of 'X' */
+}
+
+.remove-entry-btn:hover {
+    background-color: #d32f2f;
+}
+
+
+.btn, .btn-primary {
+    background-color: #4CAF50;
+    color: white;
+    padding: 12px 25px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 1.1em;
+    margin-top: 15px;
+    display: block; /* Make it a block element to take full width or center */
+    width: fit-content; /* Adjust width to content */
+    margin-left: auto;
+    margin-right: auto;
+    transition: background-color 0.3s ease;
+}
+
+.btn:hover, .btn-primary:hover {
+    background-color: #45a049;
+}
+
+.danger-btn {
+    background-color: #f44336; /* Red for delete */
+}
+
+.danger-btn:hover {
+    background-color: #d32f2f;
+}
+
+/* Message container for status updates */
+.message-container {
+    margin: 20px auto;
+    padding: 10px 20px;
+    border-radius: 5px;
+    text-align: center;
+    font-weight: bold;
+    max-width: 600px;
+    display: none; /* Hidden by default */
+}
+
+.message-container.success {
+    background-color: #d4edda;
+    color: #155724;
+    border: 1px solid #c3e6cb;
+}
+
+.message-container.error {
+    background-color: #f8d7da;
+    color: #721c24;
+    border: 1px solid #f5c6cb;
+}
+
+
+footer {
+    text-align: center;
+    padding: 20px;
+    margin-top: 30px;
+    color: #777;
+    font-size: 0.9em;
+    border-top: 1px solid #eee;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .report-tabs {
+        flex-direction: column;
+        align-items: center;
+    }
+    .tab-button {
+        width: 90%;
+        margin-bottom: 10px;
+    }
+    .controls-panel {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    .dropdown-group select, .view-options input[type="date"] {
+        width: 100%;
+        min-width: unset;
+    }
+    .data-table {
+        font-size: 0.8em;
+    }
+    .data-table th, .data-table td {
+        padding: 8px 10px;
+    }
+
+    /* Adjust summary breakdown card for smaller screens */
+    .summary-breakdown-card {
+        grid-template-columns: 1fr; /* Stack items vertically on small screens */
+    }
+
+    /* Adjust for specific table cell in mobile view for all branch snapshot */
+    .all-branch-snapshot-table td[data-label="Branch Name"] {
+        text-align: center; /* Center the branch name on mobile */
+        font-size: 1.1em;
+        padding-top: 15px;
+        padding-bottom: 15px;
+    }
+
+    /* Responsive adjustments for summary breakdown card (d4.PNG) */
+    .summary-breakdown-card {
+        grid-template-columns: 1fr; /* Stack sections vertically on mobile */
+        gap: 15px;
+    }
+}
+
+/* No participation message style */
+.no-participation-message-container {
+    text-align: center;
+    padding: 20px;
+    background-color: #fff3cd; /* Light yellow background */
+    border: 1px solid #ffeeba; /* Yellow border */
+    border-radius: 8px;
+    margin-top: 20px;
+}
+
+.no-participation-message {
+    color: #856404; /* Dark yellow text */
+    font-weight: bold;
+    font-size: 1.1em;
+    margin: 10px 0;
+}
+.non-participating-branch-list {
+    list-style: decimal inside; /* Numbered list */
+    padding-left: 20px;
+    margin-top: 20px;
+    color: #665500; /* Slightly darker text for list */
+    text-align: left;
+    display: inline-block; /* To center the list itself */
+}
+.non-participating-branch-list li {
+    margin-bottom: 5px;
+}
