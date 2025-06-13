@@ -574,22 +574,6 @@ footer {
         color: #555;
     }
 
-    /* Customer details responsiveness */
-    .customer-details-card {
-        padding: 15px; /* Less padding on mobile */
-        gap: 15px;
-    }
-
-    .customer-info-section {
-        padding: 15px; /* Slightly less padding on mobile */
-    }
-
-    .customer-info-section h3 {
-        font-size: 1.1em;
-        margin-bottom: 15px;
-        padding-bottom: 8px;
-    }
-
     /* Adjustments for tables within sections on mobile */
     .customer-info-section .section-detail-table th,
     .customer-info-section .section-detail-table td {
