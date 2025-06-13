@@ -14,7 +14,7 @@
             <button class="tab-button" id="allStaffOverallPerformanceTabBtn">All Staff Performance (Overall)</button>
             <button class="tab-button" id="nonParticipatingBranchesTabBtn">Non-Participating Branches</button>
             <button class="tab-button" id="detailedCustomerViewTabBtn">Detailed Customer View</button>
-            <button class="tab-button" id="employeeManagementTabBtn">Employee Management</button>
+            <button class="tab-button" id="followupDueTabBtn">Follow-up Due</button> <button class="tab-button" id="employeeManagementTabBtn">Employee Management</button>
         </nav>
     </header>
 
@@ -80,6 +80,27 @@
                     <p>Select a customer from the list to view their details.</p>
                     </div>
             </div>
+        </section>
+
+        <section id="followupDueSection" class="report-section" style="display: none;">
+            <h2>Customers Due for Follow-up</h2>
+            <div class="controls-panel">
+                <div class="dropdown-group">
+                    <label for="followupBranchSelect">Select Branch:</label>
+                    <select id="followupBranchSelect">
+                        <option value="">-- All Branches --</option>
+                    </select>
+                </div>
+                <div class="dropdown-group">
+                    <label for="followupEmployeeSelect">Select Employee:</label>
+                    <select id="followupEmployeeSelect">
+                        <option value="">-- All Employees --</option>
+                    </select>
+                </div>
+            </div>
+            <div id="followupDueList" class="report-display">
+                <p>Customers due for follow-up will be listed here.</p>
+                </div>
         </section>
 
         <section id="employeeManagementSection" class="employee-management-section" style="display: none;">
