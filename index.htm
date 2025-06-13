@@ -15,7 +15,8 @@
             <button class="tab-button" id="nonParticipatingBranchesTabBtn">Non-Participating Branches</button>
             <button class="tab-button" id="detailedCustomerViewTabBtn">Detailed Customer View</button>
             <button class="tab-button" id="employeeManagementTabBtn">Employee Management</button>
-            <button class="tab-button" id="branchDiagnosisTabBtn">Branch Diagnosis</button>
+            <button class="tab-button" id="todaysFollowUpsTabBtn">Today's Follow-ups</button>
+            <button class="tab-button" id="branchStatusTargetTabBtn">Branch Status vs. Target</button>
         </nav>
     </header>
 
@@ -38,21 +39,16 @@
                     </select>
                 </div>
 
-                <div class="date-range-group">
-                    <label for="startDate">Start Date:</label>
-                    <input type="date" id="startDate">
-                    <label for="endDate">End Date:</label>
-                    <input type="date" id="endDate">
-                    <button class="btn filter-btn" id="applyDateFilterBtn">Apply Date Filter</button>
-                    <button class="btn clear-btn" id="clearDateFilterBtn">Clear Dates</button>
+                <div id="viewOptions" class="view-options" style="display: none;">
+                    <button class="btn" id="viewBranchPerformanceReportBtn">Branch Performance Report</button>
+                    <button class="btn" id="viewEmployeeSummaryBtn">Employee Summary (Current Month)</button>
+                    <button class="btn" id="viewAllEntriesBtn">View All Entries (Employee)</button>
+                    <button class="btn" id="viewPerformanceReportBtn">Employee Performance Report</button>
                 </div>
             </div>
 
             <div id="reportDisplay" class="report-display">
-                </div>
-            
-            <div id="noParticipationMessage" class="no-participation-message" style="display: none;">
-                <p>No activity found for selected branches or staff during the specified period.</p>
+                <p>Select a branch and/or employee to view reports.</p>
             </div>
         </section>
 
@@ -60,53 +56,54 @@
             <h2>Detailed Customer View</h2>
             <div class="controls-panel">
                 <div class="dropdown-group">
-                    <label for="detailedCustomerBranchSelect">Select Branch:</label>
-                    <select id="detailedCustomerBranchSelect">
+                    <label for="customerViewBranchSelect">Select Branch:</label>
+                    <select id="customerViewBranchSelect">
                         <option value="">-- Select a Branch --</option>
                     </select>
                 </div>
                 <div class="dropdown-group">
-                    <label for="detailedCustomerEmployeeSelect">Select Employee:</label>
-                    <select id="detailedCustomerEmployeeSelect">
+                    <label for="customerViewEmployeeSelect">Select Employee:</label>
+                    <select id="customerViewEmployeeSelect">
                         <option value="">-- Select an Employee --</option>
                     </select>
                 </div>
-                <div class="date-range-group">
-                    <label for="detailedCustomerStartDate">Start Date:</label>
-                    <input type="date" id="detailedCustomerStartDate">
-                    <label for="detailedCustomerEndDate">End Date:</label>
-                    <input type="date" id="detailedCustomerEndDate">
-                    <button class="btn filter-btn" id="applyDetailedCustomerDateFilterBtn">Apply Filter</button>
-                    <button class="btn clear-btn" id="clearDetailedCustomerDateFilterBtn">Clear Dates</button>
-                </div>
             </div>
-            <div id="detailedCustomerViewDisplay" class="report-display">
-                </div>
-            <div id="noDetailedCustomerDataMessage" class="no-participation-message" style="display: none;">
-                <p>No detailed customer data found for the selected criteria.</p>
+            <div id="customerCanvassedList" class="report-display">
+                <p>Select a branch and employee to view canvassed customers.</p>
             </div>
+            <div id="customerDetailsContent" class="report-display" style="display: none;">
+                </div>
         </section>
 
         <section id="employeeManagementSection" class="report-section" style="display: none;">
             <h2>Employee Management</h2>
+            <div id="employeeManagementMessage" class="message-container" style="display: none;"></div>
+
             <div class="form-section">
                 <h3>Add New Employee</h3>
                 <form id="addEmployeeForm" class="employee-form">
                     <div class="form-group">
-                        <label for="employeeName">Employee Name:</label>
-                        <input type="text" id="employeeName" required>
+                        <label for="newEmployeeName">Employee Name:</label>
+                        <input type="text" id="newEmployeeName" required>
                     </div>
                     <div class="form-group">
-                        <label for="employeeCode">Employee Code:</label>
-                        <input type="text" id="employeeCode" required>
+                        <label for="newEmployeeCode">Employee Code:</label>
+                        <input type="text" id="newEmployeeCode" required>
                     </div>
                     <div class="form-group">
-                        <label for="employeeBranchName">Branch Name:</label>
-                        <input type="text" id="employeeBranchName" required>
+                        <label for="newBranchName">Branch Name:</label>
+                        <input type="text" id="newBranchName" list="branchNames" required>
+                        <datalist id="branchNames"></datalist>
                     </div>
                     <div class="form-group">
-                        <label for="employeeDesignation">Designation:</label>
-                        <input type="text" id="employeeDesignation" required>
+                        <label for="newDesignation">Designation:</label>
+                        <input type="text" id="newDesignation" list="designations" required>
+                        <datalist id="designations">
+                            <option value="Branch Manager">
+                            <option value="Investment Staff">
+                            <option value="Seniors">
+                            <option value="Default">
+                        </datalist>
                     </div>
                     <button type="submit" class="btn">Add Employee</button>
                 </form>
@@ -139,10 +136,18 @@
             </div>
         </section>
 
-        <section id="branchDiagnosisSection" class="report-section" style="display: none;">
-            <h2>Branch Diagnosis Report</h2>
-            <div id="branchDiagnosisDisplay" class="report-display">
-                </div>
+        <section id="todaysFollowUpsSection" class="report-section" style="display: none;">
+            <h2>Today's Follow-ups</h2>
+            <div id="todaysFollowUpsDisplay" class="report-display">
+                <p>Loading today's follow-up activities...</p>
+            </div>
+        </section>
+
+        <section id="branchStatusTargetSection" class="report-section" style="display: none;">
+            <h2>Branch Status vs. Target</h2>
+            <div id="branchStatusTargetDisplay" class="report-display">
+                <p>Loading branch status vs. target report...</p>
+            </div>
         </section>
     </main>
 
