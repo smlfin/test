@@ -188,7 +188,7 @@ document.addEventListener('DOMContentLoaded', () => {
         { employeeCode: "4391", employeeName: "VIDYA V", branchName: "Nenmara", designation: "OFFICER" },
         { employeeCode: "4392", employeeName: "RIYAS A", branchName: "Nenmara", designation: "OFFICER" },
         { employeeCode: "4531", employeeName: "SOWRAV KRISHNA", branchName: "Nenmara", designation: "BUSINESS EXECUTIVE" },
-        { employeeCode: "4627", employeeName: "CHINJU VAISHAK", branchName: "Nenmara", designation: "OFFICER" },
+        { employeeCode: "4627", employeeCode: "CHINJU VAISHAK", branchName: "Nenmara", designation: "OFFICER" },
         { employeeCode: "1109", employeeName: "RADHIKA C S", branchName: "Paravoor", designation: "CUSTOMER SERVICE EXECUTIVE" },
         { employeeCode: "1610", employeeName: "SARITHA M S", branchName: "Paravoor", designation: "Sr.EXECUTIVE" },
         { employeeCode: "1130", employeeName: "SWAPNA PRASANTH", branchName: "Paravoor", designation: "LOAN OFFICER" },
@@ -351,23 +351,961 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // Function to fetch activity data from Google Sheet (Form Responses 2)
-   async function fetchCanvassingData() {
-    displayMessage("Fetching activity data...", 'info');
-    try {
-        const response = await fetch(DATA_URL);
-        if (!response.ok) {
-            const errorText = await response.text();
-            console.error(`HTTP error fetching Canvassing Data! Status: ${response.status}. Details: ${errorText}`);
-            throw new Error(`Failed to fetch canvassing data. Status: ${response.status}. Please check DATA_URL.`);
+    async function fetchCanvassingData() {
+        displayMessage("Fetching activity data...", 'info');
+        try {
+            const response = await fetch(DATA_URL);
+            if (!response.ok) {
+                const errorText = await response.text();
+                console.error(`HTTP error fetching Canvassing Data! Status: ${response.status}. Details: ${errorText}`);
+                throw new Error(`Failed to fetch canvassing data. Status: ${response.status}. Please check DATA_URL.`);
+            }
+            const csvText = await response.text();
+            allCanvassingData = parseCSV(csvText);
+            displayMessage("Activity data fetched successfully!", 'success');
+        } catch (error) {
+            console.error("Error fetching canvassing data:", error);
+            displayMessage(`Error fetching activity data: ${error.message}`, 'error');
+            allCanvassingData = []; // Ensure data is cleared on error
         }
-        const csvText = await response.text();
-        allCanvassingData = parseCSV(csvText);
-        displayMessage("Activity data fetched successfully!", 'success');
-    } catch (error) {
-        console.error("Error fetching canvassing data:", error);
-        displayMessage(`Error fetching activity data: ${error.message}`, 'error');
-        allCanvassingData = []; // Ensure data is cleared on error
     }
-}
 
+    // Function to parse CSV text into an array of objects
+    function parseCSV(csvText) {
+        const lines = csvText.trim().split('\n');
+        if (lines.length === 0) return [];
+
+        const headers = lines[0].split(',').map(header => header.trim().replace(/"/g, ''));
+        const data = [];
+
+        for (let i = 1; i < lines.length; i++) {
+            const currentLine = lines[i];
+            // Handle commas within quoted fields (simple approach: split by comma, then merge quoted parts)
+            // A more robust CSV parser would be needed for complex cases with escaped quotes.
+            const values = [];
+            let inQuote = false;
+            let start = 0;
+            for (let j = 0; j < currentLine.length; j++) {
+                if (currentLine[j] === '"') {
+                    inQuote = !inQuote;
+                } else if (currentLine[j] === ',' && !inQuote) {
+                    values.push(currentLine.substring(start, j).trim().replace(/"/g, ''));
+                    start = j + 1;
+                }
+            }
+            values.push(currentLine.substring(start).trim().replace(/"/g, '')); // Add last value
+
+            if (values.length === headers.length) {
+                let row = {};
+                headers.forEach((header, index) => {
+                    row[header] = values[index];
+                });
+                data.push(row);
+            } else {
+                console.warn("Skipping malformed row:", currentLine);
+            }
+        }
+        return data;
+    }
+
+    // Function to initialize branch and employee dropdowns
+    function initializeFilters() {
+        allUniqueBranches = PREDEFINED_BRANCHES; // Use predefined branches directly
+        allUniqueBranches.forEach(branch => {
+            const option = document.createElement('option');
+            option.value = branch;
+            option.textContent = branch;
+            if (branchSelect) branchSelect.appendChild(option);
+            if (customerViewBranchSelect) customerViewBranchSelect.appendChild(option.cloneNode(true)); // For Detailed Customer View
+        });
+
+        // Populate employee dropdown based on PREDEFINED_EMPLOYEES
+        PREDEFINED_EMPLOYEES.sort((a, b) => a.employeeName.localeCompare(b.employeeName));
+        PREDEFINED_EMPLOYEES.forEach(employee => {
+            allUniqueEmployees.push(employee.employeeCode);
+            employeeCodeToNameMap[employee.employeeCode] = employee.employeeName;
+            employeeCodeToDesignationMap[employee.employeeCode] = employee.designation;
+
+            const option = document.createElement('option');
+            option.value = employee.employeeCode;
+            option.textContent = `${employee.employeeName} (${employee.employeeCode}) - ${employee.branchName}`;
+            if (employeeSelect) employeeSelect.appendChild(option);
+            if (customerViewEmployeeSelect) customerViewEmployeeSelect.appendChild(option.cloneNode(true)); // For Detailed Customer View
+        });
+    }
+
+
+    // Filter data based on selected branch and employee for main reports section
+    function filterDataForReports() {
+        const selectedBranch = branchSelect ? branchSelect.value : '';
+        const selectedEmployeeCode = employeeSelect ? employeeSelect.value : '';
+
+        selectedBranchEntries = [];
+        selectedEmployeeCodeEntries = [];
+
+        if (selectedBranch) {
+            selectedBranchEntries = allCanvassingData.filter(entry =>
+                entry[HEADER_BRANCH_NAME] === selectedBranch
+            );
+        } else {
+            selectedBranchEntries = allCanvassingData; // If no branch selected, consider all for branch-level stats
+        }
+
+        if (selectedEmployeeCode) {
+            selectedEmployeeCodeEntries = allCanvassingData.filter(entry =>
+                entry[HEADER_EMPLOYEE_CODE] === selectedEmployeeCode
+            );
+            employeeFilterPanel.style.display = 'block'; // Show employee filter if an employee is selected
+        } else {
+            selectedEmployeeCodeEntries = selectedBranchEntries; // If no employee selected, use branch filtered data
+            employeeFilterPanel.style.display = 'none'; // Hide if no employee selected
+        }
+
+        // Show/hide relevant view options
+        if (selectedBranch && selectedEmployeeCode) {
+            viewBranchPerformanceReportBtn.style.display = 'none';
+            viewEmployeeSummaryBtn.style.display = 'block';
+            viewAllEntriesBtn.style.display = 'block';
+        } else if (selectedBranch && !selectedEmployeeCode) {
+            viewBranchPerformanceReportBtn.style.display = 'block';
+            viewEmployeeSummaryBtn.style.display = 'none';
+            viewAllEntriesBtn.style.display = 'block';
+        } else {
+            viewBranchPerformanceReportBtn.style.display = 'none';
+            viewEmployeeSummaryBtn.style.display = 'none';
+            viewAllEntriesBtn.style.display = 'block';
+        }
+        viewPerformanceReportBtn.style.display = 'none'; // This button seems redundant now
+    }
+
+
+    // --- Report Generation Functions ---
+
+    function generateAllBranchSnapshotReport() {
+        reportDisplay.innerHTML = '<h2>All Branch Snapshot Report</h2>';
+
+        const branchActivity = {};
+        allUniqueBranches.forEach(branch => {
+            branchActivity[branch] = {
+                'Visit': 0,
+                'Call': 0,
+                'Reference': 0,
+                'New Customer Leads': 0
+            };
+        });
+
+        allCanvassingData.forEach(entry => {
+            const branch = entry[HEADER_BRANCH_NAME];
+            const activity = entry[HEADER_ACTIVITY_TYPE];
+            const typeOfCustomer = entry[HEADER_TYPE_OF_CUSTOMER];
+
+            if (branchActivity[branch]) {
+                if (activity === 'Visit') {
+                    branchActivity[branch]['Visit']++;
+                } else if (activity === 'Call') {
+                    branchActivity[branch]['Call']++;
+                } else if (activity === 'Reference') {
+                    branchActivity[branch]['Reference']++;
+                }
+
+                if (typeOfCustomer === 'New Customer Lead') {
+                    branchActivity[branch]['New Customer Leads']++;
+                }
+            }
+        });
+
+        let tableHtml = '<table class="report-table all-branch-snapshot-table"><thead><tr>';
+        tableHtml += '<th>Branch Name</th><th>Total Visits</th><th>Total Calls</th><th>Total References</th><th>Total New Customer Leads</th>';
+        tableHtml += '</tr></thead><tbody>';
+
+        // Sort branches alphabetically
+        const sortedBranches = Object.keys(branchActivity).sort();
+
+        sortedBranches.forEach(branch => {
+            const data = branchActivity[branch];
+            tableHtml += `<tr>
+                <td data-label="Branch Name">${branch}</td>
+                <td data-label="Visits">${data['Visit']}</td>
+                <td data-label="Calls">${data['Call']}</td>
+                <td data-label="References">${data['Reference']}</td>
+                <td data-label="New Customer Leads">${data['New Customer Leads']}</td>
+            </tr>`;
+        });
+
+        tableHtml += '</tbody></table>';
+        reportDisplay.innerHTML += tableHtml;
+    }
+
+
+    function generateBranchPerformanceReport() {
+        const selectedBranch = branchSelect.value;
+        if (!selectedBranch) {
+            reportDisplay.innerHTML = '<p>Please select a branch to view its performance report.</p>';
+            return;
+        }
+
+        reportDisplay.innerHTML = `<h2>Performance Report for ${selectedBranch}</h2>`;
+
+        const employeesInBranch = PREDEFINED_EMPLOYEES.filter(emp => emp.branchName === selectedBranch);
+
+        const employeePerformance = {};
+
+        employeesInBranch.forEach(emp => {
+            employeePerformance[emp.employeeCode] = {
+                name: emp.employeeName,
+                designation: emp.designation,
+                'Visit': 0,
+                'Call': 0,
+                'Reference': 0,
+                'New Customer Leads': 0,
+                targets: TARGETS[emp.designation] || TARGETS['Default']
+            };
+        });
+
+
+        selectedBranchEntries.forEach(entry => {
+            const employeeCode = entry[HEADER_EMPLOYEE_CODE];
+            const activity = entry[HEADER_ACTIVITY_TYPE];
+            const typeOfCustomer = entry[HEADER_TYPE_OF_CUSTOMER];
+
+            if (employeePerformance[employeeCode]) {
+                if (activity === 'Visit') {
+                    employeePerformance[employeeCode]['Visit']++;
+                } else if (activity === 'Call') {
+                    employeePerformance[employeeCode]['Call']++;
+                } else if (activity === 'Reference') {
+                    employeePerformance[employeeCode]['Reference']++;
+                }
+
+                if (typeOfCustomer === 'New Customer Lead') {
+                    employeePerformance[employeeCode]['New Customer Leads']++;
+                }
+            }
+        });
+
+        let tableHtml = '<table class="report-table"><thead><tr>';
+        tableHtml += '<th>Employee Name</th><th>Designation</th><th>Visits</th><th>Calls</th><th>References</th><th>New Customer Leads</th><th>Visit Target</th><th>Call Target</th><th>Reference Target</th><th>New Customer Leads Target</th><th>Visit Ach (%)</th><th>Call Ach (%)</th><th>Reference Ach (%)</th><th>New Customer Leads Ach (%)</th>';
+        tableHtml += '</tr></thead><tbody>';
+
+        // Sort employees by name
+        const sortedEmployees = Object.values(employeePerformance).sort((a, b) => a.name.localeCompare(b.name));
+
+        sortedEmployees.forEach(emp => {
+            const visitAch = emp.targets['Visit'] > 0 ? ((emp['Visit'] / emp.targets['Visit']) * 100).toFixed(1) : (emp['Visit'] > 0 ? '100+' : '0.0');
+            const callAch = emp.targets['Call'] > 0 ? ((emp['Call'] / emp.targets['Call']) * 100).toFixed(1) : (emp['Call'] > 0 ? '100+' : '0.0');
+            const refAch = emp.targets['Reference'] > 0 ? ((emp['Reference'] / emp.targets['Reference']) * 100).toFixed(1) : (emp['Reference'] > 0 ? '100+' : '0.0');
+            const newLeadAch = emp.targets['New Customer Leads'] > 0 ? ((emp['New Customer Leads'] / emp.targets['New Customer Leads']) * 100).toFixed(1) : (emp['New Customer Leads'] > 0 ? '100+' : '0.0');
+
+
+            tableHtml += `<tr>
+                <td data-label="Employee Name">${emp.name}</td>
+                <td data-label="Designation">${emp.designation}</td>
+                <td data-label="Visits">${emp['Visit']}</td>
+                <td data-label="Calls">${emp['Call']}</td>
+                <td data-label="References">${emp['Reference']}</td>
+                <td data-label="New Customer Leads">${emp['New Customer Leads']}</td>
+                <td data-label="Visit Target">${emp.targets['Visit']}</td>
+                <td data-label="Call Target">${emp.targets['Call']}</td>
+                <td data-label="Reference Target">${emp.targets['Reference']}</td>
+                <td data-label="New Customer Leads Target">${emp.targets['New Customer Leads']}</td>
+                <td data-label="Visit Ach (%)">${visitAch}%</td>
+                <td data-label="Call Ach (%)">${callAch}%</td>
+                <td data-label="Reference Ach (%)">${refAch}%</td>
+                <td data-label="New Customer Leads Ach (%)">${newLeadAch}%</td>
+            </tr>`;
+        });
+
+        tableHtml += '</tbody></table>';
+        reportDisplay.innerHTML += tableHtml;
+    }
+
+
+    function generateEmployeeSummaryReport() {
+        const selectedEmployeeCode = employeeSelect.value;
+        const selectedEmployeeName = employeeCodeToNameMap[selectedEmployeeCode];
+        const selectedEmployeeDesignation = employeeCodeToDesignationMap[selectedEmployeeCode];
+
+        if (!selectedEmployeeCode) {
+            reportDisplay.innerHTML = '<p>Please select an employee to view their summary report.</p>';
+            return;
+        }
+
+        reportDisplay.innerHTML = `<h2>Summary Report for ${selectedEmployeeName} (${selectedEmployeeCode})</h2>`;
+        reportDisplay.innerHTML += `<p><strong>Designation:</strong> ${selectedEmployeeDesignation}</p>`;
+
+        const employeeActivities = {
+            'Visit': 0,
+            'Call': 0,
+            'Reference': 0,
+            'New Customer Leads': 0
+        };
+
+        selectedEmployeeCodeEntries.forEach(entry => {
+            const activity = entry[HEADER_ACTIVITY_TYPE];
+            const typeOfCustomer = entry[HEADER_TYPE_OF_CUSTOMER];
+
+            if (employeeActivities[activity] !== undefined) {
+                employeeActivities[activity]++;
+            }
+            if (typeOfCustomer === 'New Customer Lead') {
+                employeeActivities['New Customer Leads']++;
+            }
+        });
+
+        const targets = TARGETS[selectedEmployeeDesignation] || TARGETS['Default'];
+
+        let summaryHtml = '<div class="summary-breakdown-card">';
+        for (const activityType in employeeActivities) {
+            const achieved = employeeActivities[activityType];
+            const target = targets[activityType] || 0;
+            const percentage = target > 0 ? ((achieved / target) * 100).toFixed(1) : (achieved > 0 ? '100+' : '0.0'); // Handle division by zero
+
+            summaryHtml += `
+                <div class="summary-item">
+                    <h3>${activityType}</h3>
+                    <p>Achieved: <span class="achieved-value">${achieved}</span></p>
+                    <p>Target: <span class="target-value">${target}</span></p>
+                    <p>Achievement: <span class="percentage-value ${parseFloat(percentage) >= 100 ? 'positive' : 'negative'}">${percentage}%</span></p>
+                </div>
+            `;
+        }
+        summaryHtml += '</div>';
+        reportDisplay.innerHTML += summaryHtml;
+    }
+
+    function generateAllEntriesReport() {
+        const selectedBranch = branchSelect.value;
+        const selectedEmployeeCode = employeeSelect.value;
+
+        reportDisplay.innerHTML = '<h2>All Entries</h2>';
+
+        let filteredEntries = allCanvassingData;
+
+        if (selectedBranch) {
+            filteredEntries = filteredEntries.filter(entry => entry[HEADER_BRANCH_NAME] === selectedBranch);
+            reportDisplay.innerHTML = `<h2>All Entries for ${selectedBranch}</h2>`;
+        }
+
+        if (selectedEmployeeCode) {
+            filteredEntries = filteredEntries.filter(entry => entry[HEADER_EMPLOYEE_CODE] === selectedEmployeeCode);
+            reportDisplay.innerHTML = `<h2>All Entries for ${employeeCodeToNameMap[selectedEmployeeCode]} (${selectedEmployeeCode}) in ${selectedBranch}</h2>`;
+        }
+
+        if (filteredEntries.length === 0) {
+            reportDisplay.innerHTML += '<p>No entries found for the selected criteria.</p>';
+            return;
+        }
+
+        let tableHtml = '<table class="report-table all-entries-table"><thead><tr>';
+        // Dynamically create headers from the first entry's keys,
+        // or a predefined list if specific order is needed.
+        const displayHeaders = [
+            HEADER_TIMESTAMP,
+            HEADER_DATE,
+            HEADER_BRANCH_NAME,
+            HEADER_EMPLOYEE_NAME,
+            HEADER_EMPLOYEE_CODE,
+            HEADER_DESIGNATION,
+            HEADER_ACTIVITY_TYPE,
+            HEADER_TYPE_OF_CUSTOMER,
+            HEADER_R_LEAD_SOURCE,
+            HEADER_HOW_CONTACTED,
+            HEADER_PROSPECT_NAME,
+            HEADER_PHONE_NUMBER_WHATSAPP,
+            HEADER_ADDRESS,
+            HEADER_PROFESSION,
+            HEADER_DOB_WD,
+            HEADER_PRODUCT_INTERESTED,
+            HEADER_REMARKS,
+            HEADER_NEXT_FOLLOW_UP_DATE,
+            HEADER_RELATION_WITH_STAFF,
+            HEADER_FAMILY_DETAILS_1, // NEW
+            HEADER_FAMILY_DETAILS_2, // NEW
+            HEADER_FAMILY_DETAILS_3, // NEW
+            HEADER_FAMILY_DETAILS_4, // NEW
+            HEADER_PROFILE_OF_CUSTOMER // NEW
+        ];
+
+        displayHeaders.forEach(header => {
+            tableHtml += `<th>${header}</th>`;
+        });
+        tableHtml += '</tr></thead><tbody>';
+
+        filteredEntries.forEach(entry => {
+            tableHtml += '<tr>';
+            displayHeaders.forEach(header => {
+                let cellValue = entry[header] || ''; // Use empty string for undefined/null
+                if (header === HEADER_DATE || header === HEADER_NEXT_FOLLOW_UP_DATE) {
+                    cellValue = formatDate(cellValue);
+                }
+                tableHtml += `<td data-label="${header}">${cellValue}</td>`;
+            });
+            tableHtml += '</tr>';
+        });
+
+        tableHtml += '</tbody></table>';
+        reportDisplay.innerHTML += tableHtml;
+    }
+
+    function generateAllStaffOverallPerformanceReport() {
+        reportDisplay.innerHTML = '<h2>All Staff Overall Performance Report</h2>';
+
+        const employeeOverallPerformance = {};
+
+        // Initialize all predefined employees, including those with no activities
+        PREDEFINED_EMPLOYEES.forEach(emp => {
+            employeeOverallPerformance[emp.employeeCode] = {
+                name: emp.employeeName,
+                branch: emp.branchName,
+                designation: emp.designation,
+                'Visit': 0,
+                'Call': 0,
+                'Reference': 0,
+                'New Customer Leads': 0,
+                targets: TARGETS[emp.designation] || TARGETS['Default']
+            };
+        });
+
+        // Populate actual activity counts from canvassing data
+        allCanvassingData.forEach(entry => {
+            const employeeCode = entry[HEADER_EMPLOYEE_CODE];
+            const activity = entry[HEADER_ACTIVITY_TYPE];
+            const typeOfCustomer = entry[HEADER_TYPE_OF_CUSTOMER];
+
+            if (employeeOverallPerformance[employeeCode]) {
+                if (activity === 'Visit') {
+                    employeeOverallPerformance[employeeCode]['Visit']++;
+                } else if (activity === 'Call') {
+                    employeeOverallPerformance[employeeCode]['Call']++;
+                } else if (activity === 'Reference') {
+                    employeeOverallPerformance[employeeCode]['Reference']++;
+                }
+
+                if (typeOfCustomer === 'New Customer Lead') {
+                    employeeOverallPerformance[employeeCode]['New Customer Leads']++;
+                }
+            }
+        });
+
+        let tableHtml = '<table class="report-table"><thead><tr>';
+        tableHtml += '<th>Employee Name</th><th>Employee Code</th><th>Branch</th><th>Designation</th><th>Visits</th><th>Calls</th><th>References</th><th>New Customer Leads</th><th>Visit Target</th><th>Call Target</th><th>Reference Target</th><th>New Customer Leads Target</th><th>Visit Ach (%)</th><th>Call Ach (%)</th><th>Reference Ach (%)</th><th>New Customer Leads Ach (%)</th>';
+        tableHtml += '</tr></thead><tbody>';
+
+        const sortedEmployees = Object.values(employeeOverallPerformance).sort((a, b) => a.name.localeCompare(b.name));
+
+        sortedEmployees.forEach(emp => {
+            const visitAch = emp.targets['Visit'] > 0 ? ((emp['Visit'] / emp.targets['Visit']) * 100).toFixed(1) : (emp['Visit'] > 0 ? '100+' : '0.0');
+            const callAch = emp.targets['Call'] > 0 ? ((emp['Call'] / emp.targets['Call']) * 100).toFixed(1) : (emp['Call'] > 0 ? '100+' : '0.0');
+            const refAch = emp.targets['Reference'] > 0 ? ((emp['Reference'] / emp.targets['Reference']) * 100).toFixed(1) : (emp['Reference'] > 0 ? '100+' : '0.0');
+            const newLeadAch = emp.targets['New Customer Leads'] > 0 ? ((emp['New Customer Leads'] / emp.targets['New Customer Leads']) * 100).toFixed(1) : (emp['New Customer Leads'] > 0 ? '100+' : '0.0');
+
+            tableHtml += `<tr>
+                <td data-label="Employee Name">${emp.name}</td>
+                <td data-label="Employee Code">${emp.employeeCode}</td>
+                <td data-label="Branch">${emp.branch}</td>
+                <td data-label="Designation">${emp.designation}</td>
+                <td data-label="Visits">${emp['Visit']}</td>
+                <td data-label="Calls">${emp['Call']}</td>
+                <td data-label="References">${emp['Reference']}</td>
+                <td data-label="New Customer Leads">${emp['New Customer Leads']}</td>
+                <td data-label="Visit Target">${emp.targets['Visit']}</td>
+                <td data-label="Call Target">${emp.targets['Call']}</td>
+                <td data-label="Reference Target">${emp.targets['Reference']}</td>
+                <td data-label="New Customer Leads Target">${emp.targets['New Customer Leads']}</td>
+                <td data-label="Visit Ach (%)">${visitAch}%</td>
+                <td data-label="Call Ach (%)">${callAch}%</td>
+                <td data-label="Reference Ach (%)">${refAch}%</td>
+                <td data-label="New Customer Leads Ach (%)">${newLeadAch}%</td>
+            </tr>`;
+        });
+
+        tableHtml += '</tbody></table>';
+        reportDisplay.innerHTML += tableHtml;
+    }
+
+
+    function generateNonParticipatingBranchesReport() {
+        reportDisplay.innerHTML = '<h2>Non-Participating Branches</h2>';
+
+        const participatingBranches = new Set();
+        allCanvassingData.forEach(entry => {
+            participatingBranches.add(entry[HEADER_BRANCH_NAME]);
+        });
+
+        const nonParticipatingBranches = PREDEFINED_BRANCHES.filter(
+            branch => !participatingBranches.has(branch)
+        );
+
+        if (nonParticipatingBranches.length > 0) {
+            let listHtml = '<ul>';
+            nonParticipatingBranches.forEach(branch => {
+                listHtml += `<li>${branch}</li>`;
+            });
+            listHtml += '</ul>';
+            reportDisplay.innerHTML += listHtml;
+        } else {
+            reportDisplay.innerHTML += '<p class="no-participation-message">All predefined branches have participated!</p>';
+        }
+    }
+
+    function generateNonParticipatingEmployeesReport() {
+        reportDisplay.innerHTML = '<h2>Non-Participating Employees</h2>';
+
+        const participatingEmployeeCodes = new Set();
+        allCanvassingData.forEach(entry => {
+            participatingEmployeeCodes.add(entry[HEADER_EMPLOYEE_CODE]);
+        });
+
+        const nonParticipatingEmployees = PREDEFINED_EMPLOYEES.filter(
+            employee => !participatingEmployeeCodes.has(employee.employeeCode)
+        );
+
+        if (nonParticipatingEmployees.length > 0) {
+            let tableHtml = '<table class="report-table"><thead><tr><th>Employee Name</th><th>Employee Code</th><th>Branch</th><th>Designation</th></tr></thead><tbody>';
+            nonParticipatingEmployees.forEach(emp => {
+                tableHtml += `<tr>
+                    <td data-label="Employee Name">${emp.employeeName}</td>
+                    <td data-label="Employee Code">${emp.employeeCode}</td>
+                    <td data-label="Branch">${emp.branchName}</td>
+                    <td data-label="Designation">${emp.designation}</td>
+                </tr>`;
+            });
+            tableHtml += '</tbody></table>';
+            reportDisplay.innerHTML += tableHtml;
+        } else {
+            reportDisplay.innerHTML += '<p class="no-participation-message">All predefined employees have participated!</p>';
+        }
+    }
+
+    // NEW: Detailed Customer View Functions
+    function populateCustomerCanvassedList() {
+        const selectedBranch = customerViewBranchSelect.value;
+        const selectedEmployeeCode = customerViewEmployeeSelect.value;
+
+        let filteredCustomers = allCanvassingData;
+
+        if (selectedBranch) {
+            filteredCustomers = filteredCustomers.filter(entry => entry[HEADER_BRANCH_NAME] === selectedBranch);
+        }
+        if (selectedEmployeeCode) {
+            filteredCustomers = filteredCustomers.filter(entry => entry[HEADER_EMPLOYEE_CODE] === selectedEmployeeCode);
+        }
+
+        // Filter for unique prospect names/phone numbers to avoid duplicates in the list
+        // Assuming Phone Number (Whatsapp) is a good unique identifier
+        const uniqueCustomers = new Map();
+        filteredCustomers.forEach(entry => {
+            const phoneNumber = entry[HEADER_PHONE_NUMBER_WHATSAPP];
+            if (phoneNumber && !uniqueCustomers.has(phoneNumber)) {
+                uniqueCustomers.set(phoneNumber, entry);
+            }
+        });
+
+
+        customerCanvassedList.innerHTML = ''; // Clear previous list
+        customerDetailsContent.innerHTML = '<p>Select a customer from the list to view details.</p>'; // Clear details
+
+        if (uniqueCustomers.size === 0) {
+            customerCanvassedList.innerHTML = '<li>No customers found for the selected filters.</li>';
+            return;
+        }
+
+        uniqueCustomers.forEach(customer => {
+            const listItem = document.createElement('li');
+            listItem.textContent = `${customer[HEADER_PROSPECT_NAME] || 'Unknown'} - ${customer[HEADER_PHONE_NUMBER_WHATSAPP] || 'N/A'}`;
+            listItem.classList.add('customer-list-item');
+            listItem.dataset.phoneNumber = customer[HEADER_PHONE_NUMBER_WHATSAPP]; // Store phone number for lookup
+            listItem.addEventListener('click', () => displayCustomerDetails(customer));
+            customerCanvassedList.appendChild(listItem);
+        });
+    }
+
+    function displayCustomerDetails(customerData) {
+        customerDetailsContent.innerHTML = ''; // Clear previous details
+
+        // Remove active class from all list items
+        document.querySelectorAll('.customer-list-item').forEach(item => {
+            item.classList.remove('active');
+        });
+
+        // Add active class to the clicked item
+        const clickedItem = document.querySelector(`.customer-list-item[data-phone-number="${customerData[HEADER_PHONE_NUMBER_WHATSAPP]}"]`);
+        if (clickedItem) {
+            clickedItem.classList.add('active');
+        }
+
+        const detailsHtml = `
+            <h3>Customer Details: ${customerData[HEADER_PROSPECT_NAME] || 'N/A'}</h3>
+            <div class="detail-grid">
+                <div class="detail-row"><span class="detail-label">Prospect Name:</span><span class="detail-value">${customerData[HEADER_PROSPECT_NAME] || 'N/A'}</span></div>
+                <div class="detail-row"><span class="detail-label">Phone Number:</span><span class="detail-value">${customerData[HEADER_PHONE_NUMBER_WHATSAPP] || 'N/A'}</span></div>
+                <div class="detail-row"><span class="detail-label">Address:</span><span class="detail-value">${customerData[HEADER_ADDRESS] || 'N/A'}</span></div>
+                <div class="detail-row"><span class="detail-label">Profession:</span><span class="detail-value">${customerData[HEADER_PROFESSION] || 'N/A'}</span></div>
+                <div class="detail-row"><span class="detail-label">DOB/WD:</span><span class="detail-value">${customerData[HEADER_DOB_WD] || 'N/A'}</span></div>
+                <div class="detail-row"><span class="detail-label">Product Interested:</span><span class="detail-value">${customerData[HEADER_PRODUCT_INTERESTED] || 'N/A'}</span></div>
+                <div class="detail-row"><span class="detail-label">Relation With Staff:</span><span class="detail-value">${customerData[HEADER_RELATION_WITH_STAFF] || 'N/A'}</span></div>
+                <div class="detail-row"><span class="detail-label">Family Details (Wife/Husband Name):</span><span class="detail-value">${customerData[HEADER_FAMILY_DETAILS_1] || 'N/A'}</span></div>
+                <div class="detail-row"><span class="detail-label">Family Details (Wife/Husband Job):</span><span class="detail-value">${customerData[HEADER_FAMILY_DETAILS_2] || 'N/A'}</span></div>
+                <div class="detail-row"><span class="detail-label">Family Details (Children Names):</span><span class="detail-value">${customerData[HEADER_FAMILY_DETAILS_3] || 'N/A'}</span></div>
+                <div class="detail-row"><span class="detail-label">Family Details (Children Details):</span><span class="detail-value">${customerData[HEADER_FAMILY_DETAILS_4] || 'N/A'}</span></div>
+                <div class="detail-row"><span class="detail-label">Profile of Customer:</span><span class="detail-value">${customerData[HEADER_PROFILE_OF_CUSTOMER] || 'N/A'}</span></div>
+            </div>
+            <h4>Canvassing History:</h4>
+            <ul class="canvassing-history-list">
+        `;
+
+        // Get all entries for this specific customer (based on phone number)
+        const customerHistory = allCanvassingData.filter(entry =>
+            entry[HEADER_PHONE_NUMBER_WHATSAPP] === customerData[HEADER_PHONE_NUMBER_WHATSAPP]
+        ).sort((a, b) => new Date(b[HEADER_TIMESTAMP]) - new Date(a[HEADER_TIMESTAMP])); // Sort by newest first
+
+        if (customerHistory.length > 0) {
+            customerHistory.forEach(entry => {
+                const employeeName = employeeCodeToNameMap[entry[HEADER_EMPLOYEE_CODE]] || entry[HEADER_EMPLOYEE_NAME] || 'Unknown Employee';
+                detailsHtml += `
+                    <li>
+                        <strong>Date:</strong> ${formatDate(entry[HEADER_DATE]) || 'N/A'} <br>
+                        <strong>Employee:</strong> ${employeeName} (${entry[HEADER_EMPLOYEE_CODE] || 'N/A'})<br>
+                        <strong>Activity:</strong> ${entry[HEADER_ACTIVITY_TYPE] || 'N/A'}<br>
+                        <strong>Type of Customer:</strong> ${entry[HEADER_TYPE_OF_CUSTOMER] || 'N/A'}<br>
+                        <strong>Remarks:</strong> ${entry[HEADER_REMARKS] || 'N/A'}<br>
+                        <strong>Next Follow-up:</strong> ${formatDate(entry[HEADER_NEXT_FOLLOW_UP_DATE]) || 'N/A'}
+                    </li>
+                `;
+            });
+        } else {
+            detailsHtml += '<li>No canvassing history found for this customer.</li>';
+        }
+        detailsHtml += '</ul>';
+
+        customerDetailsContent.innerHTML = detailsHtml;
+    }
+
+
+    // Function to send data to Google Apps Script Web App
+    async function sendDataToGoogleAppsScript(action, data) {
+        displayEmployeeManagementMessage('Sending data to server...', false);
+        try {
+            const response = await fetch(WEB_APP_URL, {
+                method: 'POST',
+                mode: 'cors', // Important for cross-origin requests
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ action: action, data: data }),
+            });
+
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.error || `HTTP error! Status: ${response.status}`);
+            }
+
+            const result = await response.json();
+            if (result.status === 'SUCCESS') {
+                displayEmployeeManagementMessage(result.message || 'Operation successful!', false);
+                await processData(); // Re-fetch data and refresh reports after successful operation
+                return true;
+            } else {
+                displayEmployeeManagementMessage(result.message || 'Operation failed!', true);
+                return false;
+            }
+        } catch (error) {
+            console.error('Error sending data to Apps Script:', error);
+            displayEmployeeManagementMessage(`Error: ${error.message}`, true);
+            return false;
+        }
+    }
+
+
+    // Main function to orchestrate data fetching and initial report generation
+    async function processData() {
+        displayMessage('Loading dashboard data...', 'info');
+        await fetchCanvassingData();
+        initializeFilters(); // Initialize dropdowns with predefined data
+
+        // Set initial filter to show all entries
+        if (branchSelect) branchSelect.value = '';
+        if (employeeSelect) employeeSelect.value = '';
+        filterDataForReports(); // Apply initial filters to setup report buttons
+        generateAllBranchSnapshotReport(); // Always show initial report
+        displayMessage('Dashboard data loaded.', 'success');
+    }
+
+    // --- Event Listeners ---
+
+    // Tab Navigation
+    if (allBranchSnapshotTabBtn) {
+        allBranchSnapshotTabBtn.addEventListener('click', () => showTab('allBranchSnapshotTabBtn'));
+    }
+    if (allStaffOverallPerformanceTabBtn) {
+        allStaffOverallPerformanceTabBtn.addEventListener('click', () => showTab('allStaffOverallPerformanceTabBtn'));
+    }
+    if (nonParticipatingBranchesTabBtn) {
+        nonParticipatingBranchesTabBtn.addEventListener('click', () => showTab('nonParticipatingBranchesTabBtn'));
+    }
+    if (nonParticipatingEmployeesTabBtn) { // NEW
+        nonParticipatingEmployeesTabBtn.addEventListener('click', () => showTab('nonParticipatingEmployeesTabBtn'));
+    }
+    if (detailedCustomerViewTabBtn) { // NEW
+        detailedCustomerViewTabBtn.addEventListener('click', () => showTab('detailedCustomerViewTabBtn'));
+    }
+    if (employeeManagementTabBtn) {
+        employeeManagementTabBtn.addEventListener('click', () => showTab('employeeManagementTabBtn'));
+    }
+
+
+    function showTab(tabId) {
+        // Remove 'active' class from all tab buttons
+        document.querySelectorAll('.tab-button').forEach(button => {
+            button.classList.remove('active');
+        });
+
+        // Add 'active' class to the clicked tab button
+        document.getElementById(tabId).classList.add('active');
+
+        // Hide all main sections
+        if (reportsSection) reportsSection.style.display = 'none';
+        if (detailedCustomerViewSection) detailedCustomerViewSection.style.display = 'none'; // NEW
+        if (employeeManagementSection) employeeManagementSection.style.display = 'none';
+
+        // Show the relevant section and generate report
+        if (tabId === 'allBranchSnapshotTabBtn') {
+            if (reportsSection) reportsSection.style.display = 'block';
+            filterDataForReports(); // Re-apply filters for button visibility
+            generateAllBranchSnapshotReport();
+            // Reset dropdowns for this view
+            if (branchSelect) branchSelect.value = '';
+            if (employeeSelect) employeeSelect.value = '';
+            if (employeeFilterPanel) employeeFilterPanel.style.display = 'none';
+            if (viewOptions) viewOptions.style.display = 'none'; // Hide view options
+        } else if (tabId === 'allStaffOverallPerformanceTabBtn') {
+            if (reportsSection) reportsSection.style.display = 'block';
+            generateAllStaffOverallPerformanceReport();
+            if (viewOptions) viewOptions.style.display = 'none'; // Hide view options
+            // Reset dropdowns for this view
+            if (branchSelect) branchSelect.value = '';
+            if (employeeSelect) employeeSelect.value = '';
+            if (employeeFilterPanel) employeeFilterPanel.style.display = 'none';
+        } else if (tabId === 'nonParticipatingBranchesTabBtn') {
+            if (reportsSection) reportsSection.style.display = 'block';
+            generateNonParticipatingBranchesReport();
+            if (viewOptions) viewOptions.style.display = 'none'; // Hide view options
+            // Reset dropdowns for this view
+            if (branchSelect) branchSelect.value = '';
+            if (employeeSelect) employeeSelect.value = '';
+            if (employeeFilterPanel) employeeFilterPanel.style.display = 'none';
+        } else if (tabId === 'nonParticipatingEmployeesTabBtn') { // NEW
+            if (reportsSection) reportsSection.style.display = 'block';
+            generateNonParticipatingEmployeesReport();
+            if (viewOptions) viewOptions.style.display = 'none';
+            if (branchSelect) branchSelect.value = '';
+            if (employeeSelect) employeeSelect.value = '';
+            if (employeeFilterPanel) employeeFilterPanel.style.display = 'none';
+        } else if (tabId === 'detailedCustomerViewTabBtn') { // NEW
+            if (detailedCustomerViewSection) detailedCustomerViewSection.style.display = 'block';
+            // Ensure customer view dropdowns are populated
+            if (customerViewBranchSelect) customerViewBranchSelect.value = '';
+            if (customerViewEmployeeSelect) customerViewEmployeeSelect.value = '';
+            populateCustomerCanvassedList();
+        } else if (tabId === 'employeeManagementTabBtn') {
+            if (employeeManagementSection) employeeManagementSection.style.display = 'block';
+        }
+    }
+
+
+    if (branchSelect) {
+        branchSelect.addEventListener('change', () => {
+            filterDataForReports();
+            if (branchSelect.value) {
+                // If a branch is selected, show branch and employee filter panels
+                employeeFilterPanel.style.display = 'block';
+                viewOptions.style.display = 'block'; // Show general view options
+                // Populate employee dropdown based on selected branch
+                const filteredEmployees = PREDEFINED_EMPLOYEES.filter(emp => emp.branchName === branchSelect.value);
+                employeeSelect.innerHTML = '<option value="">-- Select an Employee --</option>'; // Clear existing
+                filteredEmployees.sort((a, b) => a.employeeName.localeCompare(b.employeeName));
+                filteredEmployees.forEach(emp => {
+                    const option = document.createElement('option');
+                    option.value = emp.employeeCode;
+                    option.textContent = `${emp.employeeName} (${emp.employeeCode})`;
+                    employeeSelect.appendChild(option);
+                });
+                employeeSelect.value = ''; // Reset employee selection
+                generateBranchPerformanceReport(); // Default report for branch
+            } else {
+                // If no branch selected, hide employee filter and show all branch snapshot
+                employeeFilterPanel.style.display = 'none';
+                viewOptions.style.display = 'none';
+                generateAllBranchSnapshotReport();
+            }
+        });
+    }
+
+    if (employeeSelect) {
+        employeeSelect.addEventListener('change', () => {
+            filterDataForReports();
+            if (employeeSelect.value) {
+                viewOptions.style.display = 'block'; // Ensure view options are visible
+                generateEmployeeSummaryReport(); // Default report for employee
+            } else {
+                // If no employee selected, show branch performance if branch is selected, else all branch snapshot
+                if (branchSelect.value) {
+                    generateBranchPerformanceReport();
+                } else {
+                    generateAllBranchSnapshotReport();
+                    viewOptions.style.display = 'none'; // Hide if neither branch nor employee is selected
+                }
+            }
+        });
+    }
+
+    if (viewBranchPerformanceReportBtn) {
+        viewBranchPerformanceReportBtn.addEventListener('click', generateBranchPerformanceReport);
+    }
+    if (viewEmployeeSummaryBtn) {
+        viewEmployeeSummaryBtn.addEventListener('click', generateEmployeeSummaryReport);
+    }
+    if (viewAllEntriesBtn) {
+        viewAllEntriesBtn.addEventListener('click', generateAllEntriesReport);
+    }
+
+    // NEW: Customer View Filter Event Listeners
+    if (customerViewBranchSelect) {
+        customerViewBranchSelect.addEventListener('change', () => {
+            populateCustomerCanvassedList();
+            const selectedBranch = customerViewBranchSelect.value;
+            // Populate employee dropdown based on selected branch
+            const filteredEmployees = PREDEFINED_EMPLOYEES.filter(emp => emp.branchName === selectedBranch);
+            customerViewEmployeeSelect.innerHTML = '<option value="">-- Select an Employee --</option>'; // Clear existing
+            filteredEmployees.sort((a, b) => a.employeeName.localeCompare(b.employeeName));
+            filteredEmployees.forEach(emp => {
+                const option = document.createElement('option');
+                option.value = emp.employeeCode;
+                option.textContent = `${emp.employeeName} (${emp.employeeCode})`;
+                customerViewEmployeeSelect.appendChild(option);
+            });
+            customerViewEmployeeSelect.value = ''; // Reset employee selection
+        });
+    }
+    if (customerViewEmployeeSelect) {
+        customerViewEmployeeSelect.addEventListener('change', populateCustomerCanvassedList);
+    }
+
+
+    // Employee Management Forms Event Listeners
+    if (addEmployeeForm) {
+        addEmployeeForm.addEventListener('submit', async (event) => {
+            event.preventDefault();
+            const newEmployeeData = {
+                [HEADER_EMPLOYEE_NAME]: newEmployeeNameInput.value.trim(),
+                [HEADER_EMPLOYEE_CODE]: newEmployeeCodeInput.value.trim(),
+                [HEADER_BRANCH_NAME]: newBranchNameInput.value.trim(),
+                [HEADER_DESIGNATION]: newDesignationInput.value.trim()
+            };
+
+            if (!newEmployeeData[HEADER_EMPLOYEE_NAME] || !newEmployeeData[HEADER_EMPLOYEE_CODE] || !newEmployeeData[HEADER_BRANCH_NAME] || !newEmployeeData[HEADER_DESIGNATION]) {
+                displayEmployeeManagementMessage('All fields are required for adding an employee.', true);
+                return;
+            }
+
+            // Check if employee code already exists in PREDEFINED_EMPLOYEES
+            const employeeExists = PREDEFINED_EMPLOYEES.some(emp => emp.employeeCode === newEmployeeData[HEADER_EMPLOYEE_CODE]);
+            if (employeeExists) {
+                displayEmployeeManagementMessage(`Employee with code ${newEmployeeData[HEADER_EMPLOYEE_CODE]} already exists. Please use a unique code.`, true);
+                return;
+            }
+
+            const success = await sendDataToGoogleAppsScript('add_employee', newEmployeeData);
+            if (success) {
+                addEmployeeForm.reset();
+                // Optionally, add to PREDEFINED_EMPLOYEES and re-initialize filters locally
+                PREDEFINED_EMPLOYEES.push(newEmployeeData);
+                initializeFilters(); // Re-populate dropdowns
+            }
+        });
+    }
+
+    // Event Listener for Bulk Add Employee Form
+    if (bulkAddEmployeeForm) {
+        bulkAddEmployeeForm.addEventListener('submit', async (event) => {
+            event.preventDefault();
+            const branchName = bulkEmployeeBranchNameInput.value.trim();
+            const detailsText = bulkEmployeeDetailsTextarea.value.trim();
+
+            if (!branchName || !detailsText) {
+                displayEmployeeManagementMessage('Branch Name and Employee Details are required for bulk addition.', true);
+                return;
+            }
+
+            const lines = detailsText.split('\n');
+            const employeesToAdd = [];
+            const existingCodes = new Set(PREDEFINED_EMPLOYEES.map(emp => emp.employeeCode));
+            const codesInCurrentBulk = new Set();
+
+            for (const line of lines) {
+                const parts = line.split(',').map(p => p.trim());
+                if (parts.length >= 2) { // Expecting at least Name and Code
+                    const employeeCode = parts[1];
+                    if (existingCodes.has(employeeCode) || codesInCurrentBulk.has(employeeCode)) {
+                        displayEmployeeManagementMessage(`Skipping duplicate employee code in bulk upload: ${employeeCode}`, true);
+                        continue;
+                    }
+                    codesInCurrentBulk.add(employeeCode);
+                    const employeeData = {
+                        [HEADER_EMPLOYEE_NAME]: parts[0],
+                        [HEADER_EMPLOYEE_CODE]: parts[1],
+                        [HEADER_BRANCH_NAME]: branchName,
+                        [HEADER_DESIGNATION]: parts[2] || '' // Designation is optional
+                    };
+                    employeesToAdd.push(employeeData);
+                }
+            }
+
+            if (employeesToAdd.length > 0) {
+                const success = await sendDataToGoogleAppsScript('add_bulk_employees', employeesToAdd);
+                if (success) {
+                    bulkAddEmployeeForm.reset();
+                    // Update PREDEFINED_EMPLOYEES and re-initialize filters locally
+                    PREDEFINED_EMPLOYEES.push(...employeesToAdd);
+                    initializeFilters();
+                }
+            } else {
+                displayEmployeeManagementMessage('No valid employee entries found in the bulk details.', true);
+            }
+        });
+    }
+
+    // Event Listener for Delete Employee Form
+    if (deleteEmployeeForm) {
+        deleteEmployeeForm.addEventListener('submit', async (event) => {
+            event.preventDefault();
+            const employeeCodeToDelete = deleteEmployeeCodeInput.value.trim();
+
+            if (!employeeCodeToDelete) {
+                displayEmployeeManagementMessage('Employee Code is required for deletion.', true);
+                return;
+            }
+
+            // Check if employee exists in PREDEFINED_EMPLOYEES
+            const employeeIndex = PREDEFINED_EMPLOYEES.findIndex(emp => emp.employeeCode === employeeCodeToDelete);
+            if (employeeIndex === -1) {
+                displayEmployeeManagementMessage(`Employee with code ${employeeCodeToDelete} not found.`, true);
+                return;
+            }
+
+            const deleteData = { [HEADER_EMPLOYEE_CODE]: employeeCodeToDelete };
+            const success = await sendDataToGoogleAppsScript('delete_employee', deleteData);
+
+            if (success) {
+                deleteEmployeeForm.reset();
+                // Remove from PREDEFINED_EMPLOYEES and re-initialize filters locally
+                PREDEFINED_EMPLOYEES.splice(employeeIndex, 1);
+                initializeFilters(); // Re-populate dropdowns
+            }
+        });
+    }
+
+    // Initial data fetch and tab display when the page loads
+    processData();
+    showTab('allBranchSnapshotTabBtn');
 });
