@@ -529,20 +529,7 @@ li.customer-list-item.active {
     color: #0056b3;
 }
 
-.customer-details-card {
-    /* Updated for a more engaging, multi-column layout for details */
-    display: grid;
-    grid-template-columns: 1fr; /* Default to single column on small screens */
-    gap: 20px; /* Space between sections */
-    padding: 10px;
-    background-color: #fdfdfd;
-    border: 1px solid #f0f0f0;
-    border-radius: 5px;
-    min-height: 150px;
-    overflow-y: auto;
-}
-
-/* Original customer info sections */
+/* Styling for individual customer info sections (Customer Overview, Canvassing, Remarks, Family, Profile) */
 .customer-info-section {
     background-color: #ffffff;
     border: 1px solid #e9e9e9;
@@ -596,10 +583,6 @@ li.customer-list-item.active {
     padding: 5px 0;
 }
 
-.full-width-section {
-    grid-column: 1 / -1; /* Make these sections span all columns */
-}
-
 /* NEW: Styles for the combined "Remarks, Family Details & Customer Profile" card */
 .supplementary-details-card {
     background-color: #fefefe;
@@ -644,7 +627,7 @@ li.customer-list-item.active {
 
     /* For detailed customer view on larger screens */
     #detailedCustomerViewSection {
-        flex-direction: row; /* Layout side-by-side */
+        flex-direction: row; /* Layout side-by-side (customer list | customer details) */
     }
 
     .customer-list-display {
@@ -653,19 +636,17 @@ li.customer-list-item.active {
     }
 
     .customer-details-display {
-        display: flex; /* Use flexbox for the customer details area */
-        gap: 20px; /* Space between the two main content columns (A,B) and (C) */
-        flex: 2; /* Take two parts of the space, making it wider */
+        display: flex; /* Make it a flex container for A, B, C columns */
+        flex-direction: row; /* Arrange children (A, B, C) horizontally */
+        gap: 20px; /* Space between columns */
+        flex: 2; /* Take two parts of the space, making it wider than the list */
     }
 
-    /* Adjust the individual customer info sections within .customer-details-card */
-    .customer-details-card > div:not(.supplementary-details-card) {
-        flex: 1; /* Allow Customer Overview and Canvassing Activity to take equal space */
-    }
-
-    /* Position the new supplementary card as the third column (C) */
-    .supplementary-details-card {
-        flex: 1; /* Take one part of the space, similar to A and B */
+    /* Direct children of .customer-details-display (A, B, C) */
+    .customer-details-display > .customer-info-section,
+    .customer-details-display > .supplementary-details-card {
+        flex: 1; /* Each takes equal space within customer-details-display */
+        min-width: 0; /* Allow shrinking if content overflows */
     }
 }
 
@@ -777,10 +758,11 @@ li.customer-list-item.active {
         gap: 15px;
     }
 
-    /* Customer details responsiveness */
+    /* Customer details responsiveness: Stack columns vertically on small screens */
     .customer-details-display {
-        flex-direction: column; /* Stack customer details sections vertically on small screens */
+        flex-direction: column;
     }
+    
     .detail-row {
         flex-direction: column; /* Stack label and value vertically on small screens */
         align-items: flex-start; /* Align stacked items to the left */
