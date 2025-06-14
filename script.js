@@ -351,14 +351,21 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // Function to fetch activity data from Google Sheet (Form Responses 2)
-    async function fetchCanvassingData() {
-        displayMessage("Fetching activity data...", 'info');
-        try {
-            const response = await fetch(DATA_URL);
-            if (!response.ok) {
-                const errorText = await response.text();
-                console.error(`HTTP error fetching Canvassing Data! Status: ${response.status}. Details: ${errorText}`);
-                throw new Error(`Failed to fetch canvassing data. Status: ${response.status}. Please check DATA_URL.`);
-            }
-            const csvText = await response.text();
-            allCanvassingData = parseCSV(csvText);
+   async function fetchCanvassingData() {
+    displayMessage("Fetching activity data...", 'info');
+    try {
+        const response = await fetch(DATA_URL);
+        if (!response.ok) {
+            const errorText = await response.text();
+            console.error(`HTTP error fetching Canvassing Data! Status: ${response.status}. Details: ${errorText}`);
+            throw new Error(`Failed to fetch canvassing data. Status: ${response.status}. Please check DATA_URL.`);
+        }
+        const csvText = await response.text();
+        allCanvassingData = parseCSV(csvText);
+        displayMessage("Activity data fetched successfully!", 'success');
+    } catch (error) {
+        console.error("Error fetching canvassing data:", error);
+        displayMessage(`Error fetching activity data: ${error.message}`, 'error');
+        allCanvassingData = []; // Ensure data is cleared on error
+    }
+}
