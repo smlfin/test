@@ -369,7 +369,5 @@ document.addEventListener('DOMContentLoaded', () => {
         allCanvassingData = []; // Ensure data is cleared on error
     }
 }
- // Initial data fetch and tab display when the page loads
-    processData();
-    showTab('allBranchSnapshotTabBtn');
+
 });
