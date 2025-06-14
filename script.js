@@ -2,7 +2,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // *** Configuration ***
     // This URL is for your Canvassing Data sheet. Ensure it's correct and published as CSV.
     // NOTE: If you are still getting 404, this URL is the problem.
-    const DATA_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTO7LujC4VSa2wGkJ2YEYSN7UeXR221ny3THaVegYfNfRm2JQGg7QR9Bxxh9SadXtK8Pi6-psl2tGsb/pub?gid=696550092&single=true&output=csv";
+    const DATA_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTO7LujC4VSa2wGkJ2YEYSN7UeXR221ny3THaVegYfNfRm2JQGg7QR9Bxxh9SadXtK8Pi6-psl2tGsb/pub?gid=69550092&single=true&output=csv";
 
     // IMPORTANT: Replace this with YOUR DEPLOYED GOOGLE APPS SCRIPT WEB APP URL
     // NOTE: If you are getting errors sending data, this URL is the problem.
@@ -87,7 +87,7 @@ document.addEventListener('DOMContentLoaded', () => {
         { employeeCode: "4495", employeeName: "BINOJDAS V H", branchName: "Corporate Office", designation: "VICE PRESIDENT" },
         { employeeCode: "1441", employeeName: "BINSY JENSON", branchName: "Corporate Office", designation: "Sr.EXECUTIVE" },
         { employeeCode: "4465", employeeName: "BHAGYALAKSHMI E S", branchName: "Corporate Office", designation: "ACCOUNTS EXECUTIVE" },
-        { employeeCode: "4627", employeeCode: "CHINJU VAISHAK", branchName: "Nenmara", designation: "OFFICER" },
+        { employeeCode: "4627", employeeName: "CHINJU VAISHAK", branchName: "Nenmara", designation: "OFFICER" }, // Corrected: employeeCode: "CHINJU VAISHAK" to employeeName: "CHINJU VAISHAK"
         { employeeCode: "1078", employeeName: "CHITHRA AJITH", branchName: "Corporate Office", designation: "Sr.EXECUTIVE" },
         { employeeCode: "4560", employeeName: "DHANYA K", branchName: "Alathur", designation: "LOAN EXECUTIVE" },
         { employeeCode: "4333", employeeName: "Dhanya L", branchName: "Corporate Office", designation: "Accounts manager" },
