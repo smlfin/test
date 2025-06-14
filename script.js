@@ -275,6 +275,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const allBranchSnapshotTabBtn = document.getElementById('allBranchSnapshotTabBtn');
     const allStaffOverallPerformanceTabBtn = document.getElementById('allStaffOverallPerformanceTabBtn');
     const nonParticipatingBranchesTabBtn = document.getElementById('nonParticipatingBranchesTabBtn');
+    const nonParticipatingEmployeesTabBtn = document.getElementById('nonParticipatingEmployeesTabBtn'); // NEW: Non-Participating Employees tab
     const detailedCustomerViewTabBtn = document.getElementById('detailedCustomerViewTabBtn'); // NEW
     const employeeManagementTabBtn = document.getElementById('employeeManagementTabBtn');
 
@@ -325,7 +326,7 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     // Helper to clear and display messages in a specific div (now targets statusMessageDiv)
-    function displayMessage(message, type = 'info') {
+    function displayMessage(message, type = 'info') { 
         if (statusMessageDiv) {
             statusMessageDiv.innerHTML = `<div class="message ${type}">${message}</div>`;
             statusMessageDiv.style.display = 'block';
@@ -421,7 +422,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Process fetched data to populate filters and prepare for reports
     async function processData() {
         // Only fetch canvassing data, ignoring MasterEmployees for front-end reports
-        await fetchCanvassingData();
+        await fetchCanvassingData(); 
 
         // Re-initialize allUniqueBranches from the predefined list
         allUniqueBranches = [...PREDEFINED_BRANCHES].sort(); // Use the hardcoded list
@@ -440,25 +441,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 employeeCodeToDesignationMap[employeeCode] = designation || 'Default';
             }
         });
-        
-        // Add predefined employees to the maps as well, prioritizing existing canvassing data
-        PREDEFINED_EMPLOYEES.forEach(employee => {
-            const employeeCode = employee.employeeCode;
-            // Only add if not already present from canvassing data, or if you want to overwrite
-            if (!employeeCodeToNameMap[employeeCode]) {
-                employeeCodeToNameMap[employeeCode] = employee.employeeName;
-            }
-            if (!employeeCodeToDesignationMap[employeeCode]) {
-                employeeCodeToDesignationMap[employeeCode] = employee.designation;
-            }
-        });
-
 
         // Re-populate allUniqueEmployees based ONLY on canvassing data
-        allUniqueEmployees = [...new Set([
-            ...allCanvassingData.map(entry => entry[HEADER_EMPLOYEE_CODE]),
-            ...PREDEFINED_EMPLOYEES.map(employee => employee.employeeCode) // Add predefined employee codes
-        ])].sort((codeA, codeB) => {
+        allUniqueEmployees = [...new Set(allCanvassingData.map(entry => entry[HEADER_EMPLOYEE_CODE]))].sort((codeA, codeB) => {
             // Use the name from the map if available, otherwise use the code for sorting and display
             const nameA = employeeCodeToNameMap[codeA] || codeA;
             const nameB = employeeCodeToNameMap[codeB] || codeB;
@@ -504,15 +489,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 .filter(entry => entry[HEADER_BRANCH_NAME] === selectedBranch)
                 .map(entry => entry[HEADER_EMPLOYEE_CODE]);
 
-            // Get employee codes from PREDEFINED_EMPLOYEES for the selected branch
-            const employeeCodesInBranchFromPredefined = PREDEFINED_EMPLOYEES
-                .filter(employee => employee.branchName === selectedBranch)
-                .map(employee => employee.employeeCode);
-
             // Combine and unique all employee codes for the selected branch
             const combinedEmployeeCodes = new Set([
-                ...employeeCodesInBranchFromCanvassing,
-                ...employeeCodesInBranchFromPredefined
+                ...employeeCodesInBranchFromCanvassing
             ]);
 
             // Convert Set back to array and sort
@@ -652,23 +631,17 @@ document.addEventListener('DOMContentLoaded', () => {
             // Assign data-label for mobile view
             row.insertCell().setAttribute('data-label', 'Branch Name');
             row.lastChild.textContent = branch;
-
             row.insertCell().setAttribute('data-label', 'Employees with Activity');
             row.lastChild.textContent = displayEmployeeCount;
-
             row.insertCell().setAttribute('data-label', 'Total Visits');
             row.lastChild.textContent = totalActivity['Visit'];
-
             row.insertCell().setAttribute('data-label', 'Total Calls');
             row.lastChild.textContent = totalActivity['Call'];
-
             row.insertCell().setAttribute('data-label', 'Total References');
             row.lastChild.textContent = totalActivity['Reference'];
-
             row.insertCell().setAttribute('data-label', 'Total New Customer Leads');
             row.lastChild.textContent = totalActivity['New Customer Leads'];
         });
-
         reportDisplay.appendChild(table);
     }
 
@@ -697,6 +670,46 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
+    // NEW: Render Non-Participating Employees Report
+    function renderNonParticipatingEmployees() {
+        reportDisplay.innerHTML = '<h2>Non-Participating Employees (Current Month)</h2>';
+        const nonParticipatingEmployees = [];
+        const currentMonth = new Date().getMonth();
+        const currentYear = new Date().getFullYear();
+
+        // Get employee codes who have recorded *any* activity in the current month
+        const employeesWithActivityThisMonth = new Set(
+            allCanvassingData
+                .filter(entry => {
+                    const entryDate = new Date(entry[HEADER_TIMESTAMP]);
+                    return entryDate.getMonth() === currentMonth && entryDate.getFullYear() === currentYear;
+                })
+                .map(entry => entry[HEADER_EMPLOYEE_CODE])
+        );
+
+        // allUniqueEmployees contains all employees who have *ever* submitted data
+        allUniqueEmployees.forEach(employeeCode => {
+            if (!employeesWithActivityThisMonth.has(employeeCode)) {
+                // Get display name, default to code if name is not available
+                const employeeDisplayName = employeeCodeToNameMap[employeeCode] || employeeCode;
+                nonParticipatingEmployees.push(employeeDisplayName);
+            }
+        });
+
+        if (nonParticipatingEmployees.length > 0) {
+            const ul = document.createElement('ul');
+            ul.className = 'non-participating-employee-list'; // Reusing style from branch list or adding a new one
+            nonParticipatingEmployees.sort().forEach(employeeName => { // Sort by name for better readability
+                const li = document.createElement('li');
+                li.textContent = employeeName;
+                ul.appendChild(li);
+            });
+            reportDisplay.appendChild(ul);
+        } else {
+            reportDisplay.innerHTML += '<p class="no-participation-message">All employees with historical data have recorded activity this month!</p>';
+        }
+    }
+
     // Render All Staff Overall Performance Report (for d1.PNG)
     function renderOverallStaffPerformanceReport() {
         reportDisplay.innerHTML = '<h2>Overall Staff Performance Report (This Month)</h2>';
@@ -705,11 +718,11 @@ document.addEventListener('DOMContentLoaded', () => {
         const table = document.createElement('table');
         table.className = 'performance-table';
         const thead = table.createTHead();
-        let headerRow = thead.insertRow();
-        // Main Headers
+        let headerRow = thead.insertRow(); // Main Headers
         headerRow.insertCell().textContent = 'Employee Name';
         headerRow.insertCell().textContent = 'Branch Name';
         headerRow.insertCell().textContent = 'Designation';
+
         // Define metrics for the performance table
         const metrics = ['Visit', 'Call', 'Reference', 'New Customer Leads'];
         metrics.forEach(metric => {
@@ -744,258 +757,259 @@ document.addEventListener('DOMContentLoaded', () => {
                 return entryDate.getMonth() === currentMonth && entryDate.getFullYear() === currentYear;
             })
             .map(entry => entry[HEADER_EMPLOYEE_CODE]))].sort((codeA, codeB) => {
-            const nameA = employeeCodeToNameMap[codeA] || codeA;
-            const nameB = employeeCodeToNameMap[codeB] || codeB;
-            return nameA.localeCompare(nameB);
-        });
+                const nameA = employeeCodeToNameMap[codeA] || codeA;
+                const nameB = employeeCodeToNameMap[codeB] || codeB;
+                return nameA.localeCompare(nameB);
+            });
+
 
         if (employeesWithActivityThisMonth.length === 0) {
-            reportDisplay.innerHTML += '<p>No employee activity found for the current month.</p>';
+            reportDisplay.innerHTML += '<p class="no-participation-message">No staff recorded activities this month.</p>';
             return;
         }
 
         employeesWithActivityThisMonth.forEach(employeeCode => {
             const employeeName = employeeCodeToNameMap[employeeCode] || employeeCode;
-            const branchName = allCanvassingData.find(entry => entry[HEADER_EMPLOYEE_CODE] === employeeCode)?.[HEADER_BRANCH_NAME] || 'N/A';
             const designation = employeeCodeToDesignationMap[employeeCode] || 'Default';
+            
+            // Find the branch name for the employee from the first relevant entry
+            const employeeBranchEntry = allCanvassingData.find(entry => entry[HEADER_EMPLOYEE_CODE] === employeeCode);
+            const branchName = employeeBranchEntry ? employeeBranchEntry[HEADER_BRANCH_NAME] : 'N/A';
 
-            const employeeActivities = allCanvassingData.filter(entry => entry[HEADER_EMPLOYEE_CODE] === employeeCode && new Date(entry[HEADER_TIMESTAMP]).getMonth() === currentMonth && new Date(entry[HEADER_TIMESTAMP]).getFullYear() === currentYear);
-            const { totalActivity } = calculateTotalActivity(employeeActivities);
+            // Filter entries for the current month for this specific employee
+            const employeeMonthlyActivities = allCanvassingData.filter(entry => {
+                const entryDate = new Date(entry[HEADER_TIMESTAMP]);
+                return entry[HEADER_EMPLOYEE_CODE] === employeeCode &&
+                       entryDate.getMonth() === currentMonth &&
+                       entryDate.getFullYear() === currentYear;
+            });
+
+            const { totalActivity } = calculateTotalActivity(employeeMonthlyActivities);
+            const targets = TARGETS[designation] || TARGETS['Default'];
 
             const row = tbody.insertRow();
             row.insertCell().textContent = employeeName;
             row.insertCell().textContent = branchName;
             row.insertCell().textContent = designation;
 
-            const targets = TARGETS[designation] || TARGETS['Default'];
-
             metrics.forEach(metric => {
                 const actual = totalActivity[metric];
                 const target = targets[metric];
-                const percentage = target > 0 ? ((actual / target) * 100).toFixed(0) : 'N/A';
+                const percentage = target > 0 ? ((actual / target) * 100).toFixed(0) : (actual > 0 ? 100 : 0);
 
                 row.insertCell().textContent = actual;
                 row.insertCell().textContent = target;
-                row.insertCell().textContent = percentage !== 'N/A' ? `${percentage}%` : 'N/A';
+                
+                const percentCell = row.insertCell();
+                const progressBarContainer = document.createElement('div');
+                progressBarContainer.className = 'progress-bar-container-small';
+                
+                const progressBar = document.createElement('div');
+                progressBar.className = 'progress-bar';
+                progressBar.style.width = `${Math.min(100, percentage)}%`; // Cap at 100% for display
+                progressBar.textContent = `${percentage}%`;
+
+                if (percentage >= 100) {
+                    progressBar.classList.add('success');
+                } else if (percentage >= 75) {
+                    progressBar.classList.add('warning-high');
+                } else if (percentage >= 50) {
+                    progressBar.classList.add('warning-medium');
+                } else if (percentage > 0) {
+                    progressBar.classList.add('warning-low');
+                } else {
+                    progressBar.classList.add('no-activity');
+                    progressBar.textContent = '0%'; // Explicitly show 0% if no activity
+                }
+                progressBarContainer.appendChild(progressBar);
+                percentCell.appendChild(progressBarContainer);
             });
         });
-
         tableContainer.appendChild(table);
         reportDisplay.appendChild(tableContainer);
     }
-
-    // Render Employee Summary (for d4.PNG)
-    function renderEmployeeSummary(entries) {
-        if (!entries || entries.length === 0) {
-            reportDisplay.innerHTML = '<p>No activity data for this employee in the selected branch.</p>';
-            return;
-        }
-
-        // Get employee details from the first entry (assuming consistency)
-        const employeeCode = entries[0][HEADER_EMPLOYEE_CODE];
-        const employeeName = employeeCodeToNameMap[employeeCode] || employeeCode;
-        const branchName = entries[0][HEADER_BRANCH_NAME];
-        const designation = employeeCodeToDesignationMap[employeeCode] || 'Default';
-
-        reportDisplay.innerHTML = `<h2>Employee Summary: ${employeeName} (${employeeCode})</h2>`;
-        reportDisplay.innerHTML += `<p><strong>Branch:</strong> ${branchName}</p>`;
-        reportDisplay.innerHTML += `<p><strong>Designation:</strong> ${designation}</p>`;
-
-        const { totalActivity, productInterests } = calculateTotalActivity(entries);
-
-        // Display Activity Summary
-        const activitySummaryDiv = document.createElement('div');
-        activitySummaryDiv.className = 'activity-summary';
-        activitySummaryDiv.innerHTML = '<h3>Activity Summary</h3>';
-        activitySummaryDiv.innerHTML += `<ul>
-            <li><strong>Total Visits:</strong> ${totalActivity['Visit']}</li>
-            <li><strong>Total Calls:</strong> ${totalActivity['Call']}</li>
-            <li><strong>Total References:</strong> ${totalActivity['Reference']}</li>
-            <li><strong>Total New Customer Leads:</strong> ${totalActivity['New Customer Leads']}</li>
-        </ul>`;
-        reportDisplay.appendChild(activitySummaryDiv);
-
-        // Display Product Interests
-        if (productInterests.length > 0) {
-            const productInterestDiv = document.createElement('div');
-            productInterestDiv.className = 'product-interests';
-            productInterestDiv.innerHTML = '<h3>Products Interested</h3>';
-            productInterestDiv.innerHTML += `<p>${productInterests.join(', ')}</p>`;
-            reportDisplay.appendChild(productInterestDiv);
-        } else {
-            reportDisplay.innerHTML += '<p>No specific product interests recorded.</p>';
-        }
-
-        // Display Recent Activity (last 5 entries)
-        const recentActivityDiv = document.createElement('div');
-        recentActivityDiv.className = 'recent-activity';
-        recentActivityDiv.innerHTML = '<h3>Recent Activities</h3>';
-
-        const sortedEntries = [...entries].sort((a, b) => new Date(b[HEADER_TIMESTAMP]) - new Date(a[HEADER_TIMESTAMP]));
-        const recentFiveEntries = sortedEntries.slice(0, 5);
-
-        if (recentFiveEntries.length > 0) {
-            const ul = document.createElement('ul');
-            recentFiveEntries.forEach(entry => {
-                const li = document.createElement('li');
-                li.innerHTML = `<strong>Date:</strong> ${formatDate(entry[HEADER_DATE]) || formatDate(entry[HEADER_TIMESTAMP])},
-                                <strong>Activity:</strong> ${entry[HEADER_ACTIVITY_TYPE] || 'N/A'},
-                                <strong>Customer:</strong> ${entry[HEADER_PROSPECT_NAME] || 'N/A'}
-                                (${entry[HEADER_TYPE_OF_CUSTOMER] || 'N/A'})`;
-                ul.appendChild(li);
-            });
-            recentActivityDiv.appendChild(ul);
-        } else {
-            recentActivityDiv.innerHTML += '<p>No recent activities found.</p>';
-        }
-        reportDisplay.appendChild(recentActivityDiv);
-    }
-
 
     // Render Branch Performance Report (for d3.PNG)
     function renderBranchPerformanceReport() {
+        reportDisplay.innerHTML = `<h2>${branchSelect.value} Branch Performance Report (Current Month)</h2>`;
         const selectedBranch = branchSelect.value;
-        if (!selectedBranch) {
-            reportDisplay.innerHTML = '<p>Please select a branch to view the Branch Performance Report.</p>';
-            return;
-        }
+        const currentMonth = new Date().getMonth();
+        const currentYear = new Date().getFullYear();
 
-        reportDisplay.innerHTML = `<h2>Branch Performance Report: ${selectedBranch}</h2>`;
-
-        // Filter activities for the selected branch
-        const branchActivityEntries = allCanvassingData.filter(entry => entry[HEADER_BRANCH_NAME] === selectedBranch);
-
-        // Get unique employees for the selected branch (from combined canvassing and predefined data)
-        const employeesInBranch = [...new Set(
-            branchActivityEntries.map(entry => entry[HEADER_EMPLOYEE_CODE]).concat(
-                PREDEFINED_EMPLOYEES.filter(emp => emp.branchName === selectedBranch).map(emp => emp.employeeCode)
-            )
-        )].sort((codeA, codeB) => {
-            const nameA = employeeCodeToNameMap[codeA] || codeA;
-            const nameB = employeeCodeToNameMap[codeB] || codeB;
-            return nameA.localeCompare(nameB);
+        const branchMonthlyActivities = allCanvassingData.filter(entry => {
+            const entryDate = new Date(entry[HEADER_TIMESTAMP]);
+            return entry[HEADER_BRANCH_NAME] === selectedBranch &&
+                   entryDate.getMonth() === currentMonth &&
+                   entryDate.getFullYear() === currentYear;
         });
 
-        if (employeesInBranch.length === 0) {
-            reportDisplay.innerHTML += '<p>No employees found for this branch or no activity recorded.</p>';
+        if (branchMonthlyActivities.length === 0) {
+            reportDisplay.innerHTML += `<p class="no-participation-message">No activities recorded for ${selectedBranch} branch this month.</p>`;
             return;
         }
 
-        const tableContainer = document.createElement('div');
-        tableContainer.className = 'data-table-container';
-        const table = document.createElement('table');
-        table.className = 'performance-table';
-        const thead = table.createTHead();
-        let headerRow = thead.insertRow();
+        const employeesInBranchThisMonth = [...new Set(branchMonthlyActivities.map(entry => entry[HEADER_EMPLOYEE_CODE]))];
 
-        headerRow.insertCell().textContent = 'Employee Name';
-        headerRow.insertCell().textContent = 'Designation';
+        const gridContainer = document.createElement('div');
+        gridContainer.className = 'branch-performance-grid';
+
+        employeesInBranchThisMonth.forEach(employeeCode => {
+            const employeeName = employeeCodeToNameMap[employeeCode] || employeeCode;
+            const designation = employeeCodeToDesignationMap[employeeCode] || 'Default';
+            const targets = TARGETS[designation] || TARGETS['Default'];
+
+            const employeeActivities = branchMonthlyActivities.filter(entry => entry[HEADER_EMPLOYEE_CODE] === employeeCode);
+            const { totalActivity, productInterests } = calculateTotalActivity(employeeActivities);
+
+            const card = document.createElement('div');
+            card.className = 'employee-performance-card';
+            card.innerHTML = `
+                <h3>${employeeName}</h3>
+                <p><strong>Designation:</strong> ${designation}</p>
+                <div class="performance-metrics">
+                    <div class="metric-item">
+                        <span>Visits:</span>
+                        <div class="progress-bar-container">
+                            <div class="progress-bar ${getProgressColorClass(totalActivity['Visit'], targets['Visit'])}" style="width: ${getProgressBarWidth(totalActivity['Visit'], targets['Visit'])}%;">
+                                ${totalActivity['Visit']} / ${targets['Visit']}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="metric-item">
+                        <span>Calls:</span>
+                        <div class="progress-bar-container">
+                            <div class="progress-bar ${getProgressColorClass(totalActivity['Call'], targets['Call'])}" style="width: ${getProgressBarWidth(totalActivity['Call'], targets['Call'])}%;">
+                                ${totalActivity['Call']} / ${targets['Call']}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="metric-item">
+                        <span>References:</span>
+                        <div class="progress-bar-container">
+                            <div class="progress-bar ${getProgressColorClass(totalActivity['Reference'], targets['Reference'])}" style="width: ${getProgressBarWidth(totalActivity['Reference'], targets['Reference'])}%;">
+                                ${totalActivity['Reference']} / ${targets['Reference']}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="metric-item">
+                        <span>New Leads:</span>
+                        <div class="progress-bar-container">
+                            <div class="progress-bar ${getProgressColorClass(totalActivity['New Customer Leads'], targets['New Customer Leads'])}" style="width: ${getProgressBarWidth(totalActivity['New Customer Leads'], targets['New Customer Leads'])}%;">
+                                ${totalActivity['New Customer Leads']} / ${targets['New Customer Leads']}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="product-interest-section">
+                    <h4>Products Interested:</h4>
+                    <p>${productInterests.length > 0 ? productInterests.join(', ') : 'N/A'}</p>
+                </div>
+            `;
+            gridContainer.appendChild(card);
+        });
+        reportDisplay.appendChild(gridContainer);
+    }
+
+    // Helper for progress bar color
+    function getProgressColorClass(actual, target) {
+        if (target === 0) return 'no-activity'; // Or a default color if target is zero but there's activity
+        const percentage = (actual / target) * 100;
+        if (percentage >= 100) return 'success';
+        if (percentage >= 75) return 'warning-high';
+        if (percentage >= 50) return 'warning-medium';
+        if (percentage > 0) return 'warning-low';
+        return 'no-activity';
+    }
+
+    // Helper for progress bar width
+    function getProgressBarWidth(actual, target) {
+        if (target === 0) return actual > 0 ? 100 : 0; // If target is 0, 100% if any activity, else 0%
+        return Math.min(100, (actual / target) * 100);
+    }
+
+    // Render Employee Summary (Current Month) for d4.PNG
+    function renderEmployeeSummary(entries) {
+        const selectedEmployeeCode = employeeSelect.value;
+        const employeeName = employeeCodeToNameMap[selectedEmployeeCode] || selectedEmployeeCode;
+        const designation = employeeCodeToDesignationMap[selectedEmployeeCode] || 'Default';
+        const targets = TARGETS[designation] || TARGETS['Default'];
+
+        reportDisplay.innerHTML = `<h2>${employeeName}'s Performance Summary (Current Month)</h2>`;
+
+        if (entries.length === 0) {
+            reportDisplay.innerHTML += `<p class="no-participation-message">No activities recorded for ${employeeName} this month.</p>`;
+            return;
+        }
+
+        const { totalActivity, productInterests } = calculateTotalActivity(entries);
+
+        const summaryCard = document.createElement('div');
+        summaryCard.className = 'summary-breakdown-card'; // Main card for layout
+
+        // Section 1: Overall Activity Summary (Top Left)
+        const overallSummarySection = document.createElement('div');
+        overallSummarySection.className = 'summary-section overall-activity-summary';
+        overallSummarySection.innerHTML = `
+            <h3>Overall Activity</h3>
+            <p><strong>Designation:</strong> ${designation}</p>
+            <div class="overall-metrics">
+                <div><span>Total Visits:</span> <span>${totalActivity['Visit']}</span></div>
+                <div><span>Total Calls:</span> <span>${totalActivity['Call']}</span></div>
+                <div><span>Total References:</span> <span>${totalActivity['Reference']}</span></div>
+                <div><span>Total New Customer Leads:</span> <span>${totalActivity['New Customer Leads']}</span></div>
+            </div>
+        `;
+        summaryCard.appendChild(overallSummarySection);
+
+        // Section 2: Progress Against Targets (Top Right)
+        const progressSection = document.createElement('div');
+        progressSection.className = 'summary-section progress-targets';
+        progressSection.innerHTML = `<h3>Progress Against Targets</h3>`;
+        const progressList = document.createElement('div');
+        progressList.className = 'progress-list';
 
         const metrics = ['Visit', 'Call', 'Reference', 'New Customer Leads'];
         metrics.forEach(metric => {
-            const th = document.createElement('th');
-            th.colSpan = 3; // Actual, Target, %
-            th.textContent = metric;
-            headerRow.appendChild(th);
+            const actual = totalActivity[metric];
+            const target = targets[metric];
+            const percentage = target > 0 ? ((actual / target) * 100).toFixed(0) : (actual > 0 ? 100 : 0);
+
+            const progressItem = document.createElement('div');
+            progressItem.className = 'progress-item';
+            progressItem.innerHTML = `
+                <span>${metric}:</span>
+                <div class="progress-bar-container-small">
+                    <div class="progress-bar ${getProgressColorClass(actual, target)}" style="width: ${Math.min(100, percentage)}%;">
+                        ${percentage}%
+                    </div>
+                </div>
+                <span class="actual-target-text">(${actual}/${target})</span>
+            `;
+            progressList.appendChild(progressItem);
         });
+        progressSection.appendChild(progressList);
+        summaryCard.appendChild(progressSection);
 
-        // Sub-headers
-        headerRow = thead.insertRow(); // New row for sub-headers
-        headerRow.insertCell(); // Empty for Employee Name
-        headerRow.insertCell(); // Empty for Designation
-        metrics.forEach(() => {
-            ['Act', 'Tgt', '%'].forEach(subHeader => {
-                const th = document.createElement('th');
-                th.textContent = subHeader;
-                headerRow.appendChild(th);
-            });
-        });
+        // Section 3: Product Interest Breakdown (Bottom)
+        const productInterestSection = document.createElement('div');
+        productInterestSection.className = 'summary-section product-interest-breakdown';
+        productInterestSection.innerHTML = `
+            <h3>Products of Interest</h3>
+            <p>${productInterests.length > 0 ? productInterests.join(', ') : 'No specific product interests recorded this month.'}</p>
+        `;
+        summaryCard.appendChild(productInterestSection); // This will naturally go to the next row in the grid
 
-        const tbody = table.createTBody();
-
-        employeesInBranch.forEach(employeeCode => {
-            const employeeName = employeeCodeToNameMap[employeeCode] || employeeCode;
-            const designation = employeeCodeToDesignationMap[employeeCode] || 'Default';
-
-            const employeeActivitiesInBranch = branchActivityEntries.filter(entry => entry[HEADER_EMPLOYEE_CODE] === employeeCode);
-            const { totalActivity } = calculateTotalActivity(employeeActivitiesInBranch);
-
-            const row = tbody.insertRow();
-            row.insertCell().textContent = employeeName;
-            row.insertCell().textContent = designation;
-
-            const targets = TARGETS[designation] || TARGETS['Default'];
-
-            metrics.forEach(metric => {
-                const actual = totalActivity[metric];
-                const target = targets[metric];
-                const percentage = target > 0 ? ((actual / target) * 100).toFixed(0) : 'N/A';
-
-                row.insertCell().textContent = actual;
-                row.insertCell().textContent = target;
-                row.insertCell().textContent = percentage !== 'N/A' ? `${percentage}%` : 'N/A';
-            });
-        });
-
-        tableContainer.appendChild(table);
-        reportDisplay.appendChild(tableContainer);
+        reportDisplay.appendChild(summaryCard);
     }
 
-
-    // Event Listeners for main report view buttons
-    viewBranchPerformanceReportBtn.addEventListener('click', () => {
-        // Deactivate all buttons first
-        document.querySelectorAll('.view-options .btn').forEach(btn => btn.classList.remove('active'));
-        // Activate the clicked button
-        viewBranchPerformanceReportBtn.classList.add('active');
-        renderBranchPerformanceReport();
-    });
-
-    viewEmployeeSummaryBtn.addEventListener('click', () => {
+    // Render All Entries (Employee)
+    function renderAllEntriesReport() {
         const selectedEmployeeCode = employeeSelect.value;
-        if (!selectedEmployeeCode) {
-            reportDisplay.innerHTML = '<p>Please select an employee to view the Employee Summary.</p>';
-            return;
-        }
-        // Deactivate all buttons first
-        document.querySelectorAll('.view-options .btn').forEach(btn => btn.classList.remove('active'));
-        // Activate the clicked button
-        viewEmployeeSummaryBtn.classList.add('active');
-        // Use the already filtered selectedEmployeeCodeEntries
-        renderEmployeeSummary(selectedEmployeeCodeEntries);
-    });
+        const employeeName = employeeCodeToNameMap[selectedEmployeeCode] || selectedEmployeeCode;
+        reportDisplay.innerHTML = `<h2>All Entries for ${employeeName}</h2>`;
 
-    viewAllEntriesBtn.addEventListener('click', () => {
-        const selectedBranch = branchSelect.value;
-        const selectedEmployeeCode = employeeSelect.value;
-        if (!selectedBranch && !selectedEmployeeCode) {
-            reportDisplay.innerHTML = '<p>Please select a branch or an employee to view all entries.</p>';
-            return;
-        }
-
-        // Deactivate all buttons first
-        document.querySelectorAll('.view-options .btn').forEach(btn => btn.classList.remove('active'));
-        // Activate the clicked button
-        viewAllEntriesBtn.classList.add('active');
-        renderAllEntries(selectedBranch, selectedEmployeeCode);
-    });
-
-    // Function to render all entries
-    function renderAllEntries(branchName, employeeCode) {
-        reportDisplay.innerHTML = '<h2>All Entries</h2>';
-        let filteredEntries = allCanvassingData;
-
-        if (branchName) {
-            filteredEntries = filteredEntries.filter(entry => entry[HEADER_BRANCH_NAME] === branchName);
-            reportDisplay.innerHTML = `<h2>All Entries for ${branchName}</h2>`;
-        }
-        if (employeeCode) {
-            filteredEntries = filteredEntries.filter(entry => entry[HEADER_EMPLOYEE_CODE] === employeeCode);
-            reportDisplay.innerHTML = `<h2>All Entries for ${employeeCodeToNameMap[employeeCode] || employeeCode} in ${branchName}</h2>`;
-        }
-
-        if (filteredEntries.length === 0) {
-            reportDisplay.innerHTML += '<p>No entries found matching the criteria.</p>';
+        if (selectedEmployeeCodeEntries.length === 0) {
+            reportDisplay.innerHTML += `<p class="no-participation-message">No entries found for ${employeeName}.</p>`;
             return;
         }
 
@@ -1006,196 +1020,331 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const thead = table.createTHead();
         const headerRow = thead.insertRow();
-        // Dynamically create headers from the first entry's keys, excluding internal ones
-        const headersToDisplay = Object.keys(filteredEntries[0]).filter(header =>
-            ![HEADER_TIMESTAMP].includes(header)
-        );
+        const headers = [
+            HEADER_DATE, HEADER_BRANCH_NAME, HEADER_ACTIVITY_TYPE, HEADER_TYPE_OF_CUSTOMER,
+            HEADER_PROSPECT_NAME, HEADER_PHONE_NUMBER_WHATSAPP, HEADER_PRODUCT_INTERESTED,
+            HEADER_NEXT_FOLLOW_UP_DATE, HEADER_REMARKS
+        ]; // Simplified headers for clarity in this view
 
-        headersToDisplay.forEach(headerText => {
+        headers.forEach(text => {
             const th = document.createElement('th');
-            th.textContent = headerText;
+            th.textContent = text;
             headerRow.appendChild(th);
         });
 
         const tbody = table.createTBody();
-        filteredEntries.forEach(entry => {
+        selectedEmployeeCodeEntries.forEach(entry => {
             const row = tbody.insertRow();
-            headersToDisplay.forEach(header => {
-                const cell = row.insertCell();
-                let cellValue = entry[header];
-                // Format Date and DOB/WD columns
-                if (header === HEADER_DATE || header === HEADER_DOB_WD || header === HEADER_NEXT_FOLLOW_UP_DATE) {
-                    cellValue = formatDate(cellValue);
-                }
-                cell.textContent = cellValue || 'N/A';
+            row.insertCell().setAttribute('data-label', HEADER_DATE);
+            row.lastChild.textContent = formatDate(entry[HEADER_DATE]);
+            row.insertCell().setAttribute('data-label', HEADER_BRANCH_NAME);
+            row.lastChild.textContent = entry[HEADER_BRANCH_NAME];
+            row.insertCell().setAttribute('data-label', HEADER_ACTIVITY_TYPE);
+            row.lastChild.textContent = entry[HEADER_ACTIVITY_TYPE];
+            row.insertCell().setAttribute('data-label', HEADER_TYPE_OF_CUSTOMER);
+            row.lastChild.textContent = entry[HEADER_TYPE_OF_CUSTOMER];
+            row.insertCell().setAttribute('data-label', HEADER_PROSPECT_NAME);
+            row.lastChild.textContent = entry[HEADER_PROSPECT_NAME];
+            row.insertCell().setAttribute('data-label', HEADER_PHONE_NUMBER_WHATSAPP);
+            row.lastChild.textContent = entry[HEADER_PHONE_NUMBER_WHATSAPP];
+            row.insertCell().setAttribute('data-label', HEADER_PRODUCT_INTERESTED);
+            row.lastChild.textContent = entry[HEADER_PRODUCT_INTERESTED];
+            row.insertCell().setAttribute('data-label', HEADER_NEXT_FOLLOW_UP_DATE);
+            row.lastChild.textContent = formatDate(entry[HEADER_NEXT_FOLLOW_UP_DATE]);
+            row.insertCell().setAttribute('data-label', HEADER_REMARKS);
+            row.lastChild.textContent = entry[HEADER_REMARKS];
+        });
+        tableContainer.appendChild(table);
+        reportDisplay.appendChild(tableContainer);
+    }
+
+    // Render Employee Performance Report (Monthly Breakdown)
+    function renderEmployeePerformanceReport() {
+        const selectedEmployeeCode = employeeSelect.value;
+        const employeeName = employeeCodeToNameMap[selectedEmployeeCode] || selectedEmployeeCode;
+        reportDisplay.innerHTML = `<h2>${employeeName}'s Monthly Performance Breakdown</h2>`;
+
+        // Group entries by month
+        const monthlyData = {};
+        selectedEmployeeCodeEntries.forEach(entry => {
+            const entryDate = new Date(entry[HEADER_TIMESTAMP]);
+            const monthYear = `${entryDate.getFullYear()}-${String(entryDate.getMonth() + 1).padStart(2, '0')}`;
+            if (!monthlyData[monthYear]) {
+                monthlyData[monthYear] = [];
+            }
+            monthlyData[monthYear].push(entry);
+        });
+
+        const sortedMonths = Object.keys(monthlyData).sort((a, b) => new Date(a).getTime() - new Date(b).getTime());
+
+        if (sortedMonths.length === 0) {
+            reportDisplay.innerHTML += `<p class="no-participation-message">No monthly performance data available for ${employeeName}.</p>`;
+            return;
+        }
+
+        const tableContainer = document.createElement('div');
+        tableContainer.className = 'data-table-container';
+        const table = document.createElement('table');
+        table.className = 'performance-table';
+
+        const thead = table.createTHead();
+        let headerRow = thead.insertRow(); // Main Headers
+        headerRow.insertCell().textContent = 'Month';
+        headerRow.insertCell().textContent = 'Designation';
+
+        const metrics = ['Visit', 'Call', 'Reference', 'New Customer Leads'];
+        metrics.forEach(metric => {
+            const th = document.createElement('th');
+            th.colSpan = 3; // 'Actual', 'Target', '%'
+            th.textContent = metric;
+            headerRow.appendChild(th);
+        });
+
+        headerRow = thead.insertRow(); // Sub-headers
+        headerRow.insertCell(); // Empty for Month
+        headerRow.insertCell(); // Empty for Designation
+        metrics.forEach(() => {
+            ['Act', 'Tgt', '%'].forEach(subHeader => {
+                const th = document.createElement('th');
+                th.textContent = subHeader;
+                headerRow.appendChild(th);
             });
         });
 
+        const tbody = table.createTBody();
+        sortedMonths.forEach(monthYear => {
+            const monthEntries = monthlyData[monthYear];
+            const { totalActivity } = calculateTotalActivity(monthEntries);
+            const designation = employeeCodeToDesignationMap[selectedEmployeeCode] || 'Default';
+            const targets = TARGETS[designation] || TARGETS['Default'];
+
+            const row = tbody.insertRow();
+            row.insertCell().textContent = monthYear;
+            row.insertCell().textContent = designation;
+
+            metrics.forEach(metric => {
+                const actual = totalActivity[metric];
+                const target = targets[metric];
+                const percentage = target > 0 ? ((actual / target) * 100).toFixed(0) : (actual > 0 ? 100 : 0);
+
+                row.insertCell().textContent = actual;
+                row.insertCell().textContent = target;
+                
+                const percentCell = row.insertCell();
+                const progressBarContainer = document.createElement('div');
+                progressBarContainer.className = 'progress-bar-container-small';
+                
+                const progressBar = document.createElement('div');
+                progressBar.className = 'progress-bar';
+                progressBar.style.width = `${Math.min(100, percentage)}%`;
+                progressBar.textContent = `${percentage}%`;
+
+                if (percentage >= 100) {
+                    progressBar.classList.add('success');
+                } else if (percentage >= 75) {
+                    progressBar.classList.add('warning-high');
+                } else if (percentage >= 50) {
+                    progressBar.classList.add('warning-medium');
+                } else if (percentage > 0) {
+                    progressBar.classList.add('warning-low');
+                } else {
+                    progressBar.classList.add('no-activity');
+                    progressBar.textContent = '0%';
+                }
+                progressBarContainer.appendChild(progressBar);
+                percentCell.appendChild(progressBarContainer);
+            });
+        });
         tableContainer.appendChild(table);
         reportDisplay.appendChild(tableContainer);
     }
 
 
-    viewPerformanceReportBtn.addEventListener('click', () => {
-        // Deactivate all buttons first
-        document.querySelectorAll('.view-options .btn').forEach(btn => btn.classList.remove('active'));
-        // Activate the clicked button
-        viewPerformanceReportBtn.classList.add('active');
-        renderOverallStaffPerformanceReport();
-    });
-
-
-
-    // Event Listeners for Main Tab Navigation (Image: d2.PNG - tabs at top)
-    allBranchSnapshotTabBtn.addEventListener('click', () => showTab('allBranchSnapshotTabBtn'));
-    allStaffOverallPerformanceTabBtn.addEventListener('click', () => showTab('allStaffOverallPerformanceTabBtn'));
-    nonParticipatingBranchesTabBtn.addEventListener('click', () => showTab('nonParticipatingBranchesTabBtn'));
-    detailedCustomerViewTabBtn.addEventListener('click', () => showTab('detailedCustomerViewTabBtn')); // NEW
-    employeeManagementTabBtn.addEventListener('click', () => showTab('employeeManagementTabBtn'));
-
-
-    // Function to show/hide sections and render reports based on active tab
-    function showTab(activeTabId) {
+    // Function to show/hide sections based on tab clicked
+    function showTab(tabButtonId) {
         // Deactivate all tab buttons
-        document.querySelectorAll('.tab-button').forEach(btn => btn.classList.remove('active'));
-        // Activate the clicked tab button
-        document.getElementById(activeTabId).classList.add('active');
+        document.querySelectorAll('.tab-button').forEach(button => {
+            button.classList.remove('active');
+        });
 
         // Hide all main content sections
         reportsSection.style.display = 'none';
-        detailedCustomerViewSection.style.display = 'none'; // NEW
+        detailedCustomerViewSection.style.display = 'none';
         employeeManagementSection.style.display = 'none';
 
-        // Reset filter and report displays
-        branchSelect.value = "";
-        employeeSelect.innerHTML = '<option value="">-- Select --</option>';
-        employeeFilterPanel.style.display = 'none';
-        viewOptions.style.display = 'none';
-        reportDisplay.innerHTML = ''; // Clear report display area
+        // Clear previous report display content
+        reportDisplay.innerHTML = '';
+        branchSelect.value = ''; // Reset branch selection
+        employeeSelect.value = ''; // Reset employee selection
+        employeeFilterPanel.style.display = 'none'; // Hide employee filter
+        viewOptions.style.display = 'none'; // Hide view options
+        document.querySelectorAll('.view-options .btn').forEach(btn => btn.classList.remove('active')); // Deactivate report buttons
 
-        // Show the relevant section and render the appropriate content
-        switch (activeTabId) {
-            case 'allBranchSnapshotTabBtn':
+        // Activate the clicked tab button and show relevant section
+        const clickedButton = document.getElementById(tabButtonId);
+        if (clickedButton) {
+            clickedButton.classList.add('active');
+            if (tabButtonId === 'allBranchSnapshotTabBtn' || tabButtonId === 'allStaffOverallPerformanceTabBtn' || tabButtonId === 'nonParticipatingBranchesTabBtn' || tabButtonId === 'nonParticipatingEmployeesTabBtn') {
                 reportsSection.style.display = 'block';
-                renderAllBranchSnapshot();
-                break;
-            case 'allStaffOverallPerformanceTabBtn':
-                reportsSection.style.display = 'block';
-                renderOverallStaffPerformanceReport();
-                break;
-            case 'nonParticipatingBranchesTabBtn':
-                reportsSection.style.display = 'block';
-                renderNonParticipatingBranches();
-                break;
-            case 'detailedCustomerViewTabBtn': // NEW
+                // Render initial report for the tab
+                if (tabButtonId === 'allBranchSnapshotTabBtn') {
+                    renderAllBranchSnapshot();
+                } else if (tabButtonId === 'allStaffOverallPerformanceTabBtn') {
+                    renderOverallStaffPerformanceReport();
+                } else if (tabButtonId === 'nonParticipatingBranchesTabBtn') {
+                    renderNonParticipatingBranches();
+                } else if (tabButtonId === 'nonParticipatingEmployeesTabBtn') {
+                    renderNonParticipatingEmployees();
+                }
+            } else if (tabButtonId === 'detailedCustomerViewTabBtn') {
                 detailedCustomerViewSection.style.display = 'block';
-                // Initialize customer view dropdowns
-                populateDropdown(customerViewBranchSelect, allUniqueBranches);
-                customerCanvassedList.innerHTML = '<p>Select a branch and employee to view canvassed customers.</p>';
-                customerDetailsContent.innerHTML = ''; // Clear customer details
-                break;
-            case 'employeeManagementTabBtn':
+                // Reset customer view dropdowns
+                customerViewBranchSelect.value = "";
+                customerViewEmployeeSelect.value = "";
+                customerCanvassedList.innerHTML = '<p>Select a branch and employee to see customers.</p>';
+                customerDetailsContent.querySelectorAll('[data-field]').forEach(el => el.textContent = '');
+                customerDetailsContent.querySelector('.profile-text').textContent = 'Select a customer to view their detailed profile.';
+                customerDetailsContent.querySelector('.remark-text').textContent = 'Select a customer to view their remarks.';
+            } else if (tabButtonId === 'employeeManagementTabBtn') {
                 employeeManagementSection.style.display = 'block';
-                // Populate branch dropdowns in employee management forms
-                populateDropdown(newBranchNameInput, allUniqueBranches);
-                populateDropdown(bulkEmployeeBranchNameInput, allUniqueBranches);
-                break;
+                displayEmployeeManagementMessage('Use the forms below to manage employees.', false); // Info message
+            }
         }
     }
 
 
+    // Event Listeners for Tab Buttons
+    allBranchSnapshotTabBtn.addEventListener('click', () => showTab('allBranchSnapshotTabBtn'));
+    allStaffOverallPerformanceTabBtn.addEventListener('click', () => showTab('allStaffOverallPerformanceTabBtn'));
+    nonParticipatingBranchesTabBtn.addEventListener('click', () => showTab('nonParticipatingBranchesTabBtn'));
+    nonParticipatingEmployeesTabBtn.addEventListener('click', () => showTab('nonParticipatingEmployeesTabBtn')); // NEW: Event listener for new tab
+    detailedCustomerViewTabBtn.addEventListener('click', () => showTab('detailedCustomerViewTabBtn'));
+    employeeManagementTabBtn.addEventListener('click', () => showTab('employeeManagementTabBtn'));
+
+
+    // Event Listeners for Report View Options
+    viewBranchPerformanceReportBtn.addEventListener('click', (event) => {
+        document.querySelectorAll('.view-options .btn').forEach(btn => btn.classList.remove('active'));
+        event.target.classList.add('active');
+        renderBranchPerformanceReport();
+    });
+
+    viewEmployeeSummaryBtn.addEventListener('click', (event) => {
+        document.querySelectorAll('.view-options .btn').forEach(btn => btn.classList.remove('active'));
+        event.target.classList.add('active');
+        renderEmployeeSummary(selectedEmployeeCodeEntries);
+    });
+
+    viewAllEntriesBtn.addEventListener('click', (event) => {
+        document.querySelectorAll('.view-options .btn').forEach(btn => btn.classList.remove('active'));
+        event.target.classList.add('active');
+        renderAllEntriesReport();
+    });
+
+    viewPerformanceReportBtn.addEventListener('click', (event) => {
+        document.querySelectorAll('.view-options .btn').forEach(btn => btn.classList.remove('active'));
+        event.target.classList.add('active');
+        renderEmployeePerformanceReport();
+    });
+
     // NEW: Detailed Customer View Logic
     customerViewBranchSelect.addEventListener('change', () => {
         const selectedBranch = customerViewBranchSelect.value;
+        customerCanvassedList.innerHTML = '<p>Select an employee to see customers.</p>';
+        customerDetailsContent.querySelectorAll('[data-field]').forEach(el => el.textContent = '');
+        customerDetailsContent.querySelector('.profile-text').textContent = 'Select a customer to view their detailed profile.';
+        customerDetailsContent.querySelector('.remark-text').textContent = 'Select a customer to view their remarks.';
+
         if (selectedBranch) {
-            // Filter employees for the selected branch (from combined canvassing and predefined)
-            const employeeCodesInBranch = [...new Set(
-                allCanvassingData.filter(entry => entry[HEADER_BRANCH_NAME] === selectedBranch).map(entry => entry[HEADER_EMPLOYEE_CODE]).concat(
-                PREDEFINED_EMPLOYEES.filter(emp => emp.branchName === selectedBranch).map(emp => emp.employeeCode)
-                )
-            )].sort((codeA, codeB) => {
+            const employeeCodesInBranchFromCanvassing = allCanvassingData
+                .filter(entry => entry[HEADER_BRANCH_NAME] === selectedBranch)
+                .map(entry => entry[HEADER_EMPLOYEE_CODE]);
+            
+            const sortedEmployeeCodesInBranch = [...new Set(employeeCodesInBranchFromCanvassing)].sort((codeA, codeB) => {
                 const nameA = employeeCodeToNameMap[codeA] || codeA;
                 const nameB = employeeCodeToNameMap[codeB] || codeB;
                 return nameA.localeCompare(nameB);
             });
-            populateDropdown(customerViewEmployeeSelect, employeeCodesInBranch, true);
-            customerCanvassedList.innerHTML = '<p>Select an employee to view their canvassed customers.</p>';
-            customerDetailsContent.innerHTML = '';
+            populateDropdown(customerViewEmployeeSelect, sortedEmployeeCodesInBranch, true);
+            customerViewEmployeeSelect.value = ""; // Reset employee selection
         } else {
-            customerViewEmployeeSelect.innerHTML = '<option value="">-- Select --</option>';
-            customerCanvassedList.innerHTML = '<p>Select a branch and employee to view canvassed customers.</p>';
-            customerDetailsContent.innerHTML = '';
+            customerViewEmployeeSelect.innerHTML = '<option value="">-- Select an Employee --</option>';
         }
     });
 
     customerViewEmployeeSelect.addEventListener('change', () => {
         const selectedBranch = customerViewBranchSelect.value;
         const selectedEmployeeCode = customerViewEmployeeSelect.value;
+        customerCanvassedList.innerHTML = '';
+        customerDetailsContent.querySelectorAll('[data-field]').forEach(el => el.textContent = '');
+        customerDetailsContent.querySelector('.profile-text').textContent = 'Select a customer to view their detailed profile.';
+        customerDetailsContent.querySelector('.remark-text').textContent = 'Select a customer to view their remarks.';
+
         if (selectedBranch && selectedEmployeeCode) {
-            renderCanvassedCustomers(selectedBranch, selectedEmployeeCode);
-        } else {
-            customerCanvassedList.innerHTML = '<p>Select an employee to view their canvassed customers.</p>';
-            customerDetailsContent.innerHTML = '';
+            const customersCanvassed = allCanvassingData.filter(entry =>
+                entry[HEADER_BRANCH_NAME] === selectedBranch &&
+                entry[HEADER_EMPLOYEE_CODE] === selectedEmployeeCode &&
+                entry[HEADER_PROSPECT_NAME] // Ensure prospect name exists
+            );
+
+            if (customersCanvassed.length > 0) {
+                // Sort by prospect name for consistent display
+                customersCanvassed.sort((a, b) => a[HEADER_PROSPECT_NAME].localeCompare(b[HEADER_PROSPECT_NAME]));
+
+                customersCanvassed.forEach((customer, index) => {
+                    const li = document.createElement('li');
+                    li.className = 'customer-list-item';
+                    li.textContent = customer[HEADER_PROSPECT_NAME];
+                    li.dataset.index = index; // Store index to retrieve full details later
+                    li.addEventListener('click', () => {
+                        // Remove active class from all list items
+                        document.querySelectorAll('.customer-list-item').forEach(item => item.classList.remove('active'));
+                        // Add active class to the clicked item
+                        li.classList.add('active');
+                        displayCustomerDetails(customer);
+                    });
+                    customerCanvassedList.appendChild(li);
+                });
+            } else {
+                customerCanvassedList.innerHTML = '<p class="no-participation-message">No customers canvassed by this employee in this branch.</p>';
+            }
         }
     });
 
-    function renderCanvassedCustomers(branchName, employeeCode) {
-        customerCanvassedList.innerHTML = ''; // Clear previous list
-        customerDetailsContent.innerHTML = ''; // Clear previous details
-
-        const customers = allCanvassingData.filter(entry =>
-            entry[HEADER_BRANCH_NAME] === branchName &&
-            entry[HEADER_EMPLOYEE_CODE] === employeeCode
-        );
-
-        if (customers.length === 0) {
-            customerCanvassedList.innerHTML = '<p>No canvassed customers found for this employee in this branch.</p>';
-            return;
-        }
-
-        const ul = document.createElement('ul');
-        ul.className = 'customer-list';
-        customers.forEach((customer, index) => {
-            const li = document.createElement('li');
-            li.textContent = `${customer[HEADER_PROSPECT_NAME] || 'Unknown Customer'} (${customer[HEADER_ACTIVITY_TYPE] || 'N/A'}) - ${formatDate(customer[HEADER_DATE] || customer[HEADER_TIMESTAMP])}`;
-            li.addEventListener('click', () => displayCustomerDetails(customer));
-            ul.appendChild(li);
-        });
-        customerCanvassedList.appendChild(ul);
-    }
-
     function displayCustomerDetails(customer) {
-        customerDetailsContent.innerHTML = '<h3>Customer Details</h3>';
-        const detailsHtml = `
-            <p><strong>Prospect Name:</strong> ${customer[HEADER_PROSPECT_NAME] || 'N/A'}</p>
-            <p><strong>Phone Number (Whatsapp):</strong> ${customer[HEADER_PHONE_NUMBER_WHATSAPP] || 'N/A'}</p>
-            <p><strong>Address:</strong> ${customer[HEADER_ADDRESS] || 'N/A'}</p>
-            <p><strong>Profession:</strong> ${customer[HEADER_PROFESSION] || 'N/A'}</p>
-            <p><strong>DOB/WD:</strong> ${formatDate(customer[HEADER_DOB_WD]) || 'N/A'}</p>
-            <p><strong>Product Interested:</strong> ${customer[HEADER_PRODUCT_INTERESTED] || 'N/A'}</p>
-            <p><strong>Remarks:</strong> ${customer[HEADER_REMARKS] || 'N/A'}</p>
-            <p><strong>Next Follow-up Date:</strong> ${formatDate(customer[HEADER_NEXT_FOLLOW_UP_DATE]) || 'N/A'}</p>
-            <p><strong>Activity Type:</strong> ${customer[HEADER_ACTIVITY_TYPE] || 'N/A'}</p>
-            <p><strong>Type of Customer:</strong> ${customer[HEADER_TYPE_OF_CUSTOMER] || 'N/A'}</p>
-            <p><strong>Lead Source:</strong> ${customer[HEADER_R_LEAD_SOURCE] || 'N/A'}</p>
-            <p><strong>How Contacted:</strong> ${customer[HEADER_HOW_CONTACTED] || 'N/A'}</p>
-            <p><strong>Relation With Staff:</strong> ${customer[HEADER_RELATION_WITH_STAFF] || 'N/A'}</p>
-            <h4>Family Details:</h4>
-            <ul>
-                <li><strong>Name of Wife/Husband:</strong> ${customer[HEADER_FAMILY_DETAILS_1] || 'N/A'}</li>
-                <li><strong>Job of Wife/Husband:</strong> ${customer[HEADER_FAMILY_DETAILS_2] || 'N/A'}</li>
-                <li><strong>Names of Children:</strong> ${customer[HEADER_FAMILY_DETAILS_3] || 'N/A'}</li>
-                <li><strong>Details of Children:</strong> ${customer[HEADER_FAMILY_DETAILS_4] || 'N/A'}</li>
-            </ul>
-            <p><strong>Profile of Customer:</strong> ${customer[HEADER_PROFILE_OF_CUSTOMER] || 'N/A'}</p>
-        `;
-        customerDetailsContent.innerHTML += detailsHtml;
+        // Clear previous details
+        customerDetailsContent.querySelectorAll('[data-field]').forEach(el => el.textContent = '');
+
+        // Populate Customer Overview
+        customerDetailsContent.querySelector('[data-field="customerName"]').textContent = customer[HEADER_PROSPECT_NAME] || 'N/A';
+        customerDetailsContent.querySelector('[data-field="customerAge"]').textContent = customer[HEADER_DOB_WD] || 'N/A'; // Assuming DOB/WD is for age if no explicit age field
+        customerDetailsContent.querySelector('[data-field="customerProfession"]').textContent = customer[HEADER_PROFESSION] || 'N/A';
+        customerDetailsContent.querySelector('[data-field="customerMobile"]').textContent = customer[HEADER_PHONE_NUMBER_WHATSAPP] || 'N/A';
+        customerDetailsContent.querySelector('[data-field="customerAddress"]').textContent = customer[HEADER_ADDRESS] || 'N/A';
+
+        // Populate Canvassing Activity
+        customerDetailsContent.querySelector('[data-field="canvassedDate"]').textContent = formatDate(customer[HEADER_DATE]) || 'N/A';
+        customerDetailsContent.querySelector('[data-field="canvassedBy"]').textContent = employeeCodeToNameMap[customer[HEADER_EMPLOYEE_CODE]] || customer[HEADER_EMPLOYEE_CODE] || 'N/A';
+        customerDetailsContent.querySelector('[data-field="canvassingMedium"]').textContent = customer[HEADER_HOW_CONTACTED] || 'N/A'; // Assuming How Contacted is canvassing medium
+        customerDetailsContent.querySelector('[data-field="currentStatus"]').textContent = customer[HEADER_TYPE_OF_CUSTOMER] || 'N/A'; // Assuming Type of Customer reflects current status
+        customerDetailsContent.querySelector('[data-field="followUpDate"]').textContent = formatDate(customer[HEADER_NEXT_FOLLOW_UP_DATE]) || 'N/A';
+        customerDetailsContent.querySelector('[data-field="productInterest"]').textContent = customer[HEADER_PRODUCT_INTERESTED] || 'N/A';
+
+        // Populate Family Details
+        customerDetailsContent.querySelector('[data-field="maritalStatus"]').textContent = customer[HEADER_RELATION_WITH_STAFF] || 'N/A'; // Re-purposing for marital status if applicable
+        customerDetailsContent.querySelector('[data-field="spouseName"]').textContent = customer[HEADER_FAMILY_DETAILS_1] || 'N/A';
+        customerDetailsContent.querySelector('[data-field="children"]').textContent = customer[HEADER_FAMILY_DETAILS_3] || 'N/A'; // Concatenate children details if needed
+        customerDetailsContent.querySelector('[data-field="familyIncome"]').textContent = customer[HEADER_FAMILY_DETAILS_2] || 'N/A'; // Re-purposing for family income if applicable
+
+        // Profile and Remarks
+        customerDetailsContent.querySelector('[data-field="customerProfile"]').textContent = customer[HEADER_PROFILE_OF_CUSTOMER] || 'No detailed profile available.';
+        customerDetailsContent.querySelector('[data-field="remarks"]').textContent = customer[HEADER_REMARKS] || 'No remarks available.';
     }
 
 
-    // Function to send data to Google Apps Script Web App
+    // Google Apps Script Web App Communication
     async function sendDataToGoogleAppsScript(action, data) {
-        displayEmployeeManagementMessage(`Sending data to server for ${action}...`, false);
+        displayEmployeeManagementMessage('Processing request...', false);
         try {
             const response = await fetch(WEB_APP_URL, {
                 method: 'POST',
@@ -1208,26 +1357,32 @@ document.addEventListener('DOMContentLoaded', () => {
 
             if (!response.ok) {
                 const errorText = await response.text();
-                console.error(`Google Apps Script Web App Error for ${action}! Status: ${response.status}. Details: ${errorText}`);
-                displayEmployeeManagementMessage(`Error processing ${action}: ${errorText}`, true);
-                return false;
+                throw new Error(`Server responded with an error: ${response.status} - ${errorText}`);
             }
 
             const result = await response.json();
-            console.log(`Google Apps Script ${action} response:`, result);
-
-            if (result.status === 'SUCCESS') {
-                displayEmployeeManagementMessage(`${result.message || 'Operation successful!'}`);
-                // Re-fetch and process data to update UI after successful operation
-                await processData();
+            if (result.status === 'success') {
+                displayEmployeeManagementMessage(result.message, false);
+                // Re-process data to update dropdowns and reports after successful modification
+                await processData(); 
+                // After successful add/delete, if on employee management tab, clear forms
+                if (employeeManagementSection.style.display === 'block') {
+                    if (action === 'add_employee') {
+                        addEmployeeForm.reset();
+                    } else if (action === 'add_bulk_employees') {
+                        bulkAddEmployeeForm.reset();
+                    } else if (action === 'delete_employee') {
+                        deleteEmployeeForm.reset();
+                    }
+                }
                 return true;
             } else {
-                displayEmployeeManagementMessage(`${result.message || 'Operation failed!'}: ${result.details || ''}`, true);
+                displayEmployeeManagementMessage(`Error: ${result.message}`, true);
                 return false;
             }
         } catch (error) {
-            console.error(`Network or unexpected error during ${action}:`, error);
-            displayEmployeeManagementMessage(`Network error during ${action}: ${error.message}`, true);
+            console.error('Error sending data to Apps Script:', error);
+            displayEmployeeManagementMessage(`Failed to send data: ${error.message}. Check network and Apps Script deployment.`, true);
             return false;
         }
     }
@@ -1236,34 +1391,32 @@ document.addEventListener('DOMContentLoaded', () => {
     // Event Listener for Add Employee Form
     if (addEmployeeForm) {
         addEmployeeForm.addEventListener('submit', async (event) => {
-            event.preventDefault(); // Prevent default form submission
+            event.preventDefault();
+            const newEmployeeName = newEmployeeNameInput.value.trim();
+            const newEmployeeCode = newEmployeeCodeInput.value.trim();
+            const newBranchName = newBranchNameInput.value.trim();
+            const newDesignation = newDesignationInput.value.trim();
 
-            const employeeName = newEmployeeNameInput.value.trim();
-            const employeeCode = newEmployeeCodeInput.value.trim();
-            const branchName = newBranchNameInput.value.trim();
-            const designation = newDesignationInput.value.trim();
-
-            if (!employeeName || !employeeCode || !branchName || !designation) {
-                displayEmployeeManagementMessage('All fields are required for adding an employee.', true);
+            if (!newEmployeeName || !newEmployeeCode || !newBranchName) {
+                displayEmployeeManagementMessage('Name, Code, and Branch Name are required.', true);
                 return;
             }
 
             const employeeData = {
-                [HEADER_EMPLOYEE_CODE]: employeeCode,
-                [HEADER_EMPLOYEE_NAME]: employeeName,
-                [HEADER_BRANCH_NAME]: branchName,
-                [HEADER_DESIGNATION]: designation
+                [HEADER_EMPLOYEE_NAME]: newEmployeeName,
+                [HEADER_EMPLOYEE_CODE]: newEmployeeCode,
+                [HEADER_BRANCH_NAME]: newBranchName,
+                [HEADER_DESIGNATION]: newDesignation
             };
 
             const success = await sendDataToGoogleAppsScript('add_employee', employeeData);
-
             if (success) {
                 addEmployeeForm.reset(); // Clear form on success
             }
         });
     }
 
-    // Event Listener for Bulk Add Employee Form
+    // Event Listener for Bulk Add Employees Form
     if (bulkAddEmployeeForm) {
         bulkAddEmployeeForm.addEventListener('submit', async (event) => {
             event.preventDefault();
@@ -1271,19 +1424,19 @@ document.addEventListener('DOMContentLoaded', () => {
             const bulkDetails = bulkEmployeeDetailsTextarea.value.trim();
 
             if (!branchName || !bulkDetails) {
-                displayEmployeeManagementMessage('Branch Name and Bulk Details are required for bulk addition.', true);
+                displayEmployeeManagementMessage('Branch Name and Employee Details are required for bulk entry.', true);
                 return;
             }
 
-            const employeesToAdd = [];
             const lines = bulkDetails.split('\n').filter(line => line.trim() !== '');
+            const employeesToAdd = [];
 
             for (const line of lines) {
                 const parts = line.split(',').map(part => part.trim());
-                if (parts.length >= 2) { // Expecting at least employeeCode, employeeName
+                if (parts.length >= 2) { // Minimum Name, Code
                     const employeeData = {
-                        [HEADER_EMPLOYEE_CODE]: parts[0],
-                        [HEADER_EMPLOYEE_NAME]: parts[1],
+                        [HEADER_EMPLOYEE_NAME]: parts[0],
+                        [HEADER_EMPLOYEE_CODE]: parts[1],
                         [HEADER_BRANCH_NAME]: branchName,
                         [HEADER_DESIGNATION]: parts[2] || ''
                     };
