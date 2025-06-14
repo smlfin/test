@@ -2,7 +2,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // *** Configuration ***
     // This URL is for your Canvassing Data sheet. Ensure it's correct and published as CSV.
     // NOTE: If you are still getting 404, this URL is the problem.
-    const DATA_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTO7LujC4VSa2wGkJ2YEYSN7UeXR221ny3THaVegYfNfRm2JQGg7QR9Bxxh9SadXtK8Pi6-psl2tGsb/pub?gid=696550092&single=true&output=csv";
+    const DATA_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTO7LujC4VSa2wGkJ2YEYSN7UeXR221ny3THaVegYfNfRm2JQGg7QR9Bxxh9SadXtK8Pi6-ps2tGsb/pub?gid=69550092&single=true&output=csv";
 
     // IMPORTANT: Replace this with YOUR DEPLOYED GOOGLE APPS SCRIPT WEB APP URL
     // NOTE: If you are getting errors sending data, this URL is the problem.
@@ -297,10 +297,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Global variables to store fetched data
     let allCanvassingData = []; // Raw activity data from Form Responses 2
-    let allUniqueBranches = []; // Will be populated dynamically from PREDEFINED_EMPLOYEES
-    let allUniqueEmployees = []; // Employee codes from PREDEFINED_EMPLOYEES
-    let employeeCodeToNameMap = {}; // {code: name} from PREDEFINED_EMPLOYEES
-    let employeeCodeToDesignationMap = {}; // {code: designation} from PREDEFINED_EMPLOYEES
+    let allUniqueBranches = []; // Will be populated dynamically from PREDEFINED_EMPLOYEES and canvassing data
+    let allUniqueEmployees = []; // Employee codes from PREDEFINED_EMPLOYEES and canvassing data
+    let employeeCodeToNameMap = {}; // {code: name} from PREDEFINED_EMPLOYEES and canvassing data
+    let employeeCodeToDesignationMap = {}; // {code: designation} from PREDEFINED_EMPLOYEES and canvassing data
     let selectedBranchEntries = []; // Activity entries filtered by branch (for main reports section)
     let selectedEmployeeCodeEntries = []; // Activity entries filtered by employee code (for main reports section)
 
@@ -397,6 +397,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // Function to initialize branch and employee dropdowns dynamically from PREDEFINED_EMPLOYEES
+    // and also populate employee maps from allCanvassingData
     function initializeFilters() {
         // Clear previous options
         if (branchSelect) branchSelect.innerHTML = '<option value="">-- Select a Branch --</option>';
@@ -404,13 +405,41 @@ document.addEventListener('DOMContentLoaded', () => {
         if (employeeSelect) employeeSelect.innerHTML = '<option value="">-- Select an Employee --</option>';
         if (customerViewEmployeeSelect) customerViewEmployeeSelect.innerHTML = '<option value="">-- Select an Employee --</option>';
 
-        // Dynamically get unique branches from PREDEFINED_EMPLOYEES
-        const uniqueBranchesSet = new Set();
-        PREDEFINED_EMPLOYEES.forEach(employee => {
-            uniqueBranchesSet.add(employee.branchName);
-        });
-        allUniqueBranches = Array.from(uniqueBranchesSet).sort(); // Convert to array and sort
+        // Reset global maps and lists
+        allUniqueBranches = new Set();
+        employeeCodeToNameMap = {};
+        employeeCodeToDesignationMap = {};
 
+        // 1. Populate from PREDEFINED_EMPLOYEES
+        PREDEFINED_EMPLOYEES.forEach(employee => {
+            allUniqueBranches.add(employee.branchName);
+            employeeCodeToNameMap[employee.employeeCode] = employee.employeeName;
+            employeeCodeToDesignationMap[employee.employeeCode] = employee.designation;
+        });
+
+        // 2. Populate from allCanvassingData for any employee codes not in PREDEFINED_EMPLOYEES
+        allCanvassingData.forEach(entry => {
+            const employeeCode = entry[HEADER_EMPLOYEE_CODE];
+            const employeeNameFromData = entry[HEADER_EMPLOYEE_NAME];
+            const designationFromData = entry[HEADER_DESIGNATION];
+            const branchNameFromData = entry[HEADER_BRANCH_NAME];
+
+            if (employeeCode && !employeeCodeToNameMap[employeeCode]) {
+                // If employee code exists in canvassing data but not in predefined list
+                employeeCodeToNameMap[employeeCode] = employeeNameFromData || `Unknown Employee (${employeeCode})`;
+                employeeCodeToDesignationMap[employeeCode] = designationFromData || 'Unknown Designation';
+                allUniqueBranches.add(branchNameFromData || 'Unknown Branch'); // Add branch if not already present
+                console.warn(`Employee ${employeeNameFromData} (Code: ${employeeCode}) from canvassing data is not in predefined list. Added dynamically.`);
+            } else if (employeeCode && employeeCodeToNameMap[employeeCode] && employeeNameFromData && employeeCodeToNameMap[employeeCode] !== employeeNameFromData) {
+                // If employee code matches but name is different, log a warning (data inconsistency)
+                console.warn(`Name mismatch for employee code ${employeeCode}: Predefined '${employeeCodeToNameMap[employeeCode]}' vs Data '${employeeNameFromData}'. Using predefined.`);
+            }
+        });
+
+        // Convert branch set to sorted array
+        allUniqueBranches = Array.from(allUniqueBranches).sort();
+
+        // Populate branch dropdowns
         allUniqueBranches.forEach(branch => {
             const option = document.createElement('option');
             option.value = branch;
@@ -419,16 +448,14 @@ document.addEventListener('DOMContentLoaded', () => {
             if (customerViewBranchSelect) customerViewBranchSelect.appendChild(option.cloneNode(true)); // For Detailed Customer View
         });
 
-        // Populate employee dropdown based on PREDEFINED_EMPLOYEES
-        allUniqueEmployees = []; // Reset
-        employeeCodeToNameMap = {}; // Reset
-        employeeCodeToDesignationMap = {}; // Reset
+        // Populate employee dropdowns (all unique employees, sorted by name)
+        allUniqueEmployees = Object.keys(employeeCodeToNameMap).map(code => ({
+            employeeCode: code,
+            employeeName: employeeCodeToNameMap[code],
+            branchName: PREDEFINED_EMPLOYEES.find(emp => emp.employeeCode === code)?.branchName || 'N/A' // Try to get branch from predefined, else N/A
+        })).sort((a, b) => a.employeeName.localeCompare(b.employeeName));
 
-        PREDEFINED_EMPLOYEES.forEach(employee => {
-            allUniqueEmployees.push(employee.employeeCode);
-            employeeCodeToNameMap[employee.employeeCode] = employee.employeeName;
-            employeeCodeToDesignationMap[employee.employeeCode] = employee.designation;
-
+        allUniqueEmployees.forEach(employee => {
             const option = document.createElement('option');
             option.value = employee.employeeCode;
             option.textContent = `${employee.employeeName} (${employee.employeeCode}) - ${employee.branchName}`;
@@ -488,7 +515,7 @@ document.addEventListener('DOMContentLoaded', () => {
         reportDisplay.innerHTML = '<h2>All Branch Snapshot Report</h2>';
 
         const branchActivity = {};
-        allUniqueBranches.forEach(branch => { // Use dynamically generated branches
+        allUniqueBranches.forEach(branch => { // Use dynamically generated branches from initializeFilters
             branchActivity[branch] = {
                 'Visit': 0,
                 'Call': 0,
@@ -502,7 +529,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const activity = entry[HEADER_ACTIVITY_TYPE];
             const typeOfCustomer = entry[HEADER_TYPE_OF_CUSTOMER];
 
-            if (branchActivity[branch]) {
+            if (branchActivity[branch]) { // Only process if branch is recognized/initialized
                 if (activity === 'Visit') {
                     branchActivity[branch]['Visit']++;
                 } else if (activity === 'Call') {
@@ -514,6 +541,12 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (typeOfCustomer === 'New Customer Lead') {
                     branchActivity[branch]['New Customer Leads']++;
                 }
+            } else {
+                console.warn(`Activity found for unlisted branch: ${branch}.`);
+                // Optionally, add to branchActivity dynamically if desired, but for snapshot,
+                // focusing on "known" branches is usually the intent.
+                // For this request, we prioritize listing branches from the data.
+                // If a branch is in data but not predefined, it should be in allUniqueBranches.
             }
         });
 
@@ -549,19 +582,21 @@ document.addEventListener('DOMContentLoaded', () => {
 
         reportDisplay.innerHTML = `<h2>Performance Report for ${selectedBranch}</h2>`;
 
-        const employeesInBranch = PREDEFINED_EMPLOYEES.filter(emp => emp.branchName === selectedBranch);
+        // Filter employees belonging to the selected branch, including those dynamically added
+        const employeesInBranch = allUniqueEmployees.filter(emp => emp.branchName === selectedBranch);
 
         const employeePerformance = {};
 
         employeesInBranch.forEach(emp => {
+            const designation = employeeCodeToDesignationMap[emp.employeeCode] || 'Default';
             employeePerformance[emp.employeeCode] = {
-                name: emp.employeeName,
-                designation: emp.designation,
+                name: employeeCodeToNameMap[emp.employeeCode],
+                designation: designation,
                 'Visit': 0,
                 'Call': 0,
                 'Reference': 0,
                 'New Customer Leads': 0,
-                targets: TARGETS[emp.designation] || TARGETS['Default']
+                targets: TARGETS[designation] || TARGETS['Default']
             };
         });
 
@@ -571,7 +606,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const activity = entry[HEADER_ACTIVITY_TYPE];
             const typeOfCustomer = entry[HEADER_TYPE_OF_CUSTOMER];
 
-            if (employeePerformance[employeeCode]) {
+            if (employeePerformance[employeeCode]) { // Ensure the employee is recognized
                 if (activity === 'Visit') {
                     employeePerformance[employeeCode]['Visit']++;
                 } else if (activity === 'Call') {
@@ -634,7 +669,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         reportDisplay.innerHTML = `<h2>Summary Report for ${selectedEmployeeName} (${selectedEmployeeCode})</h2>`;
-        reportDisplay.innerHTML += `<p><strong>Designation:</strong> ${selectedEmployeeDesignation}</p>`;
+        reportDisplay.innerHTML += `<p><strong>Designation:</strong> ${selectedEmployeeDesignation || 'N/A'}</p>`;
 
         const employeeActivities = {
             'Visit': 0,
@@ -691,7 +726,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         if (selectedEmployeeCode) {
             filteredEntries = filteredEntries.filter(entry => entry[HEADER_EMPLOYEE_CODE] === selectedEmployeeCode);
-            reportDisplay.innerHTML = `<h2>All Entries for ${employeeCodeToNameMap[selectedEmployeeCode]} (${selectedEmployeeCode}) in ${selectedBranch}</h2>`;
+            reportDisplay.innerHTML = `<h2>All Entries for ${employeeCodeToNameMap[selectedEmployeeCode] || 'Unknown Employee'} (${selectedEmployeeCode}) in ${selectedBranch || 'All Branches'}</h2>`;
         }
 
         if (filteredEntries.length === 0) {
@@ -755,19 +790,25 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const employeeOverallPerformance = {};
 
-        // Initialize all predefined employees, including those with no activities
-        PREDEFINED_EMPLOYEES.forEach(emp => {
-            employeeOverallPerformance[emp.employeeCode] = {
-                name: emp.employeeName,
-                branch: emp.branchName,
-                designation: emp.designation,
+        // Initialize all recognized employees (from predefined and canvassing data)
+        Object.keys(employeeCodeToNameMap).forEach(code => {
+            const name = employeeCodeToNameMap[code];
+            const designation = employeeCodeToDesignationMap[code] || 'Default';
+            // Try to find branch from predefined, otherwise use 'N/A' or infer if possible (though not directly from map)
+            const branch = PREDEFINED_EMPLOYEES.find(emp => emp.employeeCode === code)?.branchName || 'N/A';
+
+            employeeOverallPerformance[code] = {
+                name: name,
+                branch: branch,
+                designation: designation,
                 'Visit': 0,
                 'Call': 0,
                 'Reference': 0,
                 'New Customer Leads': 0,
-                targets: TARGETS[emp.designation] || TARGETS['Default']
+                targets: TARGETS[designation] || TARGETS['Default']
             };
         });
+
 
         // Populate actual activity counts from canvassing data
         allCanvassingData.forEach(entry => {
@@ -775,7 +816,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const activity = entry[HEADER_ACTIVITY_TYPE];
             const typeOfCustomer = entry[HEADER_TYPE_OF_CUSTOMER];
 
-            if (employeeOverallPerformance[employeeCode]) {
+            if (employeeOverallPerformance[employeeCode]) { // Ensure the employee is recognized
                 if (activity === 'Visit') {
                     employeeOverallPerformance[employeeCode]['Visit']++;
                 } else if (activity === 'Call') {
@@ -794,6 +835,7 @@ document.addEventListener('DOMContentLoaded', () => {
         tableHtml += '<th>Employee Name</th><th>Employee Code</th><th>Branch</th><th>Designation</th><th>Visits</th><th>Calls</th><th>References</th><th>New Customer Leads</th><th>Visit Target</th><th>Call Target</th><th>Reference Target</th><th>New Customer Leads Target</th><th>Visit Ach (%)</th><th>Call Ach (%)</th><th>Reference Ach (%)</th><th>New Customer Leads Ach (%)</th>';
         tableHtml += '</tr></thead><tbody>';
 
+        // Sort employees by name
         const sortedEmployees = Object.values(employeeOverallPerformance).sort((a, b) => a.name.localeCompare(b.name));
 
         sortedEmployees.forEach(emp => {
@@ -836,7 +878,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
 
         // Use allUniqueBranches (dynamically generated) for comparison
-        const nonParticipatingBranches = allUniqueBranches.filter(
+        const nonParticipatingBranches = Array.from(allUniqueBranches).filter(
             branch => !participatingBranches.has(branch)
         );
 
@@ -848,7 +890,7 @@ document.addEventListener('DOMContentLoaded', () => {
             listHtml += '</ul>';
             reportDisplay.innerHTML += listHtml;
         } else {
-            reportDisplay.innerHTML += '<p class="no-participation-message">All predefined branches have participated!</p>';
+            reportDisplay.innerHTML += '<p class="no-participation-message">All recognized branches have participated!</p>';
         }
     }
 
@@ -860,7 +902,8 @@ document.addEventListener('DOMContentLoaded', () => {
             participatingEmployeeCodes.add(entry[HEADER_EMPLOYEE_CODE]);
         });
 
-        const nonParticipatingEmployees = PREDEFINED_EMPLOYEES.filter(
+        // Filter from all recognized employees (both predefined and dynamically added)
+        const nonParticipatingEmployees = allUniqueEmployees.filter(
             employee => !participatingEmployeeCodes.has(employee.employeeCode)
         );
 
@@ -870,14 +913,14 @@ document.addEventListener('DOMContentLoaded', () => {
                 tableHtml += `<tr>
                     <td data-label="Employee Name">${emp.employeeName}</td>
                     <td data-label="Employee Code">${emp.employeeCode}</td>
-                    <td data-label="Branch">${emp.branchName}</td>
-                    <td data-label="Designation">${emp.designation}</td>
+                    <td data-label="Branch">${emp.branchName || 'N/A'}</td>
+                    <td data-label="Designation">${employeeCodeToDesignationMap[emp.employeeCode] || 'N/A'}</td>
                 </tr>`;
             });
             tableHtml += '</tbody></table>';
             reportDisplay.innerHTML += tableHtml;
         } else {
-            reportDisplay.innerHTML += '<p class="no-participation-message">All predefined employees have participated!</p>';
+            reportDisplay.innerHTML += '<p class="no-participation-message">All recognized employees have participated!</p>';
         }
     }
 
@@ -1025,8 +1068,7 @@ document.addEventListener('DOMContentLoaded', () => {
     async function processData() {
         displayMessage('Loading dashboard data...', 'info');
         await fetchCanvassingData();
-        initializeFilters(); // Initialize dropdowns with predefined data
-
+        initializeFilters(); // Initialize dropdowns and employee maps with all data
         // Set initial filter to show all entries
         if (branchSelect) branchSelect.value = '';
         if (employeeSelect) employeeSelect.value = '';
@@ -1124,11 +1166,17 @@ document.addEventListener('DOMContentLoaded', () => {
                 // If a branch is selected, show branch and employee filter panels
                 employeeFilterPanel.style.display = 'block';
                 viewOptions.style.display = 'block'; // Show general view options
-                // Populate employee dropdown based on selected branch
-                const filteredEmployees = PREDEFINED_EMPLOYEES.filter(emp => emp.branchName === branchSelect.value);
+                // Populate employee dropdown based on selected branch (using the comprehensive map)
+                const employeesInSelectedBranch = Object.keys(employeeCodeToNameMap)
+                    .filter(code => (PREDEFINED_EMPLOYEES.find(emp => emp.employeeCode === code)?.branchName || 'N/A') === branchSelect.value)
+                    .map(code => ({
+                        employeeCode: code,
+                        employeeName: employeeCodeToNameMap[code]
+                    }))
+                    .sort((a, b) => a.employeeName.localeCompare(b.employeeName));
+
                 employeeSelect.innerHTML = '<option value="">-- Select an Employee --</option>'; // Clear existing
-                filteredEmployees.sort((a, b) => a.employeeName.localeCompare(b.employeeName));
-                filteredEmployees.forEach(emp => {
+                employeesInSelectedBranch.forEach(emp => {
                     const option = document.createElement('option');
                     option.value = emp.employeeCode;
                     option.textContent = `${emp.employeeName} (${emp.employeeCode})`;
@@ -1178,11 +1226,17 @@ document.addEventListener('DOMContentLoaded', () => {
         customerViewBranchSelect.addEventListener('change', () => {
             populateCustomerCanvassedList();
             const selectedBranch = customerViewBranchSelect.value;
-            // Populate employee dropdown based on selected branch
-            const filteredEmployees = PREDEFINED_EMPLOYEES.filter(emp => emp.branchName === selectedBranch);
+            // Populate employee dropdown based on selected branch (using comprehensive maps)
+            const employeesInSelectedBranch = Object.keys(employeeCodeToNameMap)
+                .filter(code => (PREDEFINED_EMPLOYEES.find(emp => emp.employeeCode === code)?.branchName || 'N/A') === selectedBranch)
+                .map(code => ({
+                    employeeCode: code,
+                    employeeName: employeeCodeToNameMap[code]
+                }))
+                .sort((a, b) => a.employeeName.localeCompare(b.employeeName));
+
             customerViewEmployeeSelect.innerHTML = '<option value="">-- Select an Employee --</option>'; // Clear existing
-            filteredEmployees.sort((a, b) => a.employeeName.localeCompare(b.employeeName));
-            filteredEmployees.forEach(emp => {
+            employeesInSelectedBranch.forEach(emp => {
                 const option = document.createElement('option');
                 option.value = emp.employeeCode;
                 option.textContent = `${emp.employeeName} (${emp.employeeCode})`;
