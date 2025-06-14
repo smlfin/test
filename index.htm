@@ -13,7 +13,8 @@
             <button class="tab-button active" id="allBranchSnapshotTabBtn">All Branch Snapshot</button>
             <button class="tab-button" id="allStaffOverallPerformanceTabBtn">All Staff Performance (Overall)</button>
             <button class="tab-button" id="nonParticipatingBranchesTabBtn">Non-Participating Branches</button>
-            <button class="tab-button" id="detailedCustomerViewTabBtn">Detailed Customer View</button> <button class="tab-button" id="employeeManagementTabBtn">Employee Management</button>
+            <button class="tab-button" id="detailedCustomerViewTabBtn">Detailed Customer View</button>
+            <button class="tab-button" id="employeeManagementTabBtn">Employee Management</button>
         </nav>
     </header>
 
@@ -75,65 +76,63 @@
 
             <div class="customer-details-display">
                 <h3>Customer Details:</h3>
-                <div id="customerDetailsContent" class="customer-details-card">
-                    <p>Select a customer from the list to view their details.</p>
-                    <div class="customer-info-section" id="customerOverviewSection">
-                        <h3>Customer Overview</h3>
+                <div class="customer-info-section" id="customerOverviewSection">
+                    <h3>Customer Overview</h3>
+                    <div class="detail-row">
+                        <span class="detail-label">Name:</span>
+                        <span class="detail-value">John Doe</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label">Contact:</span>
+                        <span class="detail-value">john.doe@example.com</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label">Address:</span>
+                        <span class="detail-value">123 Main St, Anytown</span>
+                    </div>
+                </div>
+
+                <div class="customer-info-section" id="canvassingActivitySection">
+                    <h3>Canvassing Activity</h3>
+                    <div class="detail-row">
+                        <span class="detail-label">Last Contact:</span>
+                        <span class="detail-value">2024-05-10</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label">Products Discussed:</span>
+                        <span class="detail-value">Savings Account, Credit Card</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label">Status:</span>
+                        <span class="detail-value">Follow-up required</span>
+                    </div>
+                </div>
+
+                <div class="supplementary-details-card">
+                    <div class="customer-info-section" id="remarksSection">
+                        <h3>Remarks</h3>
+                        <p class="remark-text">Customer expressed interest in home loan products but has some existing commitments.</p>
+                    </div>
+
+                    <div class="customer-info-section" id="familyDetailsSection">
+                        <h3>Family Details</h3>
                         <div class="detail-row">
-                            <span class="detail-label">Name:</span>
-                            <span class="detail-value">John Doe</span>
+                            <span class="detail-label">Spouse Name:</span>
+                            <span class="detail-value">Jane Doe</span>
                         </div>
                         <div class="detail-row">
-                            <span class="detail-label">Contact:</span>
-                            <span class="detail-value">john.doe@example.com</span>
+                            <span class="detail-label">Children:</span>
+                            <span class="detail-value">2</span>
                         </div>
                         <div class="detail-row">
-                            <span class="detail-label">Address:</span>
-                            <span class="detail-value">123 Main St, Anytown</span>
+                            <span class="detail-label">Dependents:</span>
+                            <span class="detail-value">3</span>
                         </div>
                     </div>
-                    <div class="customer-info-section" id="canvassingActivitySection">
-                        <h3>Canvassing Activity</h3>
-                        <div class="detail-row">
-                            <span class="detail-label">Last Contact:</span>
-                            <span class="detail-value">2024-05-10</span>
-                        </div>
-                        <div class="detail-row">
-                            <span class="detail-label">Products Discussed:</span>
-                            <span class="detail-value">Savings Account, Credit Card</span>
-                        </div>
-                        <div class="detail-row">
-                            <span class="detail-label">Status:</span>
-                            <span class="detail-value">Follow-up required</span>
-                        </div>
-                    </div>
 
-                    <div class="supplementary-details-card">
-                        <div class="customer-info-section" id="remarksSection">
-                            <h3>Remarks</h3>
-                            <p class="remark-text">Customer expressed interest in home loan products but has some existing commitments.</p>
-                        </div>
-
-                        <div class="customer-info-section" id="familyDetailsSection">
-                            <h3>Family Details</h3>
-                            <div class="detail-row">
-                                <span class="detail-label">Spouse Name:</span>
-                                <span class="detail-value">Jane Doe</span>
-                            </div>
-                            <div class="detail-row">
-                                <span class="detail-label">Children:</span>
-                                <span class="detail-value">2</span>
-                            </div>
-                            <div class="detail-row">
-                                <span class="detail-label">Dependents:</span>
-                                <span class="detail-value">3</span>
-                            </div>
-                        </div>
-
-                        <div class="customer-info-section" id="customerProfileSection">
-                            <h3>Customer Profile</h3>
-                            <p class="profile-text">Age: 45, Profession: Engineer, Income Bracket: Mid-High, Currently holds a savings account with a competitor bank. Looking for better interest rates.</p>
-                        </div>
+                    <div class="customer-info-section" id="customerProfileSection">
+                        <h3>Customer Profile</h3>
+                        <p class="profile-text">Age: 45, Profession: Engineer, Income Bracket: Mid-High, Currently holds a savings account with a competitor bank. Looking for better interest rates.</p>
                     </div>
                 </div>
             </div>
