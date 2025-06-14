@@ -461,7 +461,7 @@ footer {
 }
 
 
-/* --- NEW & UPDATED: Detailed Customer View Specific Styles --- */
+/* --- NEW: Detailed Customer View Specific Styles --- */
 #detailedCustomerViewSection {
     display: flex; /* Use flexbox for layout of customer list and details */
     flex-direction: column; /* Stack vertically by default */
@@ -499,7 +499,6 @@ footer {
     text-align: center;
 }
 
-/* Updated styles for horizontal customer list */
 ul.customer-list {
     list-style: none;
     padding: 0;
@@ -507,39 +506,27 @@ ul.customer-list {
     overflow-y: auto; /* Enable vertical scrolling */
     border: 1px solid #ddd;
     border-radius: 5px;
-    display: flex; /* Use flexbox for horizontal layout */
-    flex-wrap: wrap; /* Allow items to wrap to the next line */
-    gap: 8px; /* Space between items */
-    padding: 10px; /* Internal padding */
-    justify-content: flex-start; /* Align items to the start */
 }
 
 li.customer-list-item {
-    padding: 8px 12px; /* Adjust padding */
-    border: 1px solid #cfe9ff; /* Light border */
-    border-radius: 20px; /* Rounded corners for pill-like shape */
-    background-color: #f0f8ff; /* Very light blue background */
+    padding: 10px 15px;
+    border-bottom: 1px solid #eee;
     cursor: pointer;
-    transition: background-color 0.2s ease, font-weight 0.2s ease, border-color 0.2s ease;
-    white-space: nowrap; /* Prevent text wrapping inside item */
-    margin-bottom: 5px; /* Space for wrapping */
-    font-size: 0.9em;
+    transition: background-color 0.2s ease, font-weight 0.2s ease;
 }
 
 li.customer-list-item:last-child {
-    border-bottom: none; /* No border for the last item in a vertical list, but for horizontal, it's not strictly necessary */
+    border-bottom: none;
 }
 
 li.customer-list-item:hover {
     background-color: #e6f7ff; /* Light blue on hover */
-    border-color: #a7d9ff;
 }
 
 li.customer-list-item.active {
     background-color: #d0efff; /* Slightly darker blue for active */
     font-weight: bold;
     color: #0056b3;
-    border-color: #63b3ed;
 }
 
 .customer-details-card {
@@ -555,6 +542,7 @@ li.customer-list-item.active {
     overflow-y: auto;
 }
 
+/* Original customer info sections */
 .customer-info-section {
     background-color: #ffffff;
     border: 1px solid #e9e9e9;
@@ -562,25 +550,6 @@ li.customer-list-item.active {
     padding: 15px;
     box-shadow: 0 1px 3px rgba(0,0,0,0.05);
 }
-
-/* Specific card colors based on their order in HTML */
-.customer-details-card > .customer-info-section:nth-of-type(1) { /* Customer Overview */
-    background-color: #e8f5e9; /* Very light green */
-    border-color: #c8e6c9;
-}
-
-.customer-details-card > .customer-info-section:nth-of-type(2) { /* Canvassing Activity */
-    background-color: #e3f2fd; /* Very light blue */
-    border-color: #bbdefb;
-}
-
-.customer-details-card > .customer-info-section:nth-of-type(3) { /* Family Details (includes Customer Profile & Remarks) */
-    background-color: #fffde7; /* Very light yellow */
-    border-color: #fff9c4;
-}
-
-/* THIS RULE IS REMOVED: .customer-details-card > .remark-text { ... } */
-
 
 .customer-info-section h3 {
     color: #4CAF50; /* Green for section headings */
@@ -627,23 +596,29 @@ li.customer-list-item.active {
     padding: 5px 0;
 }
 
-/* Style for the nested Customer Profile within Family Details */
-.customer-info-section .customer-profile-in-card {
-    margin-top: 15px;
-    padding-top: 10px;
-    border-top: 1px dashed #e0e0e0; /* Separator for the sub-section */
-}
-
-.customer-info-section .customer-profile-in-card h4 {
-    color: #388E3C; /* Slightly darker green for sub-heading */
-    margin-bottom: 10px;
-    font-size: 1em;
-    text-align: left;
-}
-
-
 .full-width-section {
     grid-column: 1 / -1; /* Make these sections span all columns */
+}
+
+/* NEW: Styles for the combined "Remarks, Family Details & Customer Profile" card */
+.supplementary-details-card {
+    background-color: #fefefe;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    padding: 20px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    display: flex;
+    flex-direction: column; /* Stack sections inside this card */
+    gap: 20px; /* Space between the internal sections */
+}
+
+.supplementary-details-card h3 {
+    color: #555;
+    margin-top: 0;
+    margin-bottom: 15px;
+    border-bottom: 1px solid #eee;
+    padding-bottom: 10px;
+    text-align: center;
 }
 
 
@@ -676,14 +651,21 @@ li.customer-list-item.active {
         flex: 1; /* Take one part of the space */
         max-width: 350px; /* Give it a reasonable max-width */
     }
+
     .customer-details-display {
+        display: flex; /* Use flexbox for the customer details area */
+        gap: 20px; /* Space between the two main content columns (A,B) and (C) */
         flex: 2; /* Take two parts of the space, making it wider */
     }
 
-    .customer-details-card {
-        /* On larger screens, use a 3-column grid for sections */
-        grid-template-columns: repeat(3, 1fr); /* Explicitly create 3 columns */
-        gap: 20px;
+    /* Adjust the individual customer info sections within .customer-details-card */
+    .customer-details-card > div:not(.supplementary-details-card) {
+        flex: 1; /* Allow Customer Overview and Canvassing Activity to take equal space */
+    }
+
+    /* Position the new supplementary card as the third column (C) */
+    .supplementary-details-card {
+        flex: 1; /* Take one part of the space, similar to A and B */
     }
 }
 
@@ -796,6 +778,9 @@ li.customer-list-item.active {
     }
 
     /* Customer details responsiveness */
+    .customer-details-display {
+        flex-direction: column; /* Stack customer details sections vertically on small screens */
+    }
     .detail-row {
         flex-direction: column; /* Stack label and value vertically on small screens */
         align-items: flex-start; /* Align stacked items to the left */
