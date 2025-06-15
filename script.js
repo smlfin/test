@@ -152,12 +152,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Helper to calculate total activity from a set of activity entries based on Activity Type
     function calculateTotalActivity(entries) {
-        // Initialize counters for all metrics, including the calculated 'New Customer Leads'
         const totalActivity = { 'Visit': 0, 'Calls': 0, 'Referance': 0, 'New Customer Leads': 0 }; 
         
         entries.forEach(entry => {
             const activityType = entry[HEADER_ACTIVITY_TYPE];
-            const customerType = entry[HEADER_TYPE_OF_CUSTOMER]; // Get Type of Customer
+            const customerType = entry[HEADER_TYPE_OF_CUSTOMER];
 
             switch (activityType) {
                 case 'Visit':
@@ -166,16 +165,22 @@ document.addEventListener('DOMContentLoaded', () => {
                 case 'Calls':
                     totalActivity['Calls']++;
                     break;
-                case 'Referance': // Sticking to the exact spelling 'Referance'
+                case 'Referance':
                     totalActivity['Referance']++;
                     break;
+                // 'New Lead' itself is not a direct counter for 'Visit', 'Calls', or 'Referance'
+                // It will be caught by the unified 'New Customer Leads' logic below,
+                // and if it's not one of the above, it will trigger the warning.
                 default:
-                    // This is the warning you saw. It means HEADER_ACTIVITY_TYPE was undefined or unexpected.
                     console.warn(`Unknown or uncounted Activity Type encountered: ${activityType}`);
             }
 
-            // Logic for 'New Customer Leads' based on your new definition
-            if ((activityType === 'Visit' || activityType === 'Calls') && customerType === 'New') {
+            // Unified logic for 'New Customer Leads'
+            // An entry counts as a 'New Customer Lead' if:
+            // 1. Its activity type is explicitly 'New Lead'
+            // OR
+            // 2. Its activity type is 'Visit' or 'Calls' AND its customer type is 'New'
+            if (activityType === 'New Lead' || ((activityType === 'Visit' || activityType === 'Calls') && customerType === 'New')) {
                 totalActivity['New Customer Leads']++;
             }
         });
@@ -336,8 +341,6 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function renderAllStaffOverallPerformance() {
-        // Removed: allStaffOverallPerformanceTableBody.innerHTML = ''; // This caused the ReferenceError
-
         const employeePerformance = {}; // { 'EmployeeName': { 'Visit': 0, 'Calls': 0, 'Referance': 0, 'New Customer Leads': 0, 'Branch': '', 'Code': '' } }
 
         allCanvassingData.forEach(entry => {
