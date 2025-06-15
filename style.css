@@ -800,3 +800,19 @@ li.customer-list-item.active {
     padding: 5px 0;
     color: #333;
 }
+#supplementaryCombinedCard .sub-section {
+    margin-bottom: 20px;
+}
+
+#supplementaryCombinedCard .sub-section:last-child {
+    margin-bottom: 0;
+}
+
+#supplementaryCombinedCard h4 {
+    color: #4CAF50;
+    margin: 10px 0;
+    font-size: 1em;
+    border-bottom: 1px dashed #ccc;
+    padding-bottom: 5px;
+}
+
