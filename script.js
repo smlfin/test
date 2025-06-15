@@ -1,7 +1,7 @@
 document.addEventListener('DOMContentLoaded', () => {
     // *** Configuration ***
     // This URL is for your Canvassing Data sheet. Ensure it's correct and published as CSV.
-    const DATA_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTO7LujC4VSa2wGkJ2YEYSN7UeXR221ny3THaVegYfNfRm2JQGg7QR9Bxxh9SadXtK8Pi6-psl2tGsb/pubhtml";
+    const DATA_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTO7LujC4VSa2wGkJ2YEYSN7UeXR221ny3THaVegYfNfRm2JQGg7QR9Bxxh9SadXtK8Pi6-psl2tGsb/pub?gid=696550092&single=true&output=csv";
 
     // IMPORTANT: Replace this with YOUR DEPLOYED GOOGLE APPS SCRIPT WEB APP URL
     const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzEYf0CKgwP0O4-z1lup1lDZImD1dQVEveLWsHwa_7T5ltndfIuRWXVZqFDj03_proD/exec"; // <-- PASTE YOUR NEWLY DEPLOYED WEB APP URL HERE
@@ -49,11 +49,11 @@ document.addEventListener('DOMContentLoaded', () => {
     const reportsSection = document.getElementById('reportsSection');
     const employeeFilterPanel = document.getElementById('employeeFilterPanel');
     const branchSummaryTableBody = document.getElementById('branchSummaryTableBody');
-    const allStaffPerformanceTableBody = document.getElementById('allStaffPerformanceTableBody');
+    // Removed allStaffOverallPerformanceTableBody as it does not exist in HTML
     const nonParticipatingBranchesTableBody = document.getElementById('nonParticipatingBranchesTableBody');
 
     // Detailed Customer View Elements
-    const detailedCustomerViewContent = document.getElementById('detailedCustomerViewContent');
+    // detailedCustomerViewContent is not defined in HTML, so removed from here as well.
     const customerFilterBranchSelect = document.getElementById('customerFilterBranchSelect');
     const customerFilterEmployeeSelect = document.getElementById('customerFilterEmployeeSelect');
     const customerDetailsTableBody = document.getElementById('customerDetailsTableBody');
@@ -170,6 +170,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     totalActivity['Referance']++;
                     break;
                 default:
+                    // This is the warning you saw. It means HEADER_ACTIVITY_TYPE was undefined or unexpected.
                     console.warn(`Unknown or uncounted Activity Type encountered: ${activityType}`);
             }
 
@@ -296,7 +297,7 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('overallTotalNewLeads').textContent = overallTotals['New Customer Leads'];
 
         // Calculate today's totals
-        const today = new Date().toISOString().split('T')[0]; // YYYY-MM-DD
+        const today = new Date().toISOString().split('T')[0]; //YYYY-MM-DD
         const todaysData = allCanvassingData.filter(entry => entry[HEADER_DATE] === today);
         const dailyTotals = calculateTotalActivity(todaysData);
         document.getElementById('dailyTotalVisits').textContent = dailyTotals['Visit'];
@@ -335,7 +336,8 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function renderAllStaffOverallPerformance() {
-        allStaffOverallPerformanceTableBody.innerHTML = ''; // Clear previous content
+        // Removed: allStaffOverallPerformanceTableBody.innerHTML = ''; // This caused the ReferenceError
+
         const employeePerformance = {}; // { 'EmployeeName': { 'Visit': 0, 'Calls': 0, 'Referance': 0, 'New Customer Leads': 0, 'Branch': '', 'Code': '' } }
 
         allCanvassingData.forEach(entry => {
@@ -360,7 +362,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
 
         const staffPerformanceCardsContainer = document.getElementById('staffPerformanceCards');
-        staffPerformanceCardsContainer.innerHTML = ''; // Clear existing cards
+        staffPerformanceCardsContainer.innerHTML = ''; // Clear existing cards (Correctly targets the div)
 
         const sortedEmployees = Object.keys(employeePerformance).sort();
 
