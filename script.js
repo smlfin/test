@@ -57,7 +57,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const HEADER_EMPLOYEE_NAME = 'Employee Name';
     const HEADER_EMPLOYEE_CODE = 'Employee Code';
     const HEADER_DESIGNATION = 'Designation';
-    const HEADER_ACTIVITY_TYPE = 'Activity Type';
+    const HEADER__TYPE = ' Type';
     const HEADER_TYPE_OF_CUSTOMER = 'Type of Customer';
     const HEADER_R_LEAD_SOURCE = 'rLead Source';
     const HEADER_HOW_CONTACTED = 'How Contacted';
@@ -123,14 +123,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
     // Global variables to store fetched data
-    let allCanvassingData = []; // Raw activity data
+    let allCanvassingData = []; // Raw  data
     let employeeMasterData = []; // Data from Employee Master sheet
     let allUniqueBranches = []; // From MasterEmployees
     let allUniqueEmployees = []; // Employee codes from MasterEmployees
     let employeeCodeToNameMap = {}; // {code: name} from MasterEmployees
     let employeeCodeToDesignationMap = {}; // {code: designation} from MasterEmployees
-    let selectedBranchEntries = []; // Activity entries filtered by branch
-    let selectedEmployeeCodeEntries = []; // Activity entries filtered by employee code
+    let selectedBranchEntries = []; //  entries filtered by branch
+    let selectedEmployeeCodeEntries = []; //  entries filtered by employee code
 
     // Utility to format date to ISO-MM-DD
     const formatDate = (dateString) => {
@@ -409,30 +409,35 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // Helper to calculate total activity from a set of activity entries based on Activity Type
-    function calculateTotalActivity(entries) {
-        // Initialize counters for all metrics, including the calculated 'New Customer Leads'
-        const totalActivity = { 'Visit': 0, 'Calls': 0, 'Referance': 0, 'New Customer Leads': 0 }; 
-        
-        entries.forEach(entry => {
-            const activityType = entry[HEADER_ACTIVITY_TYPE];
-            switch (activityType) {
-                case 'Visit':
-                    totalActivity['Visit']++;
-                    break;
-                case 'Calls': // Updated to 'Calls'
-                    totalActivity['Calls']++;
-                    break;
-                case 'Referance': // Updated to 'Referance'
-                    totalActivity['Referance']++;
-                    break;
-                // IMPORTANT: 'New Customer Leads' is NOT an Activity Type from the sheet,
-                // so it should NOT be a 'case' here. It's a calculated metric.
-                default:
-                    console.warn(`Unknown or uncounted Activity Type encountered: ${activityType}`);
-            }
-        });
-        return totalActivity;
-    }
+ function calculateTotalActivity(entries) {
+    // Initialize counters for all metrics, including the calculated 'New Customer Leads'
+    const totalActivity = { 'Visit': 0, 'Calls': 0, 'Referance': 0, 'New Customer Leads': 0 }; 
+    
+    entries.forEach(entry => {
+        const activityType = entry[HEADER_ACTIVITY_TYPE];
+        const customerType = entry[HEADER_TYPE_OF_CUSTOMER]; // Get Type of Customer
+
+        switch (activityType) {
+            case 'Visit':
+                totalActivity['Visit']++;
+                break;
+            case 'Calls':
+                totalActivity['Calls']++;
+                break;
+            case 'Referance': // Sticking to the exact spelling 'Referance'
+                totalActivity['Referance']++;
+                break;
+            default:
+                console.warn(`Unknown or uncounted Activity Type encountered: ${activityType}`);
+        }
+
+        // Logic for 'New Customer Leads' based on your new definition
+        if ((activityType === 'Visit' || activityType === 'Calls') && customerType === 'New') {
+            totalActivity['New Customer Leads']++;
+        }
+    });
+    return totalActivity;
+}
 
     // Render All Branch Snapshot (now uses allUniqueBranches from combined data)
     function renderAllBranchSnapshot() {
