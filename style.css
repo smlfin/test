@@ -42,87 +42,89 @@ header h1 {
     cursor: pointer;
     font-size: 1.1em;
     transition: background-color 0.3s ease, color 0.3s ease;
-    flex-grow: 1; /* Allow buttons to grow and fill space */
-    max-width: 250px; /* Limit max width for large screens */
-    text-align: center;
+    border-radius: 5px 5px 0 0; /* Rounded top corners */
+    margin: 0 2px; /* Small space between buttons */
 }
 
 .tab-button:hover {
-    background-color: #2E7D32;
+    background-color: #4CAF50;
 }
 
 .tab-button.active {
-    background-color: #1B5E20; /* Even darker green for active tab */
+    background-color: #1B5E20; /* Even darker for active tab */
     color: white;
     font-weight: bold;
+    border-bottom: 3px solid #FFEB3B; /* Highlight with a vibrant color */
 }
 
 main {
     padding: 20px;
     max-width: 1200px;
     margin: 20px auto;
-    background-color: white;
-    box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    background-color: #fff;
     border-radius: 8px;
-    position: relative; /* For positioning status messages */
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
 }
 
-.report-section, .management-section {
-    padding: 20px;
-    border: 1px solid #ddd;
-    border-radius: 8px;
-    margin-bottom: 20px; /* Space between sections */
-}
-
-h2 {
-    color: #4CAF50;
-    border-bottom: 2px solid #eee;
-    padding-bottom: 10px;
-    margin-top: 0;
+.message-container {
+    padding: 10px;
     margin-bottom: 20px;
+    border-radius: 5px;
     text-align: center;
+    display: none; /* Hidden by default, shown by JS */
+}
+
+.message-container.success {
+    background-color: #d4edda;
+    color: #155724;
+    border: 1px solid #c3e6cb;
+}
+
+.message-container.error {
+    background-color: #f8d7da;
+    color: #721c24;
+    border: 1px solid #f5c6cb;
+}
+
+.report-section {
+    display: none; /* Hidden by default, shown by JS */
+}
+
+.report-section.active-tab {
+    display: block;
 }
 
 .controls-panel {
     display: flex;
-    flex-wrap: wrap; /* Allow wrapping on smaller screens */
-    gap: 20px;
+    flex-wrap: wrap;
+    gap: 15px;
     margin-bottom: 20px;
     padding: 15px;
     background-color: #f9f9f9;
-    border: 1px solid #eee;
     border-radius: 8px;
-    align-items: flex-end; /* Align items to the bottom */
+    border: 1px solid #eee;
 }
 
 .dropdown-group, .form-group {
     display: flex;
     flex-direction: column;
-    align-items: flex-start;
+    flex: 1;
+    min-width: 200px; /* Ensures elements don't get too small */
 }
 
-.dropdown-group label, .form-group label {
+label {
     margin-bottom: 5px;
     font-weight: bold;
     color: #555;
 }
 
-select, input[type="text"], input[type="number"], textarea {
+select, input[type="text"], input[type="date"], textarea {
     padding: 10px;
     border: 1px solid #ccc;
     border-radius: 4px;
     font-size: 1em;
-    width: 200px; /* Default width for dropdowns/inputs */
-    max-width: 100%; /* Ensure it doesn't overflow */
-    box-sizing: border-box; /* Include padding/border in element's total width */
-}
-
-.view-options {
-    flex-direction: row; /* Buttons in a row */
-    flex-wrap: wrap; /* Allow buttons to wrap */
-    gap: 10px; /* Space between buttons */
-    align-items: center; /* Vertically align buttons */
-    margin-top: 10px; /* Space from dropdowns */
+    width: 100%;
+    box-sizing: border-box; /* Include padding and border in the element's total width and height */
 }
 
 .btn {
@@ -134,6 +136,7 @@ select, input[type="text"], input[type="number"], textarea {
     cursor: pointer;
     font-size: 1em;
     transition: background-color 0.3s ease;
+    align-self: flex-end; /* Aligns button to the bottom if other elements in group are taller */
 }
 
 .btn:hover {
@@ -148,121 +151,83 @@ select, input[type="text"], input[type="number"], textarea {
     background-color: #d32f2f;
 }
 
-.report-display {
-    min-height: 200px;
-    padding: 10px;
-    border: 1px solid #eee;
-    border-radius: 8px;
-    background-color: #fff;
-}
-
-/* Branch Snapshot and Employee Summary Cards */
-.branch-snapshot, .employee-summary-card {
-    background-color: #e8f5e9; /* Light green background */
-    border: 1px solid #c8e6c9; /* Green border */
-    border-radius: 8px;
-    padding: 15px;
-    margin-bottom: 15px;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-}
-
-.branch-snapshot h3, .employee-summary-card h3 {
-    color: #388E3C;
-    margin-top: 0;
-    margin-bottom: 10px;
-    font-size: 1.3em;
-    border-bottom: 1px dashed #a5d6a7;
-    padding-bottom: 5px;
-}
-
-.summary-list {
-    list-style: none;
-    padding: 0;
-    margin: 0;
-}
-
-.summary-list li {
-    padding: 5px 0;
-    font-size: 1em;
+/* Report Content Styling */
+h2 {
     color: #333;
+    margin-top: 0;
+    padding-bottom: 10px;
+    border-bottom: 2px solid #eee;
 }
 
-.summary-list li strong {
-    color: #2E7D32;
+h3 {
+    color: #4CAF50;
+    margin-top: 20px;
+    margin-bottom: 15px;
 }
 
-/* Performance Table */
-.performance-table {
-    width: 100%;
-    border-collapse: collapse;
+.summary-breakdown-card {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 20px;
+    margin-bottom: 30px;
+    padding: 20px;
+    background-color: #e8f5e9; /* Lighter green background */
+    border-radius: 8px;
+    box-shadow: inset 0 0 5px rgba(0,0,0,0.05);
+}
+
+.summary-section {
+    background-color: #fff;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    border-left: 5px solid #4CAF50; /* Accent border */
+}
+
+.summary-section h3 {
+    color: #333;
+    margin-top: 0;
+    font-size: 1.3em;
+    border-bottom: 1px dashed #ccc;
+    padding-bottom: 8px;
+}
+
+.summary-section p {
+    margin: 8px 0;
+    font-size: 1.1em;
+    color: #444;
+}
+
+.summary-section span {
+    font-weight: bold;
+    color: #000;
+}
+
+
+/* Table Styles */
+.table-responsive {
+    overflow-x: auto; /* Enables horizontal scrolling on small screens */
     margin-top: 20px;
 }
 
-.performance-table th, .performance-table td {
-    border: 1px solid #ddd;
-    padding: 10px;
-    text-align: left;
-}
-
-.performance-table th {
-    background-color: #f2f2f2;
-    font-weight: bold;
-    color: #555;
-}
-
-/* Progress bar styles */
-.progress-bar-container, .progress-bar-container-small {
-    background-color: #e0e0e0;
-    border-radius: 5px;
-    overflow: hidden;
-    height: 20px; /* Default height */
-    width: 150px; /* Default width */
-    margin: 5px 0;
-}
-
-.progress-bar-container-small {
-    height: 15px; /* Smaller for tables */
-    width: 100px; /* Smaller for tables */
-}
-
-.progress-bar {
-    height: 100%;
-    text-align: center;
-    color: white;
-    line-height: 20px; /* Vertically align text */
-    transition: width 0.5s ease-in-out;
-    font-size: 0.85em;
-}
-.progress-bar-container-small .progress-bar {
-    line-height: 15px; /* Adjust line-height for smaller bar */
-    font-size: 0.75em;
-}
-
-
-.progress-bar.overachieved { background-color: #28a745; } /* Green for 100%+ */
-.progress-bar.success { background-color: #4CAF50; } /* Standard Green */
-.progress-bar.warning { background-color: #ffc107; } /* Orange */
-.progress-bar.danger { background-color: #dc3545; } /* Red */
-
-/* Data Tables (for detailed entries) */
 .data-table {
     width: 100%;
     border-collapse: collapse;
-    margin-top: 20px;
-    font-size: 0.9em;
+    margin-top: 15px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
 }
 
 .data-table th, .data-table td {
-    border: 1px solid #eee;
-    padding: 8px;
+    border: 1px solid #ddd;
+    padding: 12px 15px;
     text-align: left;
 }
 
-.data-table thead th {
-    background-color: #f8f8f8;
-    position: sticky;
-    top: 0;
-    z-index: 1; /* Ensures headers stay above scrolling content */
+.data-table th {
+    background-color: #f2f2f2;
+    font-weight: bold;
+    color: #555;
+    white-space: nowrap; /* Prevent headers from wrapping */
 }
 
 .data-table tbody tr:nth-child(even) {
@@ -270,172 +235,24 @@ select, input[type="text"], input[type="number"], textarea {
 }
 
 .data-table tbody tr:hover {
-    background-color: #f0f0f0;
+    background-color: #e9e9e9;
 }
 
-/* Employee management forms */
-.management-section h3 {
-    color: #388E3C;
-    margin-top: 25px;
-    margin-bottom: 15px;
-    border-bottom: 1px solid #eee;
-    padding-bottom: 8px;
-}
-
-.employee-form {
-    background-color: #fefefe;
-    border: 1px solid #e0e0e0;
-    border-radius: 8px;
-    padding: 20px;
-    margin-bottom: 20px;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.08);
-}
-
-.form-group {
-    margin-bottom: 15px;
-    display: flex;
-    flex-direction: column;
-}
-
-.form-group label {
-    margin-bottom: 5px;
-    font-weight: bold;
-    color: #555;
-}
-
-.form-group input[type="text"],
-.form-group textarea {
-    width: 100%;
-    padding: 10px;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    box-sizing: border-box; /* Include padding and border in the element's total width and height */
-}
-
-.employee-form .btn {
-    width: auto; /* Allow buttons to size to content */
-    align-self: flex-start; /* Align to the start of the form */
-}
-
-
-/* Message Container */
-.message-container {
-    padding: 10px 15px;
-    margin-bottom: 20px;
-    border-radius: 5px;
-    text-align: center;
-    font-weight: bold;
-    display: none; /* Hidden by default */
-}
-
-.message-container .message {
-    padding: 10px;
-    border-radius: 5px;
-}
-
-.message.info {
-    background-color: #e0f2f7; /* Light blue */
-    color: #01579b; /* Dark blue */
-    border: 1px solid #b3e5fc;
-}
-
-.message.success {
-    background-color: #e8f5e9; /* Light green */
-    color: #2e7d32; /* Dark green */
-    border: 1px solid #c8e6c9;
-}
-
-.message.error {
-    background-color: #ffebee; /* Light red */
-    color: #c62828; /* Dark red */
-    border: 1px solid #ffcdd2;
-}
-
-
-footer {
+.no-data-message {
     text-align: center;
     padding: 20px;
-    margin-top: 30px;
     color: #777;
-    font-size: 0.9em;
-    border-top: 1px solid #eee;
+    font-style: italic;
+}
+
+.highlight-red {
+    color: #d32f2f;
+    font-weight: bold;
 }
 
 
-/* Responsive Design Adjustments */
-@media (max-width: 768px) {
-    header h1 {
-        font-size: 1.5em;
-    }
-
-    .report-tabs {
-        flex-direction: column; /* Stack tabs vertically on smaller screens */
-        align-items: stretch; /* Make tabs full width */
-    }
-
-    .tab-button {
-        max-width: none; /* Remove max-width for full width on mobile */
-        border-bottom: 1px solid #2E7D32; /* Add subtle border between stacked tabs */
-    }
-
-    .controls-panel {
-        flex-direction: column; /* Stack controls vertically */
-        align-items: stretch; /* Make controls full width */
-    }
-
-    .dropdown-group select,
-    .dropdown-group input[type="text"],
-    .view-options .btn {
-        width: 100%; /* Full width for dropdowns and buttons */
-        margin-bottom: 10px; /* Add space between stacked items */
-    }
-
-    .view-options {
-        flex-direction: column; /* Stack view option buttons */
-        gap: 0; /* Remove gap when stacking */
-    }
-
-    .branch-performance-grid {
-        grid-template-columns: 1fr; /* Single column layout for employee performance on small screens */
-    }
-
-    .employee-performance-card {
-        margin-bottom: 20px;
-    }
-
-    .branch-summary-grid {
-        grid-template-columns: 1fr; /* Single column for branch summary */
-    }
-}
-
-/* For even smaller screens like mobile in portrait */
-@media (max-width: 480px) {
-    main {
-        padding: 10px;
-        margin: 10px auto;
-    }
-
-    .report-section, .management-section, .employee-form {
-        padding: 15px;
-    }
-
-    .tab-button {
-        padding: 10px 15px; /* Slightly less padding for smaller buttons */
-        font-size: 1em;
-    }
-
-    .performance-table th, .performance-table td {
-        padding: 8px 5px; /* Reduce padding in tables */
-        font-size: 0.85em;
-    }
-
-    .progress-bar-container {
-        width: 100px; /* Smaller progress bar */
-    }
-}
-
-/* Specific styles for new elements */
-.branch-performance-grid, .branch-summary-grid {
+/* Employee Performance Cards */
+.employee-performance-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); /* 280px minimum width, auto-fit to fill space */
     gap: 20px; /* Space between cards */
@@ -461,33 +278,234 @@ footer {
     padding-bottom: 5px;
 }
 
-.summary-details-container {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 20px;
-    margin-top: 20px;
-    background-color: #fafafa;
-    padding: 15px;
+.employee-performance-card p {
+    margin: 5px 0;
+    font-size: 0.95em;
+}
+
+.employee-performance-card span {
+    font-weight: bold;
+    color: #333;
+}
+
+/* Employee Management Form Sections */
+.form-section {
+    background-color: #fff;
+    padding: 20px;
+    margin-bottom: 20px;
     border-radius: 8px;
-    border: 1px solid #eee;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    border-left: 5px solid #607D8B; /* Blue-grey accent */
 }
 
-.summary-details-container > div {
-    flex: 1; /* Allow divs to grow */
-    min-width: 280px; /* Minimum width for each detail section */
+.employee-form {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
 }
 
-.summary-details-container h4 {
+.employee-form textarea {
+    resize: vertical; /* Allow vertical resizing of textareas */
+}
+
+/* Style for clickable prospect names in the table */
+.prospect-name-clickable {
+    color: #007bff; /* Blue, to indicate it's a link/clickable */
+    cursor: pointer;
+    text-decoration: underline;
+    font-weight: bold;
+    transition: color 0.2s ease;
+}
+
+.prospect-name-clickable:hover {
+    color: #0056b3; /* Darker blue on hover */
+}
+
+
+/* --- Modal (Pop-up) Styles --- */
+.modal {
+    display: none; /* Hidden by default */
+    position: fixed; /* Stay in place */
+    z-index: 1000; /* Sit on top */
+    left: 0;
+    top: 0;
+    width: 100%; /* Full width */
+    height: 100%; /* Full height */
+    overflow: auto; /* Enable scroll if needed */
+    background-color: rgba(0,0,0,0.6); /* Black w/ opacity */
+    display: flex; /* Use flexbox for centering */
+    align-items: center; /* Center vertically */
+    justify-content: center; /* Center horizontally */
+}
+
+.modal-content {
+    background-color: #fefefe;
+    margin: auto;
+    padding: 30px;
+    border: 1px solid #888;
+    width: 90%; /* Adjust width as needed */
+    max-width: 800px; /* Maximum width */
+    border-radius: 10px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+    position: relative;
+    animation-name: animatetop;
+    animation-duration: 0.4s
+}
+
+/* Add Animation */
+@keyframes animatetop {
+    from {top: -300px; opacity: 0}
+    to {top: 0; opacity: 1}
+}
+
+
+.close-button {
+    color: #aaa;
+    float: right;
+    font-size: 28px;
+    font-weight: bold;
+    position: absolute; /* Position relative to modal-content */
+    top: 10px;
+    right: 20px;
+    cursor: pointer;
+}
+
+.close-button:hover,
+.close-button:focus {
+    color: #000;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+#modalBodyContent h3 {
+    text-align: center;
     color: #4CAF50;
-    margin-top: 0;
-    margin-bottom: 10px;
+    margin-bottom: 25px;
+    border-bottom: 2px solid #eee;
+    padding-bottom: 10px;
 }
 
-/* Scrollable table for detailed views */
-.report-display .data-table-container {
-    overflow-x: auto; /* Enable horizontal scrolling */
-    max-width: 100%; /* Constrain width to parent */
-    margin-top: 20px;
+.detail-section {
+    background-color: #f9f9f9;
+    border: 1px solid #eee;
+    border-radius: 8px;
+    padding: 15px;
+    margin-bottom: 20px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+}
+
+.detail-section h4 {
+    color: #388E3C; /* Darker green for section titles */
+    margin-top: 0;
+    margin-bottom: 15px;
+    padding-bottom: 5px;
+    border-bottom: 1px dashed #d4edda;
+    font-size: 1.1em;
+}
+
+.detail-row {
+    display: flex;
+    padding: 8px 0;
+    border-bottom: 1px dotted #e0e0e0; /* Subtle separator for rows */
+    align-items: baseline; /* Align text baselines */
+}
+
+.detail-row:last-child {
+    border-bottom: none; /* No border for the last row in a section */
+}
+
+.detail-label {
+    font-weight: bold;
+    color: #555;
+    flex-basis: 35%; /* Adjust width for labels */
+    min-width: 150px; /* Minimum width for labels */
+    padding-right: 10px;
+}
+
+.detail-value {
+    flex-basis: 65%; /* Remaining width for values */
+    color: #333;
+    word-wrap: break-word; /* Ensure long text wraps */
+}
+
+
+footer {
+    text-align: center;
+    padding: 20px;
+    margin-top: 30px;
+    background-color: #333;
+    color: white;
+    box-shadow: 0 -2px 4px rgba(0,0,0,0.1);
+}
+
+/* Responsive Adjustments */
+@media (max-width: 768px) {
+    header {
+        padding-top: 15px;
+        padding-bottom: 0;
+    }
+
+    header h1 {
+        font-size: 1.8em;
+    }
+
+    .report-tabs {
+        flex-wrap: wrap; /* Allow tabs to wrap on smaller screens */
+        justify-content: space-around;
+        padding: 5px 0;
+    }
+
+    .tab-button {
+        flex: 1 1 auto; /* Allow buttons to grow/shrink and wrap */
+        margin: 5px 2px;
+        font-size: 1em;
+        text-align: center; /* Center the branch name on mobile */
+        padding-top: 10px;
+        padding-bottom: 10px;
+    }
+
+    .controls-panel {
+        flex-direction: column;
+    }
+
+    .dropdown-group {
+        min-width: unset; /* Remove min-width for smaller screens */
+    }
+
+    .btn {
+        width: 100%; /* Full width buttons */
+        margin-top: 10px;
+    }
+
+    /* Responsive adjustments for summary breakdown card (d4.PNG) */
+    .summary-breakdown-card {
+        grid-template-columns: 1fr; /* Stack sections vertically on mobile */
+        gap: 15px;
+    }
+
+    /* Customer details responsiveness: Stack columns vertically on small screens */
+    .customer-details-display {
+        flex-direction: column;
+    }
+    
+    .detail-row {
+        flex-direction: column; /* Stack label and value vertically on small screens */
+        align-items: flex-start; /* Align stacked items to the left */
+    }
+
+    .detail-label {
+        flex-basis: auto; /* Remove fixed basis */
+        min-width: auto;
+        width: 100%; /* Label takes full width */
+        text-align: left;
+        margin-bottom: 2px; /* Space between label and value */
+    }
+
+    .detail-value {
+        flex-basis: auto; /* Remove fixed basis */
+        width: 100%; /* Value takes full width */
+        text-align: left; /* Align value to the left */
+    }
 }
 
 /* No participation message style */
