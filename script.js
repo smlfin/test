@@ -1355,3 +1355,34 @@ document.addEventListener('DOMContentLoaded', () => {
     processData();
     showTab('allBranchSnapshotTabBtn');
 });
+document.addEventListener('DOMContentLoaded', () => {
+  const detailedBranchSelect = document.getElementById('customerViewBranchSelect');
+  const detailedEmployeeSelect = document.getElementById('customerViewEmployeeSelect');
+
+  if (detailedBranchSelect && detailedEmployeeSelect) {
+    detailedBranchSelect.addEventListener('change', () => {
+      const branchId = detailedBranchSelect.value;
+
+      // Clear employee options
+      detailedEmployeeSelect.innerHTML = '<option value="">-- Select an Employee --</option>';
+
+      if (!branchId) return;
+
+      // Fetch employees for selected branch (mock logic or API call)
+      fetch(`/api/employees?branch=${branchId}`)
+        .then(response => response.json())
+        .then(data => {
+          data.forEach(emp => {
+            const option = document.createElement('option');
+            option.value = emp.id;
+            option.textContent = emp.name;
+            detailedEmployeeSelect.appendChild(option);
+          });
+        })
+        .catch(err => {
+          console.error('Error loading employees for detailed view:', err);
+        });
+    });
+  }
+});
+
