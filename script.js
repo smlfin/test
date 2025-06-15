@@ -1356,31 +1356,33 @@ document.addEventListener('DOMContentLoaded', () => {
     showTab('allBranchSnapshotTabBtn');
 });
 document.addEventListener('DOMContentLoaded', () => {
-  const detailedBranchSelect = document.getElementById('customerViewBranchSelect');
-  const detailedEmployeeSelect = document.getElementById('customerViewEmployeeSelect');
+  const customerViewBranchSelect = document.getElementById('customerViewBranchSelect');
+  const customerViewEmployeeSelect = document.getElementById('customerViewEmployeeSelect');
 
-  if (detailedBranchSelect && detailedEmployeeSelect) {
-    detailedBranchSelect.addEventListener('change', () => {
-      const branchId = detailedBranchSelect.value;
+  if (customerViewBranchSelect && customerViewEmployeeSelect) {
+    customerViewBranchSelect.addEventListener('change', () => {
+      const selectedBranch = customerViewBranchSelect.value;
 
-      // Clear employee options
-      detailedEmployeeSelect.innerHTML = '<option value="">-- Select an Employee --</option>';
+      // Reset the employee dropdown
+      customerViewEmployeeSelect.innerHTML = '<option value="">-- Select an Employee --</option>';
+      if (!selectedBranch) return;
 
-      if (!branchId) return;
-
-      // Fetch employees for selected branch (mock logic or API call)
-      fetch(`/api/employees?branch=${branchId}`)
-        .then(response => response.json())
+      // Fetch employees for the chosen branch
+      fetch(`/api/employees?branch=${encodeURIComponent(selectedBranch)}`)
+        .then(res => {
+          if (!res.ok) throw new Error('Network response was not ok');
+          return res.json();
+        })
         .then(data => {
           data.forEach(emp => {
-            const option = document.createElement('option');
-            option.value = emp.id;
-            option.textContent = emp.name;
-            detailedEmployeeSelect.appendChild(option);
+            const opt = document.createElement('option');
+            opt.value = emp.id;
+            opt.textContent = emp.name;
+            customerViewEmployeeSelect.appendChild(opt);
           });
         })
         .catch(err => {
-          console.error('Error loading employees for detailed view:', err);
+          console.error("Failed to load employees for Detailed Customer View:", err);
         });
     });
   }
