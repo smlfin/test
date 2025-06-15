@@ -558,7 +558,7 @@ document.addEventListener('DOMContentLoaded', () => {
         // Get all unique employee codes within this branch from master data AND canvassing data
         const employeeCodesInSelectedBranchFromMaster = employeeMasterData.filter(emp => emp[HEADER_BRANCH_NAME] === branchName).map(e => e[HEADER_EMPLOYEE_CODE]);
         const employeeCodesInSelectedBranchFromCanvassing = allCanvassingData.filter(entry => entry[HEADER_BRANCH_NAME] === branchName).map(e => e[HEADER_EMPLOYEE_CODE]);
-        const uniqueEmployeeCodesInBranch = [...new Set([...employeeCodesInSelectedBranchFromMaster, ...employeeCodesInBranchFromCanvassing])];
+        const uniqueEmployeeCodesInBranch = [...new Set([...employeeCodesInSelectedBranchFromMaster, ...employeeCodesInSelectedBranchFromCanvassing])];
 
 
         uniqueEmployeeCodesInBranch.forEach(employeeCode => {
