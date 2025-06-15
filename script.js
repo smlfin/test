@@ -29,13 +29,13 @@ document.addEventListener('DOMContentLoaded', () => {
         'Seniors': { // Added Investment Staff with custom Visit target
             'Visit': 30,
             'Call': 5 * MONTHLY_WORKING_DAYS,
-            'ence': 1 * MONTHLY_WORKING_DAYS,
+            'Reference': 1 * MONTHLY_WORKING_DAYS,
             'New Customer Leads': 20
         },
         'Default': { // For all other designations not explicitly defined
             'Visit': 5,
             'Call': 3 * MONTHLY_WORKING_DAYS,
-            'ence': 1 * MONTHLY_WORKING_DAYS,
+            'Reference': 1 * MONTHLY_WORKING_DAYS,
             'New Customer Leads': 20
         }
     };
@@ -459,7 +459,7 @@ document.addEventListener('DOMContentLoaded', () => {
                                    <ul class="summary-list">
                                        <li><strong>Total Visits:</strong> ${totalActivity['Visit']}</li>
                                        <li><strong>Total Calls:</strong> ${totalActivity['Call']}</li>
-                                       <li><strong>Total ences:</strong> ${totalActivity['ence']}</li>
+                                       <li><strong>Total References:</strong> ${totalActivity['ence']}</li>
                                        <li><strong>Total New Customer Leads:</strong> ${totalActivity['New Customer Leads']}</li>
                                    </ul>`;
             reportDisplay.appendChild(branchDiv);
@@ -571,7 +571,7 @@ document.addEventListener('DOMContentLoaded', () => {
                                            <ul class="summary-list">
                                                <li><strong>Visits:</strong> ${totalActivity['Visit']}</li>
                                                <li><strong>Calls:</strong> ${totalActivity['Call']}</li>
-                                               <li><strong>ences:</strong> ${totalActivity['ence']}</li>
+                                               <li><strong>References:</strong> ${totalActivity['ence']}</li>
                                                <li><strong>New Customer Leads:</strong> ${totalActivity['New Customer Leads']}</li>
                                            </ul>`;
             summaryGrid.appendChild(employeeSummaryCard);
@@ -668,7 +668,7 @@ document.addEventListener('DOMContentLoaded', () => {
                                    <ul class="summary-list">
                                        <li><strong>Total Visits:</strong> ${totalActivity['Visit']}</li>
                                        <li><strong>Total Calls:</strong> ${totalActivity['Call']}</li>
-                                       <li><strong>Total ences:</strong> ${totalActivity['ence']}</li>
+                                       <li><strong>Total References:</strong> ${totalActivity['ence']}</li>
                                        <li><strong>Total New Customer Leads:</strong> ${totalActivity['New Customer Leads']}</li>
                                    </ul>`;
 
@@ -691,7 +691,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 const employeeName = employeeCodeToNameMap[selectedEmployeeCode] || selectedEmployeeCode;
                 const designation = employeeCodeToDesignationMap[selectedEmployeeCode] || 'Default';
                 const targets = TARGETS[designation] || TARGETS['Default'];
-                const totalActivity = { 'Visit': 0, 'Call': 0, 'ence': 0, 'New Customer Leads': 0 }; // All zeros
+                const totalActivity = { 'Visit': 0, 'Call': 0, 'References': 0, 'New Customer Leads': 0 }; // All zeros
                 const performance = calculatePerformance(totalActivity, targets); // Calculate performance with zeros
 
                 reportDisplay.innerHTML = `<h2>Performance Report for ${employeeName} (${designation})</h2>
@@ -777,8 +777,8 @@ document.addEventListener('DOMContentLoaded', () => {
                         ${employeeCodeEntries.map(entry => `
                             <li>${formatDate(entry[HEADER_TIMESTAMP])}:
                                 V:${totalActivity['Visit']} |
-                                C:${totalActivity['Call']} |
-                                R:${totalActivity['ence']} |
+                                C:${totalActivity['Calls']} |
+                                R:${totalActivity['Referance']} |
                                 L:${totalActivity['New Customer Leads']}
                             </li>`).join('')}
                     </ul>
