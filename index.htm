@@ -21,7 +21,7 @@
     <main>
         <div id="statusMessage" class="message-container"></div> 
 
-        <section id="reportsSection" class="report-section">
+        <section id="reportsSection" class="report-section active-tab">
             <div class="controls-panel">
                 <div class="dropdown-group">
                     <label for="branchSelect">Select Branch:</label>
@@ -38,47 +38,133 @@
                 </div>
 
                 <div id="viewOptions" class="view-options" style="display: none;">
-                    <button class="btn" id="viewBranchSummaryBtn">View Branch Summary</button>
-                    <button class="btn" id="viewBranchPerformanceReportBtn">View Branch Performance</button>
-                    <button class="btn" id="viewEmployeeSummaryBtn">View Employee Summary (Current Month)</button>
-                    <button class="btn" id="viewAllEntriesBtn">View Employee Detailed Entries</button>
-                    <button class="btn" id="viewPerformanceReportBtn">View Employee Performance</button>
+                    <button class="btn" id="summaryViewBtn">Summary View</button>
+                    <button class="btn" id="detailedViewBtn">Detailed View</button>
                 </div>
             </div>
-            <div id="reportDisplay" class="report-display">
-                <p>Please select a branch from the dropdown above to view reports.</p>
+
+            <div id="allBranchSnapshotReport" class="report-content active">
+                <h2>All Branch Snapshot</h2>
+                <div class="summary-breakdown-card">
+                    <div class="summary-section">
+                        <h3>Overall Performance</h3>
+                        <p>Total Visits: <span id="overallTotalVisits">0</span></p>
+                        <p>Total Calls: <span id="overallTotalCalls">0</span></p>
+                        <p>Total References: <span id="overallTotalReferences">0</span></p>
+                        <p>Total New Customer Leads: <span id="overallTotalNewLeads">0</span></p>
+                    </div>
+                    <div class="summary-section">
+                        <h3>Daily Performance (Today)</h3>
+                        <p>Today's Visits: <span id="dailyTotalVisits">0</span></p>
+                        <p>Today's Calls: <span id="dailyTotalCalls">0</span></p>
+                        <p>Today's References: <span id="dailyTotalReferences">0</span></p>
+                        <p>Today's New Customer Leads: <span id="dailyTotalNewLeads">0</span></p>
+                    </div>
+                </div>
+
+                <h3>Branch-wise Summary</h3>
+                <div class="table-responsive">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Branch Name</th>
+                                <th>Total Visits</th>
+                                <th>Total Calls</th>
+                                <th>Total References</th>
+                                <th>New Customer Leads</th>
+                            </tr>
+                        </thead>
+                        <tbody id="branchSummaryTableBody">
+                            </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div id="allStaffOverallPerformanceReport" class="report-content">
+                <h2>All Staff Performance (Overall)</h2>
+                <div id="staffPerformanceCards" class="employee-performance-grid">
+                    </div>
+            </div>
+
+            <div id="nonParticipatingBranchesReport" class="report-content">
+                <h2>Non-Participating Branches</h2>
+                <div class="table-responsive">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Branch Name</th>
+                                <th>Total Employees</th>
+                                <th>Active Employees</th>
+                                <th>Non-Participating Employees</th>
+                            </tr>
+                        </thead>
+                        <tbody id="nonParticipatingBranchesTableBody">
+                            </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div id="detailedCustomerViewSection" class="report-content">
+                <h2>Detailed Customer View</h2>
+                <div class="controls-panel">
+                    <div class="dropdown-group">
+                        <label for="customerFilterBranchSelect">Select Branch:</label>
+                        <select id="customerFilterBranchSelect">
+                            <option value="">-- All Branches --</option>
+                        </select>
+                    </div>
+                    <div class="dropdown-group">
+                        <label for="customerFilterEmployeeSelect">Select Employee:</label>
+                        <select id="customerFilterEmployeeSelect">
+                            <option value="">-- All Employees --</option>
+                        </select>
+                    </div>
+                    <button class="btn" id="customerFilterApplyButton">Apply Filters</button>
+                </div>
+                
+                <div class="table-responsive">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Prospect Name</th>
+                                </tr>
+                        </thead>
+                        <tbody id="customerDetailsTableBody">
+                            </tbody>
+                    </table>
+                </div>
             </div>
         </section>
 
-        <section id="employeeManagementSection" class="management-section" style="display: none;">
+        <section id="employeeManagementSection" class="report-section">
             <h2>Employee Management</h2>
-            <div id="employeeManagementMessage" class="message-container" style="display: none;"></div>
+            <div id="employeeManagementMessage" class="message-container"></div>
 
             <div class="form-section">
                 <h3>Add New Employee</h3>
                 <form id="addEmployeeForm" class="employee-form">
                     <div class="form-group">
-                        <label for="newEmployeeName">Employee Name:</label>
-                        <input type="text" id="newEmployeeName" required>
+                        <label for="employeeBranchName">Branch Name:</label>
+                        <input type="text" id="employeeBranchName" required>
                     </div>
                     <div class="form-group">
-                        <label for="newEmployeeCode">Employee Code:</label>
-                        <input type="text" id="newEmployeeCode" required>
+                        <label for="employeeName">Employee Name:</label>
+                        <input type="text" id="employeeName" required>
                     </div>
                     <div class="form-group">
-                        <label for="newBranchName">Branch Name:</label>
-                        <input type="text" id="newBranchName" required>
+                        <label for="employeeCode">Employee Code:</label>
+                        <input type="text" id="employeeCode" required>
                     </div>
                     <div class="form-group">
-                        <label for="newDesignation">Designation:</label>
-                        <input type="text" id="newDesignation">
+                        <label for="employeeDesignation">Designation:</label>
+                        <input type="text" id="employeeDesignation">
                     </div>
                     <button type="submit" class="btn">Add Employee</button>
                 </form>
             </div>
 
             <div class="form-section">
-                <h3>Add Employees in Bulk</h3>
+                <h3>Bulk Add Employees</h3>
                 <form id="bulkAddEmployeeForm" class="employee-form">
                     <div class="form-group">
                         <label for="bulkEmployeeBranchName">Branch Name for Bulk Entry:</label>
@@ -103,6 +189,14 @@
                 </form>
             </div>
         </section>
+
+        <div id="customerDetailsModal" class="modal">
+            <div class="modal-content">
+                <span class="close-button">&times;</span>
+                <div id="modalBodyContent">
+                    </div>
+            </div>
+        </div>
     </main>
 
     <footer>
