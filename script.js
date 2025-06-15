@@ -16,26 +16,26 @@ document.addEventListener('DOMContentLoaded', () => {
     const TARGETS = {
         'Branch Manager': {
             'Visit': 10,
-            'Calls': 3 * MONTHLY_WORKING_DAYS, // Updated to 'Calls'
-            'Referance': 1 * MONTHLY_WORKING_DAYS, // Updated to 'Referance'
+            'Call': 3 * MONTHLY_WORKING_DAYS,
+            'Reference': 1 * MONTHLY_WORKING_DAYS,
             'New Customer Leads': 20
         },
-        'Investment Staff': {
+        'Investment Staff': { // Added Investment Staff with custom Visit target
             'Visit': 30,
-            'Calls': 5 * MONTHLY_WORKING_DAYS, // Updated to 'Calls'
-            'Referance': 1 * MONTHLY_WORKING_DAYS, // Updated to 'Referance'
+            'Call': 5 * MONTHLY_WORKING_DAYS,
+            'Reference': 1 * MONTHLY_WORKING_DAYS,
             'New Customer Leads': 20
         },
-        'Seniors': {
+        'Seniors': { // Added Investment Staff with custom Visit target
             'Visit': 30,
-            'Calls': 5 * MONTHLY_WORKING_DAYS, // Updated to 'Calls'
-            'Referance': 1 * MONTHLY_WORKING_DAYS, // Updated to 'Referance'
+            'Call': 5 * MONTHLY_WORKING_DAYS,
+            'Reference': 1 * MONTHLY_WORKING_DAYS,
             'New Customer Leads': 20
         },
         'Default': { // For all other designations not explicitly defined
             'Visit': 5,
-            'Calls': 3 * MONTHLY_WORKING_DAYS, // Updated to 'Calls'
-            'Referance': 1 * MONTHLY_WORKING_DAYS, // Updated to 'Referance'
+            'Call': 3 * MONTHLY_WORKING_DAYS,
+            'Reference': 1 * MONTHLY_WORKING_DAYS,
             'New Customer Leads': 20
         }
     };
@@ -57,16 +57,16 @@ document.addEventListener('DOMContentLoaded', () => {
     const HEADER_EMPLOYEE_NAME = 'Employee Name';
     const HEADER_EMPLOYEE_CODE = 'Employee Code';
     const HEADER_DESIGNATION = 'Designation';
-    const HEADER__TYPE = ' Type';
-    const HEADER_TYPE_OF_CUSTOMER = 'Type of Customer';
-    const HEADER_R_LEAD_SOURCE = 'rLead Source';
-    const HEADER_HOW_CONTACTED = 'How Contacted';
+    const HEADER_ACTIVITY_TYPE = 'Activity Type';
+    const HEADER_TYPE_OF_CUSTOMER = 'Type of Customer'; // Corrected typo
+    const HEADER_R_LEAD_SOURCE = 'rLead Source'; // User's provided interpretation
+    const HEADER_HOW_CONTACTED = 'How Contacted'; // Keeping as it was in original script
     const HEADER_PROSPECT_NAME = 'Prospect Name';
-    const HEADER_PHONE_NUMBER_WHATSAPP = 'Phone Numebr(Whatsapp)';
+    const HEADER_PHONE_NUMBER_WHATSAPP = 'Phone Numebr(Whatsapp)'; // Keeping user's provided typo
     const HEADER_ADDRESS = 'Address';
     const HEADER_PROFESSION = 'Profession';
     const HEADER_DOB_WD = 'DOB/WD';
-    const HEADER_PRODUCT_INTERESTED = 'Prodcut Interested';
+    const HEADER_PRODUCT_INTERESTED = 'Prodcut Interested'; // Keeping user's provided typo
     const HEADER_REMARKS = 'Remarks';
     const HEADER_NEXT_FOLLOW_UP_DATE = 'Next Follow-up Date';
     const HEADER_RELATION_WITH_STAFF = 'Relation With Staff';
@@ -95,8 +95,8 @@ document.addEventListener('DOMContentLoaded', () => {
     // Tab buttons for main navigation
     const allBranchSnapshotTabBtn = document.getElementById('allBranchSnapshotTabBtn');
     const allStaffOverallPerformanceTabBtn = document.getElementById('allStaffOverallPerformanceTabBtn');
-    const nonParticipatingBranchesTabBtn = document.getElementById('nonParticipatingBranchesTabBtn');
-    const detailedCustomerViewTabBtn = document.getElementById('detailedCustomerViewTabBtn');
+    const nonParticipatingBranchesTabBtn = document.getElementById('nonParticipatingBranchesTabBtn'); // NEW
+    const detailedCustomerViewTabBtn = document.getElementById('detailedCustomerViewTabBtn');     // NEW
     const employeeManagementTabBtn = document.getElementById('employeeManagementTabBtn');
 
     // Main Content Sections to toggle
@@ -104,7 +104,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const employeeManagementSection = document.getElementById('employeeManagementSection');
 
     // New Status Message Div
-    const statusMessageDiv = document.getElementById('statusMessage');
+    const statusMessageDiv = document.getElementById('statusMessage'); // NEW
 
     // Employee Management Form Elements
     const addEmployeeForm = document.getElementById('addEmployeeForm');
@@ -123,14 +123,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
     // Global variables to store fetched data
-    let allCanvassingData = []; // Raw  data
+    let allCanvassingData = []; // Raw activity data
     let employeeMasterData = []; // Data from Employee Master sheet
     let allUniqueBranches = []; // From MasterEmployees
     let allUniqueEmployees = []; // Employee codes from MasterEmployees
     let employeeCodeToNameMap = {}; // {code: name} from MasterEmployees
     let employeeCodeToDesignationMap = {}; // {code: designation} from MasterEmployees
-    let selectedBranchEntries = []; //  entries filtered by branch
-    let selectedEmployeeCodeEntries = []; //  entries filtered by employee code
+    let selectedBranchEntries = []; // Activity entries filtered by branch
+    let selectedEmployeeCodeEntries = []; // Activity entries filtered by employee code
 
     // Utility to format date to ISO-MM-DD
     const formatDate = (dateString) => {
@@ -409,35 +409,31 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // Helper to calculate total activity from a set of activity entries based on Activity Type
- function calculateTotalActivity(entries) {
-    // Initialize counters for all metrics, including the calculated 'New Customer Leads'
-    const totalActivity = { 'Visit': 0, 'Calls': 0, 'Referance': 0, 'New Customer Leads': 0 }; 
-    
-    entries.forEach(entry => {
-        const activityType = entry[HEADER_ACTIVITY_TYPE];
-        const customerType = entry[HEADER_TYPE_OF_CUSTOMER]; // Get Type of Customer
-
-        switch (activityType) {
-            case 'Visit':
-                totalActivity['Visit']++;
-                break;
-            case 'Calls':
-                totalActivity['Calls']++;
-                break;
-            case 'Referance': // Sticking to the exact spelling 'Referance'
-                totalActivity['Referance']++;
-                break;
-            default:
-                console.warn(`Unknown or uncounted Activity Type encountered: ${activityType}`);
-        }
-
-        // Logic for 'New Customer Leads' based on your new definition
-        if ((activityType === 'Visit' || activityType === 'Calls') && customerType === 'New') {
-            totalActivity['New Customer Leads']++;
-        }
-    });
-    return totalActivity;
-}
+    function calculateTotalActivity(entries) {
+        const totalActivity = { 'Visit': 0, 'Call': 0, 'Reference': 0, 'New Customer Leads': 0 }; // Initialize counters
+        entries.forEach(entry => {
+            const activityType = entry[HEADER_ACTIVITY_TYPE];
+            switch (activityType) {
+                case 'Visit':
+                    totalActivity['Visit']++;
+                    break;
+                case 'Call':
+                    totalActivity['Call']++;
+                    break;
+                case 'Reference':
+                    totalActivity['Reference']++;
+                    break;
+                case 'New Customer Leads':
+                    totalActivity['New Customer Leads']++;
+                    break;
+                // Add more cases if there are other activity types you want to count
+                default:
+                    // Optionally log unknown activity types
+                    console.warn(`Unknown Activity Type encountered: ${activityType}`);
+            }
+        });
+        return totalActivity;
+    }
 
     // Render All Branch Snapshot (now uses allUniqueBranches from combined data)
     function renderAllBranchSnapshot() {
@@ -464,8 +460,8 @@ document.addEventListener('DOMContentLoaded', () => {
                                    <p>Total Employees in this Branch (from Master or Canvassing): ${displayEmployeeCount}</p>
                                    <ul class="summary-list">
                                        <li><strong>Total Visits:</strong> ${totalActivity['Visit']}</li>
-                                       <li><strong>Total Calls:</strong> ${totalActivity['Calls']}</li>
-                                       <li><strong>Total References:</strong> ${totalActivity['Referance']}</li>
+                                       <li><strong>Total Calls:</strong> ${totalActivity['Call']}</li>
+                                       <li><strong>Total References:</strong> ${totalActivity['Reference']}</li>
                                        <li><strong>Total New Customer Leads:</strong> ${totalActivity['New Customer Leads']}</li>
                                    </ul>`;
             reportDisplay.appendChild(branchDiv);
@@ -576,8 +572,8 @@ document.addEventListener('DOMContentLoaded', () => {
             employeeSummaryCard.innerHTML = `<h3>${employeeDisplayName}</h3>
                                            <ul class="summary-list">
                                                <li><strong>Visits:</strong> ${totalActivity['Visit']}</li>
-                                               <li><strong>Calls:</strong> ${totalActivity['Calls']}</li>
-                                               <li><strong>References:</strong> ${totalActivity['Referance']}</li>
+                                               <li><strong>Calls:</strong> ${totalActivity['Call']}</li>
+                                               <li><strong>References:</strong> ${totalActivity['Reference']}</li>
                                                <li><strong>New Customer Leads:</strong> ${totalActivity['New Customer Leads']}</li>
                                            </ul>`;
             summaryGrid.appendChild(employeeSummaryCard);
@@ -618,11 +614,11 @@ document.addEventListener('DOMContentLoaded', () => {
             HEADER_REMARKS,
             HEADER_NEXT_FOLLOW_UP_DATE,
             HEADER_RELATION_WITH_STAFF,
-            HEADER_FAMILY_DETAILS_1,
-            HEADER_FAMILY_DETAILS_2,
-            HEADER_FAMILY_DETAILS_3,
-            HEADER_FAMILY_DETAILS_4,
-            HEADER_PROFILE_OF_CUSTOMER
+            HEADER_FAMILY_DETAILS_1, // New header
+            HEADER_FAMILY_DETAILS_2, // New header
+            HEADER_FAMILY_DETAILS_3, // New header
+            HEADER_FAMILY_DETAILS_4, // New header
+            HEADER_PROFILE_OF_CUSTOMER // New header
         ];
 
         // Ensure only headers that actually exist in the data are displayed
@@ -673,8 +669,8 @@ document.addEventListener('DOMContentLoaded', () => {
         reportDisplay.innerHTML = `<h2>Employee Summary for ${employeeDisplayName} (Current Month)</h2>
                                    <ul class="summary-list">
                                        <li><strong>Total Visits:</strong> ${totalActivity['Visit']}</li>
-                                       <li><strong>Total Calls:</strong> ${totalActivity['Calls']}</li>
-                                       <li><strong>Total References:</strong> ${totalActivity['Referance']}</li>
+                                       <li><strong>Total Calls:</strong> ${totalActivity['Call']}</li>
+                                       <li><strong>Total References:</strong> ${totalActivity['Reference']}</li>
                                        <li><strong>Total New Customer Leads:</strong> ${totalActivity['New Customer Leads']}</li>
                                    </ul>`;
 
@@ -697,7 +693,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 const employeeName = employeeCodeToNameMap[selectedEmployeeCode] || selectedEmployeeCode;
                 const designation = employeeCodeToDesignationMap[selectedEmployeeCode] || 'Default';
                 const targets = TARGETS[designation] || TARGETS['Default'];
-                const totalActivity = { 'Visit': 0, 'Calls': 0, 'Referance': 0, 'New Customer Leads': 0 }; // All zeros, updated to 'Calls' and 'Referance'
+                const totalActivity = { 'Visit': 0, 'Call': 0, 'Reference': 0, 'New Customer Leads': 0 }; // All zeros
                 const performance = calculatePerformance(totalActivity, targets); // Calculate performance with zeros
 
                 reportDisplay.innerHTML = `<h2>Performance Report for ${employeeName} (${designation})</h2>
@@ -783,8 +779,8 @@ document.addEventListener('DOMContentLoaded', () => {
                         ${employeeCodeEntries.map(entry => `
                             <li>${formatDate(entry[HEADER_TIMESTAMP])}:
                                 V:${totalActivity['Visit']} |
-                                C:${totalActivity['Calls']} |
-                                R:${totalActivity['Referance']} |
+                                C:${totalActivity['Call']} |
+                                R:${totalActivity['Reference']} |
                                 L:${totalActivity['New Customer Leads']}
                             </li>`).join('')}
                     </ul>
@@ -947,6 +943,10 @@ document.addEventListener('DOMContentLoaded', () => {
         // and then filters their activities. If no activities, it shows 0s.
         const selectedEmployeeCode = employeeSelect.value;
         if (selectedEmployeeCode) {
+            // Find the full employee master data for the selected employee
+            // We don't return if not found in master data, as employee might only be in canvassing data
+            // The name/designation maps should now contain them if they exist in canvassing data.
+            
             // Filter activity entries for this specific employee
             const employeeActivityEntries = allCanvassingData.filter(entry => entry[HEADER_EMPLOYEE_CODE] === selectedEmployeeCode);
             renderPerformanceReport(employeeActivityEntries); // This function handles zero activity
@@ -1021,10 +1021,10 @@ document.addEventListener('DOMContentLoaded', () => {
             reportsSection.style.display = 'block';
             document.querySelector('.controls-panel').style.display = 'flex'; // Show controls for snapshot/performance
             renderOverallStaffPerformanceReport();
-        } else if (tabButtonId === 'nonParticipatingBranchesTabBtn') {
+        } else if (tabButtonId === 'nonParticipatingBranchesTabBtn') { // NEW TAB
             reportsSection.style.display = 'block';
             renderNonParticipatingBranchesReport();
-        } else if (tabButtonId === 'detailedCustomerViewTabBtn') {
+        } else if (tabButtonId === 'detailedCustomerViewTabBtn') { // NEW TAB
             reportsSection.style.display = 'block';
             renderDetailedCustomerViewReport();
         }
@@ -1042,10 +1042,10 @@ document.addEventListener('DOMContentLoaded', () => {
     if (allStaffOverallPerformanceTabBtn) {
         allStaffOverallPerformanceTabBtn.addEventListener('click', () => showTab('allStaffOverallPerformanceTabBtn'));
     }
-    if (nonParticipatingBranchesTabBtn) {
+    if (nonParticipatingBranchesTabBtn) { // NEW
         nonParticipatingBranchesTabBtn.addEventListener('click', () => showTab('nonParticipatingBranchesTabBtn'));
     }
-    if (detailedCustomerViewTabBtn) {
+    if (detailedCustomerViewTabBtn) { // NEW
         detailedCustomerViewTabBtn.addEventListener('click', () => showTab('detailedCustomerViewTabBtn'));
     }
     if (employeeManagementTabBtn) {
@@ -1058,7 +1058,7 @@ document.addEventListener('DOMContentLoaded', () => {
             event.preventDefault();
 
             const employeeName = newEmployeeNameInput.value.trim();
-            const employeeCode = newEmployeeCodeInput.value.trim();
+            const employeeCode = newEmployeeCodeInput.value.trim(); // Trimmed here
             const branchName = newBranchNameInput.value.trim();
             const designation = newDesignationInput.value.trim();
 
