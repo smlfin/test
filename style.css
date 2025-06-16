@@ -48,7 +48,7 @@ header h1 {
 .tab-button {
     background-color: transparent;
     color: #b0c4de; /* Muted light blue for inactive tabs */
-    padding: 16px 25px;
+    padding: 14px 22px; /* Adjusted padding to make buttons less bulky */
     border: none;
     cursor: pointer;
     font-size: 1.1em;
@@ -394,6 +394,7 @@ table tbody tr:hover {
 .employee-performance-card {
     background: #ffffff;
     border: 1px solid #e0e6ef;
+    border-left: 6px solid #3498db; /* Added border color for Activity Summary cards */
     border-radius: 10px; /* More rounded */
     padding: 25px;
     box-shadow: 0 6px 18px rgba(0, 0, 0, 0.15); /* More prominent shadow */
@@ -1023,25 +1024,26 @@ li.customer-list-item.active {
 }
 
 .all-branch-snapshot-table th {
-    background-color: #f8faff;
-    color: #495057;
+    background-color: #f8faff; /* Light background color */
+    color: #495057; /* Darker text color */
     font-weight: 600;
     padding: 14px 18px;
     text-transform: uppercase;
     font-size: 1em;
-    border-bottom: 2px solid #dde1e5;
+    border-bottom: 2px solid #dde1e5; /* Stronger bottom border */
 }
 
 .all-branch-snapshot-table td {
     padding: 12px 18px;
+    border-bottom: 1px solid #eef2f7; /* Lighter border */
 }
 
 .all-branch-snapshot-table tbody tr:nth-child(even) {
-    background-color: #fcfdfe;
+    background-color: #fcfdfe; /* Very light background for even rows */
 }
 
 .all-branch-snapshot-table tbody tr:hover {
-    background-color: #e0f2f7;
+    background-color: #e0f2f7; /* Light blue on hover */
     cursor: pointer;
 }
 /* Dropdown Group and Select Enhancements */
@@ -1091,6 +1093,7 @@ select:focus {
 .employee-performance-card {
     background: #ffffff;
     border: 1px solid #e0e6ef;
+    border-left: 6px solid #3498db; /* Added border color for Activity Summary cards */
     border-radius: 10px;
     padding: 25px;
     box-shadow: 0 6px 18px rgba(0, 0, 0, 0.15); /* More prominent shadow */
