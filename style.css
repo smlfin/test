@@ -1302,3 +1302,30 @@ select:focus {
     font-weight: bold;
     display: inline-block; /* Make it behave like text */
 }
+/* New style to arrange two tables horizontally */
+.two-tables-container {
+    display: flex;
+    flex-wrap: wrap; /* Allow tables to wrap to the next line on smaller screens */
+    gap: 20px; /* Space between the two tables */
+    justify-content: space-around; /* Distribute space around items */
+    margin-top: 15px;
+}
+
+.two-tables-container .all-branch-snapshot-table {
+    flex: 1; /* Allow tables to grow and shrink */
+    min-width: 300px; /* Minimum width before wrapping */
+    max-width: 48%; /* Max width to ensure two tables fit side-by-side with gap */
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1); /* Add a subtle shadow to individual tables */
+}
+
+/* Adjust general table styles if needed for the new layout */
+.all-branch-snapshot-table {
+    border-radius: 8px; /* Slightly more rounded corners for the tables */
+    overflow: hidden; /* Ensures borders and shadows are contained */
+}
+
+.all-branch-snapshot-table th {
+    /* Keep existing styles or adjust if necessary */
+    background-color: #007bff; /* Consistent blue header */
+    color: white;
+}
