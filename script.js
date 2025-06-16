@@ -86,6 +86,10 @@ document.addEventListener('DOMContentLoaded', () => {
     const viewEmployeeSummaryBtn = document.getElementById('viewEmployeeSummaryBtn');
     const viewAllEntriesBtn = document.getElementById('viewAllEntriesBtn');
     const viewPerformanceReportBtn = document.getElementById('viewPerformanceReportBtn');
+    // Add these lines along with other DOM Elements
+    const viewBranchVisitLeaderboardBtn = document.getElementById('viewBranchVisitLeaderboardBtn');
+    const viewBranchCallLeaderboardBtn = document.getElementById('viewBranchCallLeaderboardBtn');
+    const viewStaffParticipationBtn = document.getElementById('viewStaffParticipationBtn');
 
     // Main Report Display Area
     const reportDisplay = document.getElementById('reportDisplay');
@@ -966,7 +970,264 @@ document.addEventListener('DOMContentLoaded', () => {
         reportDisplay.appendChild(tableContainer);
     }
 
+// --- NEW: Branch Visit Leaderboard Report ---
+    function renderBranchVisitLeaderboard() {
+        reportDisplay.innerHTML = '<h2>Branch Visit Analysis</h2>';
 
+        const branchVisitCounts = {};
+
+        // Aggregate visits for each branch
+        allCanvassingData.forEach(entry => {
+            const branch = entry[HEADER_BRANCH_NAME];
+            const activityType = entry[HEADER_ACTIVITY_TYPE] ? entry[HEADER_ACTIVITY_TYPE].trim().toLowerCase() : '';
+
+            if (branch && activityType === 'visit') {
+                branchVisitCounts[branch] = (branchVisitCounts[branch] || 0) + 1;
+            }
+        });
+
+        // Convert to an array of objects for sorting
+        const sortedBranches = Object.keys(branchVisitCounts).map(branch => ({
+            name: branch,
+            visits: branchVisitCounts[branch]
+        }));
+
+        if (sortedBranches.length === 0) {
+            reportDisplay.innerHTML += '<p>No visit data available to generate this report.</p>';
+            return;
+        }
+
+        // Sort for Max Visits (descending)
+        const sortedByVisitsDesc = [...sortedBranches].sort((a, b) => b.visits - a.visits);
+
+        // Max Visit Branch
+        if (sortedByVisitsDesc.length > 0) {
+            const maxVisitBranch = sortedByVisitsDesc[0];
+            reportDisplay.innerHTML += `
+                <h3>Branch with Maximum Visits:</h3>
+                <p><strong>${maxVisitBranch.name}:</strong> ${maxVisitBranch.visits} Visits</p>
+            `;
+        }
+
+        // Sort for Lowest Visits (ascending)
+        const sortedByVisitsAsc = [...sortedBranches].sort((a, b) => a.visits - b.visits);
+
+        // Lowest Visit Branch (consider branches with 0 visits if they are in PREDEFINED_BRANCHES but had no activity)
+        let lowestVisitBranches = sortedByVisitsAsc;
+        
+        // Include predefined branches with zero visits if they aren't already in sortedBranches
+        PREDEFINED_BRANCHES.forEach(pBranch => {
+            if (!branchVisitCounts[pBranch]) {
+                lowestVisitBranches.push({ name: pBranch, visits: 0 });
+            }
+        });
+        // Re-sort to ensure correct order after adding zero-activity branches
+        lowestVisitBranches.sort((a, b) => a.visits - b.visits);
+
+        if (lowestVisitBranches.length > 0) {
+            const minVisitBranch = lowestVisitBranches[0];
+            reportDisplay.innerHTML += `
+                <h3>Branch with Lowest Visits:</h3>
+                <p><strong>${minVisitBranch.name}:</strong> ${minVisitBranch.visits} Visits</p>
+            `;
+        }
+
+        // Display all branches sorted by visits
+        reportDisplay.innerHTML += '<h3>All Branches by Visits:</h3>';
+        const table = document.createElement('table');
+        table.className = 'all-branch-snapshot-table'; // Reuse existing table style
+
+        const thead = table.createTHead();
+        const headerRow = thead.insertRow();
+        ['Branch Name', 'Total Visits'].forEach(text => {
+            const th = document.createElement('th');
+            th.textContent = text;
+            headerRow.appendChild(th);
+        });
+
+        const tbody = table.createTBody();
+        sortedByVisitsDesc.forEach(data => {
+            const row = tbody.insertRow();
+            row.insertCell().textContent = data.name;
+            row.insertCell().textContent = data.visits;
+        });
+
+        reportDisplay.appendChild(table);
+    }
+
+    // --- NEW: Branch Call Leaderboard Report ---
+    function renderBranchCallLeaderboard() {
+        reportDisplay.innerHTML = '<h2>Branch Call Analysis</h2>';
+
+        const branchCallCounts = {};
+
+        // Aggregate calls for each branch
+        allCanvassingData.forEach(entry => {
+            const branch = entry[HEADER_BRANCH_NAME];
+            const activityType = entry[HEADER_ACTIVITY_TYPE] ? entry[HEADER_ACTIVITY_TYPE].trim().toLowerCase() : '';
+
+            if (branch && activityType === 'calls') { // Note: 'calls' as per your data mapping
+                branchCallCounts[branch] = (branchCallCounts[branch] || 0) + 1;
+            }
+        });
+
+        // Convert to an array of objects for sorting
+        const sortedBranches = Object.keys(branchCallCounts).map(branch => ({
+            name: branch,
+            calls: branchCallCounts[branch]
+        }));
+
+        if (sortedBranches.length === 0) {
+            reportDisplay.innerHTML += '<p>No call data available to generate this report.</p>';
+            return;
+        }
+
+        // Sort for Max Calls (descending)
+        const sortedByCallsDesc = [...sortedBranches].sort((a, b) => b.calls - a.calls);
+
+        // Max Call Branch
+        if (sortedByCallsDesc.length > 0) {
+            const maxCallBranch = sortedByCallsDesc[0];
+            reportDisplay.innerHTML += `
+                <h3>Branch with Maximum Calls:</h3>
+                <p><strong>${maxCallBranch.name}:</strong> ${maxCallBranch.calls} Calls</p>
+            `;
+        }
+
+        // Sort for Lowest Calls (ascending)
+        const sortedByCallsAsc = [...sortedBranches].sort((a, b) => a.calls - b.calls);
+        
+        // Include predefined branches with zero calls if they aren't already in sortedBranches
+        let lowestCallBranches = sortedByCallsAsc;
+        PREDEFINED_BRANCHES.forEach(pBranch => {
+            if (!branchCallCounts[pBranch]) {
+                lowestCallBranches.push({ name: pBranch, calls: 0 });
+            }
+        });
+        // Re-sort to ensure correct order after adding zero-activity branches
+        lowestCallBranches.sort((a, b) => a.calls - b.calls);
+
+        if (lowestCallBranches.length > 0) {
+            const minCallBranch = lowestCallBranches[0];
+            reportDisplay.innerHTML += `
+                <h3>Branch with Lowest Calls:</h3>
+                <p><strong>${minCallBranch.name}:</strong> ${minCallBranch.calls} Calls</p>
+            `;
+        }
+
+
+        // Display all branches sorted by calls
+        reportDisplay.innerHTML += '<h3>All Branches by Calls:</h3>';
+        const table = document.createElement('table');
+        table.className = 'all-branch-snapshot-table'; // Reuse existing table style
+
+        const thead = table.createTHead();
+        const headerRow = thead.insertRow();
+        ['Branch Name', 'Total Calls'].forEach(text => {
+            const th = document.createElement('th');
+            th.textContent = text;
+            headerRow.appendChild(th);
+        });
+
+        const tbody = table.createTBody();
+        sortedByCallsDesc.forEach(data => {
+            const row = tbody.insertRow();
+            row.insertCell().textContent = data.name;
+            row.insertCell().textContent = data.calls;
+        });
+
+        reportDisplay.appendChild(table);
+    }
+
+    // --- NEW: Staff Participation Report ---
+    function renderStaffParticipation() {
+        reportDisplay.innerHTML = '<h2>Staff Participation Report (This Month)</h2>';
+
+        const currentMonth = new Date().getMonth();
+        const currentYear = new Date().getFullYear();
+
+        const employeeActivitySummary = {}; // {employeeCode: {name, branch, designation, totalActivities: {Visit, Call, Reference, New Customer Leads}}}
+
+        // Initialize all unique employees with zero activity for current month
+        allUniqueEmployees.forEach(employeeCode => {
+            const employeeName = employeeCodeToNameMap[employeeCode] || employeeCode;
+            const branchName = allCanvassingData.find(entry => entry[HEADER_EMPLOYEE_CODE] === employeeCode)?.[HEADER_BRANCH_NAME] || 'N/A';
+            const designation = employeeCodeToDesignationMap[employeeCode] || 'N/A';
+
+            employeeActivitySummary[employeeCode] = {
+                name: employeeName,
+                branch: branchName,
+                designation: designation,
+                totalActivities: { 'Visit': 0, 'Call': 0, 'Reference': 0, 'New Customer Leads': 0 },
+                hasActivityThisMonth: false // Flag to track participation
+            };
+        });
+
+        // Aggregate activities for the current month
+        allCanvassingData.forEach(entry => {
+            const entryDate = new Date(entry[HEADER_TIMESTAMP]);
+            if (entryDate.getMonth() === currentMonth && entryDate.getFullYear() === currentYear) {
+                const employeeCode = entry[HEADER_EMPLOYEE_CODE];
+                if (employeeActivitySummary[employeeCode]) {
+                    const activityType = entry[HEADER_ACTIVITY_TYPE] ? entry[HEADER_ACTIVITY_TYPE].trim().toLowerCase() : '';
+                    const typeOfCustomer = entry[HEADER_TYPE_OF_CUSTOMER] ? entry[HEADER_TYPE_OF_CUSTOMER].trim().toLowerCase() : '';
+
+                    if (activityType === 'visit') {
+                        employeeActivitySummary[employeeCode].totalActivities['Visit']++;
+                    } else if (activityType === 'calls') {
+                        employeeActivitySummary[employeeCode].totalActivities['Call']++;
+                    } else if (activityType === 'referance') {
+                        employeeActivitySummary[employeeCode].totalActivities['Reference']++;
+                    }
+                    if (typeOfCustomer === 'new') {
+                        employeeActivitySummary[employeeCode].totalActivities['New Customer Leads']++;
+                    }
+                    employeeActivitySummary[employeeCode].hasActivityThisMonth = true;
+                }
+            }
+        });
+
+        const tableContainer = document.createElement('div');
+        tableContainer.className = 'data-table-container'; // For horizontal scrolling
+        
+        const table = document.createElement('table');
+        table.className = 'performance-table'; // Reuse existing table style
+        
+        const thead = table.createTHead();
+        const headerRow = thead.insertRow();
+        const headers = ['Employee Name', 'Branch', 'Designation', 'Total Visits', 'Total Calls', 'Total References', 'Total New Customer Leads', 'Participation Status'];
+        headers.forEach(text => {
+            const th = document.createElement('th');
+            th.textContent = text;
+            headerRow.appendChild(th);
+        });
+
+        const tbody = table.createTBody();
+
+        const sortedEmployees = Object.values(employeeActivitySummary).sort((a, b) => a.name.localeCompare(b.name));
+
+        if (sortedEmployees.length === 0) {
+            reportDisplay.innerHTML += '<p>No staff data available.</p>';
+            return;
+        }
+
+        sortedEmployees.forEach(emp => {
+            const row = tbody.insertRow();
+            row.insertCell().textContent = emp.name;
+            row.insertCell().textContent = emp.branch;
+            row.insertCell().textContent = emp.designation;
+            row.insertCell().textContent = emp.totalActivities['Visit'];
+            row.insertCell().textContent = emp.totalActivities['Call'];
+            row.insertCell().textContent = emp.totalActivities['Reference'];
+            row.insertCell().textContent = emp.totalActivities['New Customer Leads'];
+            const participationCell = row.insertCell();
+            participationCell.textContent = emp.hasActivityThisMonth ? 'Participating' : 'Non-Participating';
+            participationCell.classList.add(emp.hasActivityThisMonth ? 'status-participating' : 'status-non-participating');
+        });
+
+        tableContainer.appendChild(table);
+        reportDisplay.appendChild(tableContainer);
+    }
     // Function to send data to Google Apps Script
     async function sendDataToGoogleAppsScript(action, data) {
         displayMessage(`Sending data for ${action}...`, 'info');
@@ -1049,7 +1310,24 @@ document.addEventListener('DOMContentLoaded', () => {
         viewPerformanceReportBtn.classList.add('active');
         renderEmployeePerformanceReport(selectedEmployeeCodeEntries);
     });
+// Add these lines below existing event listeners
+    viewBranchVisitLeaderboardBtn.addEventListener('click', () => {
+        document.querySelectorAll('.view-options .btn').forEach(btn => btn.classList.remove('active'));
+        viewBranchVisitLeaderboardBtn.classList.add('active');
+        renderBranchVisitLeaderboard();
+    });
 
+    viewBranchCallLeaderboardBtn.addEventListener('click', () => {
+        document.querySelectorAll('.view-options .btn').forEach(btn => btn.classList.remove('active'));
+        viewBranchCallLeaderboardBtn.classList.add('active');
+        renderBranchCallLeaderboard();
+    });
+
+    viewStaffParticipationBtn.addEventListener('click', () => {
+        document.querySelectorAll('.view-options .btn').forEach(btn => btn.classList.remove('active'));
+        viewStaffParticipationBtn.classList.add('active');
+        renderStaffParticipation();
+    });
 
     // --- Tab Switching Logic ---
     function showTab(tabButtonId) {
