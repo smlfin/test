@@ -3,7 +3,7 @@ body {
     font-family: 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; /* Modern, clean font stack */
     margin: 0;
     padding: 0;
-    background-color: #eef2f7; /* Very light blue-grey background for softness */
+    background-color: #edf2f7; /* Muted light blue-grey background to reduce brightness */
     color: #333; /* Dark grey for primary text */
     line-height: 1.6;
     -webkit-font-smoothing: antialiased;
@@ -16,7 +16,7 @@ header {
     color: #ffffff;
     padding: 1.5rem 0;
     text-align: center;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2); /* More prominent shadow for header */
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.3); /* Stronger, more visible shadow */
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -74,7 +74,7 @@ header h1 {
     color: #3498db; /* Vibrant blue for active tab */
     border-bottom: 4px solid #3498db; /* More prominent active indicator */
     font-weight: 600;
-    box-shadow: 0 -3px 8px rgba(0, 0, 0, 0.15); /* Stronger shadow for active tab */
+    box-shadow: 0 -3px 10px rgba(0, 0, 0, 0.2); /* Stronger shadow for active tab */
     transform: translateY(-2px); /* Slight lift for active tab */
 }
 
@@ -84,7 +84,7 @@ main {
     margin: 35px auto;
     background: #ffffff; /* White background for main content */
     border-radius: 10px; /* More rounded corners */
-    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15); /* More prominent, soft shadow */
+    box-shadow: 0 10px 35px rgba(0, 0, 0, 0.2); /* More prominent, soft shadow */
     position: relative;
     z-index: 5;
     border: 1px solid #e0e6ef; /* Subtle border */
@@ -105,7 +105,7 @@ main {
     font-weight: 600;
     margin: 0 auto;
     max-width: fit-content;
-    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15); /* More visible shadow */
     animation: fadeIn 0.5s ease-out; /* Fade in animation */
 }
 
@@ -147,7 +147,7 @@ main {
     border: 1px solid #e0e6ef;
     border-radius: 10px;
     align-items: flex-end;
-    box-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.05); /* Subtle inset shadow */
+    box-shadow: inset 0 2px 10px rgba(0, 0, 0, 0.08); /* More visible inset shadow */
 }
 
 .dropdown-group {
@@ -159,12 +159,12 @@ main {
     padding: 18px;
     border-radius: 8px;
     border: 1px solid #ced4da;
-    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1); /* More visible shadow */
     transition: all 0.3s ease;
 }
 
 .dropdown-group:hover {
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.12);
+    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.15); /* Stronger shadow on hover */
     transform: translateY(-2px);
 }
 
@@ -191,7 +191,7 @@ select {
     background-position: right 12px center;
     background-size: 20px;
     transition: all 0.2s ease;
-    box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.05);
+    box-shadow: inset 0 1px 4px rgba(0, 0, 0, 0.08); /* More visible inset shadow */
 }
 
 select:hover {
@@ -221,20 +221,20 @@ select:focus {
     font-size: 1.05em;
     font-weight: 500;
     transition: all 0.3s ease;
-    box-shadow: 0 3px 8px rgba(0, 0, 0, 0.15); /* Stronger button shadow */
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2); /* Stronger button shadow */
     text-transform: uppercase;
     letter-spacing: 0.5px;
 }
 
 .btn:hover {
     background-color: #2980b9; /* Darker blue on hover */
-    box-shadow: 0 5px 12px rgba(0, 0, 0, 0.2);
+    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.25); /* Stronger hover shadow */
     transform: translateY(-2px);
 }
 
 .btn.active {
     background-color: #2ecc71; /* Emerald green for active */
-    box-shadow: 0 3px 7px rgba(0, 0, 0, 0.15);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
 }
 
 .btn.active:hover {
@@ -256,7 +256,7 @@ select:focus {
     border-radius: 10px;
     min-height: 300px;
     border: 1px solid #e0e6ef;
-    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15); /* More prominent shadow */
     color: #333;
 }
 
@@ -296,7 +296,7 @@ table {
     border: 1px solid #e0e6ef;
     border-radius: 10px;
     overflow: hidden;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.15); /* More visible shadow */
 }
 
 table th, table td {
@@ -358,7 +358,7 @@ table tbody tr:hover {
     font-weight: 600;
     color: #ffffff; /* White text on progress bar */
     border: 1px solid #c9d5e3;
-    box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1);
+    box-shadow: inset 0 1px 4px rgba(0, 0, 0, 0.15); /* More visible inset shadow */
 }
 
 .progress-bar {
@@ -396,14 +396,14 @@ table tbody tr:hover {
     border: 1px solid #e0e6ef;
     border-radius: 10px; /* More rounded */
     padding: 25px;
-    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.15); /* More prominent shadow */
     transition: all 0.3s ease;
     position: relative;
     overflow: hidden;
 }
 .employee-performance-card:hover {
     transform: translateY(-5px); /* More pronounced lift */
-    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.18);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.22); /* Stronger hover shadow */
 }
 
 .employee-performance-card h4 {
@@ -456,12 +456,12 @@ table tbody tr:hover {
     border: 1px solid #e0e6ef;
     border-radius: 10px;
     padding: 25px;
-    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.15); /* More prominent shadow */
     transition: all 0.3s ease;
 }
 .summary-breakdown-card > div:hover {
     transform: translateY(-5px);
-    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.18);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.22); /* Stronger hover shadow */
 }
 
 .summary-breakdown-card h4 {
@@ -523,7 +523,7 @@ table tbody tr:hover {
     border-radius: 10px;
     padding: 30px;
     margin-bottom: 35px;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1); /* More visible shadow */
 }
 
 .form-section h3 {
@@ -557,7 +557,7 @@ table tbody tr:hover {
     color: #333;
     font-size: 1em;
     transition: all 0.2s ease;
-    box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.05);
+    box-shadow: inset 0 1px 4px rgba(0, 0, 0, 0.08); /* More visible inset shadow */
 }
 .employee-form input[type="text"]:focus,
 .employee-form textarea:focus {
@@ -614,7 +614,7 @@ footer {
     border: 1px solid #e0e6ef;
     border-radius: 10px;
     padding: 30px;
-    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.15); /* More prominent shadow */
     flex: 1;
 }
 
@@ -674,7 +674,7 @@ li.customer-list-item.active {
     border-radius: 8px;
     min-height: 250px;
     overflow-y: auto;
-    box-shadow: inset 0 0 8px rgba(0, 0, 0, 0.05);
+    box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.08); /* More visible inset shadow */
 }
 
 .customer-info-section {
@@ -682,7 +682,7 @@ li.customer-list-item.active {
     border: 1px solid #e0e6ef;
     border-radius: 8px;
     padding: 22px;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1); /* More visible shadow */
 }
 
 .customer-info-section h3 {
@@ -936,7 +936,7 @@ li.customer-list-item.active {
     max-width: calc(33.33% - 25px); /* Adjusted for gap */
     padding: 25px;
     border-radius: 10px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.15); /* More prominent shadow */
     color: #333;
     display: flex;
     flex-direction: column;
@@ -948,7 +948,7 @@ li.customer-list-item.active {
 
 .customer-detail-card:hover {
     transform: translateY(-5px);
-    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.18);
+    box-shadow: 0 8px 22px rgba(0, 0, 0, 0.2); /* Stronger hover shadow */
 }
 
 .customer-detail-card h3 {
@@ -1006,7 +1006,7 @@ li.customer-list-item.active {
     border: 1px solid #e0e6ef;
     border-radius: 10px;
     overflow: hidden;
-    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.15); /* More prominent shadow */
 }
 
 .all-branch-snapshot-table th {
@@ -1036,13 +1036,13 @@ li.customer-list-item.active {
     background: #ffffff;
     padding: 20px;
     border-radius: 10px;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1); /* More visible shadow */
     border: 1px solid #dbe4ee;
     transition: all 0.3s ease;
 }
 
 .dropdown-group:focus-within {
-    box-shadow: 0 0 0 0.3rem rgba(52, 152, 219, 0.3), 0 5px 15px rgba(0, 0, 0, 0.15);
+    box-shadow: 0 0 0 0.3rem rgba(52, 152, 219, 0.3), 0 6px 18px rgba(0, 0, 0, 0.18); /* Stronger focus shadow */
     transform: translateY(-3px);
 }
 
@@ -1062,7 +1062,7 @@ select {
     background-image: url('data:image/svg+xml;utf8,<svg fill="%23495057" height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg"><path d="M7 10l5 5 5-5z"/><path d="M0 0h24v24H0z" fill="none"/></svg>');
     background-position: right 12px center;
     transition: all 0.2s ease;
-    box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.05);
+    box-shadow: inset 0 1px 4px rgba(0, 0, 0, 0.08); /* More visible inset shadow */
 }
 
 select:hover {
@@ -1080,13 +1080,13 @@ select:focus {
     border: 1px solid #e0e6ef;
     border-radius: 10px;
     padding: 25px;
-    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.15); /* More prominent shadow */
     transition: all 0.3s ease;
 }
 
 .employee-performance-card:hover {
     transform: translateY(-5px);
-    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.18);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.22); /* Stronger hover shadow */
 }
 
 .employee-performance-card h4 {
@@ -1116,7 +1116,7 @@ select:focus {
 }
 
 .employee-performance-card th {
-    background-color: #f8faff;
+    background-color: #e9eff5; /* Light blue-grey header */
     color: #6c757d;
     font-weight: 600;
     text-align: left;
@@ -1204,13 +1204,13 @@ select:focus {
     border-left: 6px solid #3498db; /* Strong primary blue accent */
     border-radius: 10px;
     padding: 25px;
-    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.15); /* More prominent shadow */
     transition: all 0.3s ease;
 }
 
 .performance-card:hover {
     transform: translateY(-5px);
-    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.18);
+    box-shadow: 0 8px 22px rgba(0, 0, 0, 0.2); /* Stronger hover shadow */
 }
 
 .performance-card h3 {
@@ -1241,7 +1241,7 @@ select:focus {
     background: #ffffff;
     border-radius: 10px;
     overflow: hidden;
-    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.15); /* More prominent shadow */
 }
 
 .branch-summary-table thead th {
@@ -1279,7 +1279,7 @@ select:focus {
     border-radius: 8px;
     margin-top: 25px;
     font-size: 1.05em;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1); /* More visible shadow */
 }
 /* Existing styles... */
 
@@ -1288,7 +1288,7 @@ select:focus {
     background: #ffffff;
     border-radius: 10px;
     margin-top: 30px;
-    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15); /* More prominent shadow */
     color: #333;
 }
 
@@ -1321,13 +1321,13 @@ select:focus {
     align-items: center;
     justify-content: space-between;
     border-left: 5px solid transparent;
-    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+    box-shadow: 0 3px 8px rgba(0, 0, 0, 0.1); /* More visible shadow */
     transition: all 0.2s ease;
 }
 
 .leaderboard-item:hover {
     transform: translateX(5px);
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.12);
+    box-shadow: 0 5px 12px rgba(0, 0, 0, 0.15); /* Stronger hover shadow */
 }
 
 .leaderboard-item strong {
@@ -1340,7 +1340,7 @@ select:focus {
     font-size: 1.1em;
     padding: 10px 18px;
     border-radius: 5px;
-    color: #ffffff;
+    color: #2c3e50; /* Changed to dark blue-grey for visibility */
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.15);
 }
 
@@ -1381,7 +1381,7 @@ select:focus {
     width: 100%;
     border-collapse: collapse;
     margin-top: 25px;
-    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.15); /* More prominent shadow */
     border: 1px solid #e0e6ef;
     border-radius: 10px;
     overflow: hidden;
@@ -1413,7 +1413,7 @@ select:focus {
     width: 100%;
     border-collapse: collapse;
     margin-top: 25px;
-    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.15); /* More prominent shadow */
     border: 1px solid #e0e6ef;
     border-radius: 10px;
     overflow-x: auto;
@@ -1480,7 +1480,7 @@ select:focus {
     flex: 1;
     min-width: 320px;
     max-width: calc(50% - 20px); /* Adjusted for gap */
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); /* Add a subtle shadow to individual tables */
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.15); /* More prominent shadow to individual tables */
 }
 
 .all-branch-snapshot-table {
