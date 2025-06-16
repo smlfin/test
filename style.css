@@ -982,3 +982,56 @@ select:focus {
 .employee-performance-card tbody tr:last-child td {
     border-bottom: none; /* No border for the last row */
 }
+/* Further Enhancements for Activity Summary Table within Employee Performance Card */
+
+/* General table styling within the card */
+.employee-performance-card table {
+    border-collapse: separate; /* Allows border-spacing to create gaps */
+    border-spacing: 0 5px; /* Adds vertical space between rows */
+    width: 100%;
+    margin-top: 15px; /* Ensure space below card heading */
+}
+
+/* Table header styling */
+.employee-performance-card th {
+    background-color: #f1f8e9; /* Lighter, subtle green background for headers */
+    color: #4CAF50; /* Primary green color for text */
+    font-weight: bold;
+    padding: 10px 15px; /* More padding for header cells */
+    text-align: left;
+    border-bottom: 2px solid #c8e6c9; /* Distinct bottom border */
+    font-size: 0.9em;
+    text-transform: uppercase; /* Uppercase for a clean look */
+    letter-spacing: 0.5px;
+}
+
+/* Table data cell styling */
+.employee-performance-card td {
+    padding: 10px 15px; /* Consistent padding for data cells */
+    font-size: 0.88em;
+    color: #333;
+    background-color: #ffffff; /* White background for all cells by default */
+    border: 1px solid #e0e0e0; /* Subtle border for cells */
+    border-radius: 4px; /* Slightly rounded corners for cells */
+}
+
+/* Alternating row colors for better readability (zebra-striping) */
+.employee-performance-card tbody tr:nth-child(even) td {
+    background-color: #f9f9f9; /* Light grey for even rows */
+}
+
+/* Hover effect for rows */
+.employee-performance-card tbody tr:hover td {
+    background-color: #e8f5e9; /* Soft green on hover */
+    cursor: default; /* Indicate it's a data display, not clickable */
+}
+
+/* Remove bottom border for the last cell in a row to avoid double borders */
+.employee-performance-card td:last-child {
+    border-right: 1px solid #e0e0e0; /* Ensure right border for last cell */
+}
+
+/* Remove bottom border for the last row to prevent extra line */
+.employee-performance-card tbody tr:last-child td {
+    border-bottom: 1px solid #e0e0e0;
+}
