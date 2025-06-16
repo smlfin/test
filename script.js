@@ -972,9 +972,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         tableContainer.appendChild(table);
         reportDisplay.appendChild(tableContainer);
-    }
-
-// --- NEW: Branch Visit Leaderboard Report ---
+    }// --- UPDATED: Branch Visit Leaderboard Report ---
     function renderBranchVisitLeaderboard() {
         reportDisplay.innerHTML = '<h2>Branch Visit Analysis</h2>';
 
@@ -990,61 +988,60 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
 
-        // Convert to an array of objects for sorting
-        const sortedBranches = Object.keys(branchVisitCounts).map(branch => ({
+        // Initialize all predefined branches with 0 visits if they don't have any entries
+        const allBranchesWithCounts = PREDEFINED_BRANCHES.map(branch => ({
             name: branch,
-            visits: branchVisitCounts[branch]
+            visits: branchVisitCounts[branch] || 0
         }));
 
-        if (sortedBranches.length === 0) {
-            reportDisplay.innerHTML += '<p>No visit data available to generate this report.</p>';
+
+        if (allBranchesWithCounts.length === 0) {
+            reportDisplay.innerHTML += '<p>No branch data available to generate this report.</p>';
             return;
         }
 
         // Sort for Max Visits (descending)
-        const sortedByVisitsDesc = [...sortedBranches].sort((a, b) => b.visits - a.visits);
+        const sortedByVisitsDesc = [...allBranchesWithCounts].sort((a, b) => b.visits - a.visits);
 
-        // Max Visit Branch
-       if (sortedByVisitsDesc.length > 0) {
-    const maxVisitBranch = sortedByVisitsDesc.length > 0 ? sortedByVisitsDesc [0]: {name: 'N/A', visits: 0};
-    reportDisplay.innerHTML += `
-        <h3>Branch with Maximum Visits:</h3>
-        <div class="leaderboard-item">
-            <strong>${maxVisitBranch.name}</strong>
-            <span>${maxVisitBranch.visits} Visits</span>
-        </div>
-    `;
-}
+        // Display Top 3 Branches with Maximum Visits
+        reportDisplay.innerHTML += `<h3>Top 3 Branches with Maximum Visits:</h3>`;
+        const top3MaxVisits = sortedByVisitsDesc.slice(0, 3);
+        if (top3MaxVisits.length > 0) {
+            top3MaxVisits.forEach(data => {
+                reportDisplay.innerHTML += `
+                    <div class="leaderboard-item top-performer">
+                        <strong>${data.name}</strong>
+                        <span>${data.visits} Visits</span>
+                    </div>
+                `;
+            });
+        } else {
+            reportDisplay.innerHTML += '<p>No visit data available.</p>';
+        }
 
         // Sort for Lowest Visits (ascending)
-        const sortedByVisitsAsc = [...sortedBranches].sort((a, b) => a.visits - b.visits);
+        const sortedByVisitsAsc = [...allBranchesWithCounts].sort((a, b) => a.visits - b.visits);
 
-        // Lowest Visit Branch (consider branches with 0 visits if they are in PREDEFINED_BRANCHES but had no activity)
-        let lowestVisitBranches = sortedByVisitsAsc;
-        
-        // Include predefined branches with zero visits if they aren't already in sortedBranches
-        PREDEFINED_BRANCHES.forEach(pBranch => {
-            if (!branchVisitCounts[pBranch]) {
-                lowestVisitBranches.push({ name: pBranch, visits: 0 });
-            }
-        });
-        // Re-sort to ensure correct order after adding zero-activity branches
-        lowestVisitBranches.sort((a, b) => a.visits - b.visits);
+        // Display Top 3 Branches with Lowest Visits (could include 0-visit branches)
+        reportDisplay.innerHTML += `<h3>Top 3 Branches with Lowest Visits:</h3>`;
+        const top3MinVisits = sortedByVisitsAsc.slice(0, 3);
+        if (top3MinVisits.length > 0) {
+            top3MinVisits.forEach(data => {
+                reportDisplay.innerHTML += `
+                    <div class="leaderboard-item low-performer">
+                        <strong>${data.name}</strong>
+                        <span>${data.visits} Visits</span>
+                    </div>
+                `;
+            });
+        } else {
+            reportDisplay.innerHTML += '<p>No visit data available.</p>';
+        }
 
-        if (lowestVisitBranches.length > 0) {
-    const minVisitBranch = lowestVisitBranches.length > 0 ? lowestVisitBranches [0]: {name: 'N/A', visits: 0};
-    reportDisplay.innerHTML += `
-        <h3>Branch with Lowest Visits:</h3>
-        <div class="leaderboard-item">
-            <strong>${minVisitBranch.name}</strong>
-            <span>${minVisitBranch.visits} Visits</span>
-        </div>
-    `;
-}
         // Display all branches sorted by visits
         reportDisplay.innerHTML += '<h3>All Branches by Visits:</h3>';
         const table = document.createElement('table');
-        table.className = 'all-branch-snapshot-table'; // Reuse existing table style
+        table.className = 'all-branch-snapshot-table';
 
         const thead = table.createTHead();
         const headerRow = thead.insertRow();
@@ -1055,6 +1052,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
 
         const tbody = table.createTBody();
+        // Use the descending sorted list for the full table
         sortedByVisitsDesc.forEach(data => {
             const row = tbody.insertRow();
             row.insertCell().textContent = data.name;
@@ -1064,7 +1062,7 @@ document.addEventListener('DOMContentLoaded', () => {
         reportDisplay.appendChild(table);
     }
 
-    // --- NEW: Branch Call Leaderboard Report ---
+    // --- UPDATED: Branch Call Leaderboard Report ---
     function renderBranchCallLeaderboard() {
         reportDisplay.innerHTML = '<h2>Branch Call Analysis</h2>';
 
@@ -1075,65 +1073,64 @@ document.addEventListener('DOMContentLoaded', () => {
             const branch = entry[HEADER_BRANCH_NAME];
             const activityType = entry[HEADER_ACTIVITY_TYPE] ? entry[HEADER_ACTIVITY_TYPE].trim().toLowerCase() : '';
 
-            if (branch && activityType === 'calls') { // Note: 'calls' as per your data mapping
+            if (branch && activityType === 'calls') {
                 branchCallCounts[branch] = (branchCallCounts[branch] || 0) + 1;
             }
         });
 
-        // Convert to an array of objects for sorting
-        const sortedBranches = Object.keys(branchCallCounts).map(branch => ({
+        // Initialize all predefined branches with 0 calls if they don't have any entries
+        const allBranchesWithCounts = PREDEFINED_BRANCHES.map(branch => ({
             name: branch,
-            calls: branchCallCounts[branch]
+            calls: branchCallCounts[branch] || 0
         }));
 
-        if (sortedBranches.length === 0) {
-            reportDisplay.innerHTML += '<p>No call data available to generate this report.</p>';
+        if (allBranchesWithCounts.length === 0) {
+            reportDisplay.innerHTML += '<p>No branch data available to generate this report.</p>';
             return;
         }
 
         // Sort for Max Calls (descending)
-        const sortedByCallsDesc = [...sortedBranches].sort((a, b) => b.calls - a.calls);
+        const sortedByCallsDesc = [...allBranchesWithCounts].sort((a, b) => b.calls - a.calls);
 
-        // Max Call Branch
-        if (sortedByCallsDesc.length > 0) {
-    const maxCallBranch = sortedByCallsDesc.length > 0 ? sortedByCallsDesc [0]: {name: 'N/A', calls: 0};
-    reportDisplay.innerHTML += `
-        <h3>Branch with Maximum Calls:</h3>
-        <div class="leaderboard-item">
-            <strong>${maxCallBranch.name}</strong>
-            <span>${maxCallBranch.calls} Calls</span>
-        </div>
-    `;
-}
+        // Display Top 3 Branches with Maximum Calls
+        reportDisplay.innerHTML += `<h3>Top 3 Branches with Maximum Calls:</h3>`;
+        const top3MaxCalls = sortedByCallsDesc.slice(0, 3);
+        if (top3MaxCalls.length > 0) {
+            top3MaxCalls.forEach(data => {
+                reportDisplay.innerHTML += `
+                    <div class="leaderboard-item top-performer">
+                        <strong>${data.name}</strong>
+                        <span>${data.calls} Calls</span>
+                    </div>
+                `;
+            });
+        } else {
+            reportDisplay.innerHTML += '<p>No call data available.</p>';
+        }
 
         // Sort for Lowest Calls (ascending)
-        const sortedByCallsAsc = [...sortedBranches].sort((a, b) => a.calls - b.calls);
-        
-        // Include predefined branches with zero calls if they aren't already in sortedBranches
-        let lowestCallBranches = sortedByCallsAsc;
-        PREDEFINED_BRANCHES.forEach(pBranch => {
-            if (!branchCallCounts[pBranch]) {
-                lowestCallBranches.push({ name: pBranch, calls: 0 });
-            }
-        });
-        // Re-sort to ensure correct order after adding zero-activity branches
-        lowestCallBranches.sort((a, b) => a.calls - b.calls);
+        const sortedByCallsAsc = [...allBranchesWithCounts].sort((a, b) => a.calls - b.calls);
 
-        if (lowestCallBranches.length > 0) {
-    const minCallBranch = lowestCallBranches.length > 0 ? lowestCallBranches [0]: {name: 'N/A', calls: 0};
-    reportDisplay.innerHTML += `
-        <h3>Branch with Lowest Calls:</h3>
-        <div class="leaderboard-item">
-            <strong>${minCallBranch.name}</strong>
-            <span>${minCallBranch.calls} Calls</span>
-        </div>
-    `;
-}
+        // Display Top 3 Branches with Lowest Calls (could include 0-call branches)
+        reportDisplay.innerHTML += `<h3>Top 3 Branches with Lowest Calls:</h3>`;
+        const top3MinCalls = sortedByCallsAsc.slice(0, 3);
+        if (top3MinCalls.length > 0) {
+            top3MinCalls.forEach(data => {
+                reportDisplay.innerHTML += `
+                    <div class="leaderboard-item low-performer">
+                        <strong>${data.name}</strong>
+                        <span>${data.calls} Calls</span>
+                    </div>
+                `;
+            });
+        } else {
+            reportDisplay.innerHTML += '<p>No call data available.</p>';
+        }
 
         // Display all branches sorted by calls
         reportDisplay.innerHTML += '<h3>All Branches by Calls:</h3>';
         const table = document.createElement('table');
-        table.className = 'all-branch-snapshot-table'; // Reuse existing table style
+        table.className = 'all-branch-snapshot-table';
 
         const thead = table.createTHead();
         const headerRow = thead.insertRow();
@@ -1144,6 +1141,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
 
         const tbody = table.createTBody();
+        // Use the descending sorted list for the full table
         sortedByCallsDesc.forEach(data => {
             const row = tbody.insertRow();
             row.insertCell().textContent = data.name;
