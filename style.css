@@ -1129,3 +1129,13 @@ select:focus {
     margin-top: 20px;
     font-size: 1em;
 }
+/* Styles for Staff Participation Report */
+.status-participating {
+    color: #28a745; /* Green color for participating */
+    font-weight: bold;
+}
+
+.status-non-participating {
+    color: #dc3545; /* Red color for non-participating */
+    font-weight: bold;
+}
