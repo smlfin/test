@@ -1327,5 +1327,5 @@ select:focus {
 .all-branch-snapshot-table th {
     /* Keep existing styles or adjust if necessary */
     background-color: #007bff; /* Consistent blue header */
-    color: white;
+    color: black;
 }
