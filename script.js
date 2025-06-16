@@ -1001,13 +1001,16 @@ document.addEventListener('DOMContentLoaded', () => {
         const sortedByVisitsDesc = [...sortedBranches].sort((a, b) => b.visits - a.visits);
 
         // Max Visit Branch
-        if (sortedByVisitsDesc.length > 0) {
-            const maxVisitBranch = sortedByVisitsDesc[0];
-            reportDisplay.innerHTML += `
-                <h3>Branch with Maximum Visits:</h3>
-                <p><strong>${maxVisitBranch.name}:</strong> ${maxVisitBranch.visits} Visits</p>
-            `;
-        }
+       if (sortedByVisitsDesc.length > 0) {
+    const maxVisitBranch = sortedByVisitsDesc.length > 0 ? sortedByVisitsDesc [0]: {name: 'N/A', visits: 0};
+    reportDisplay.innerHTML += `
+        <h3>Branch with Maximum Visits:</h3>
+        <div class="leaderboard-item">
+            <strong>${maxVisitBranch.name}</strong>
+            <span>${maxVisitBranch.visits} Visits</span>
+        </div>
+    `;
+}
 
         // Sort for Lowest Visits (ascending)
         const sortedByVisitsAsc = [...sortedBranches].sort((a, b) => a.visits - b.visits);
@@ -1025,13 +1028,15 @@ document.addEventListener('DOMContentLoaded', () => {
         lowestVisitBranches.sort((a, b) => a.visits - b.visits);
 
         if (lowestVisitBranches.length > 0) {
-            const minVisitBranch = lowestVisitBranches[0];
-            reportDisplay.innerHTML += `
-                <h3>Branch with Lowest Visits:</h3>
-                <p><strong>${minVisitBranch.name}:</strong> ${minVisitBranch.visits} Visits</p>
-            `;
-        }
-
+    const minVisitBranch = lowestVisitBranches.length > 0 ? lowestVisitBranches [0]: {name: 'N/A', visits: 0};
+    reportDisplay.innerHTML += `
+        <h3>Branch with Lowest Visits:</h3>
+        <div class="leaderboard-item">
+            <strong>${minVisitBranch.name}</strong>
+            <span>${minVisitBranch.visits} Visits</span>
+        </div>
+    `;
+}
         // Display all branches sorted by visits
         reportDisplay.innerHTML += '<h3>All Branches by Visits:</h3>';
         const table = document.createElement('table');
@@ -1087,12 +1092,15 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // Max Call Branch
         if (sortedByCallsDesc.length > 0) {
-            const maxCallBranch = sortedByCallsDesc[0];
-            reportDisplay.innerHTML += `
-                <h3>Branch with Maximum Calls:</h3>
-                <p><strong>${maxCallBranch.name}:</strong> ${maxCallBranch.calls} Calls</p>
-            `;
-        }
+    const maxCallBranch = sortedByCallsDesc.length > 0 ? sortedByCallsDesc [0]: {name: 'N/A', calls: 0};
+    reportDisplay.innerHTML += `
+        <h3>Branch with Maximum Calls:</h3>
+        <div class="leaderboard-item">
+            <strong>${maxCallBranch.name}</strong>
+            <span>${maxCallBranch.calls} Calls</span>
+        </div>
+    `;
+}
 
         // Sort for Lowest Calls (ascending)
         const sortedByCallsAsc = [...sortedBranches].sort((a, b) => a.calls - b.calls);
@@ -1108,13 +1116,15 @@ document.addEventListener('DOMContentLoaded', () => {
         lowestCallBranches.sort((a, b) => a.calls - b.calls);
 
         if (lowestCallBranches.length > 0) {
-            const minCallBranch = lowestCallBranches[0];
-            reportDisplay.innerHTML += `
-                <h3>Branch with Lowest Calls:</h3>
-                <p><strong>${minCallBranch.name}:</strong> ${minCallBranch.calls} Calls</p>
-            `;
-        }
-
+    const minCallBranch = lowestCallBranches.length > 0 ? lowestCallBranches [0]: {name: 'N/A', calls: 0};
+    reportDisplay.innerHTML += `
+        <h3>Branch with Lowest Calls:</h3>
+        <div class="leaderboard-item">
+            <strong>${minCallBranch.name}</strong>
+            <span>${minCallBranch.calls} Calls</span>
+        </div>
+    `;
+}
 
         // Display all branches sorted by calls
         reportDisplay.innerHTML += '<h3>All Branches by Calls:</h3>';
