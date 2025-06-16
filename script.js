@@ -13,23 +13,24 @@ document.addEventListener('DOMContentLoaded', () => {
     // For front-end reporting, all employee and branch data will come from Canvassing Data and predefined list.
     const EMPLOYEE_MASTER_DATA_URL = "UNUSED"; // Marked as UNUSED for clarity, won't be fetched for reports
 
+   // In script.js, usually near the top with other configurations
     const MONTHLY_WORKING_DAYS = 22; // Common approximation for a month's working days
 
     const TARGETS = {
         'Branch Manager': {
             'Visit': 10,
-            'Call': 3 * MONTHLY_WORKING_DAYS,
+            'Call': 3 * MONTHLY_WORKING_DAYS, // Assuming these are monthly calls, so daily target would be this / MONTHLY_WORKING_DAYS
             'Reference': 1 * MONTHLY_WORKING_DAYS,
             'New Customer Leads': 20
         },
-        'Investment Staff': { // Added Investment Staff with custom Visit target
-            'Visit': 30,
+        'Investment Staff': {
+            'Visit': 15,
             'Call': 5 * MONTHLY_WORKING_DAYS,
             'Reference': 1 * MONTHLY_WORKING_DAYS,
             'New Customer Leads': 20
         },
-        'Seniors': { // Added Investment Staff with custom Visit target
-            'Visit': 30,
+        'Seniors': {
+            'Visit': 15,
             'Call': 5 * MONTHLY_WORKING_DAYS,
             'Reference': 1 * MONTHLY_WORKING_DAYS,
             'New Customer Leads': 20
@@ -40,8 +41,7 @@ document.addEventListener('DOMContentLoaded', () => {
             'Reference': 1 * MONTHLY_WORKING_DAYS,
             'New Customer Leads': 20
         }
-    };
-    // Predefined list of branches for the dropdown and "no participation" check
+    };    // Predefined list of branches for the dropdown and "no participation" check
     const PREDEFINED_BRANCHES = [
         "Angamaly", "Corporate Office", "Edappally", "Harippad", "Koduvayur", "Kuzhalmannam",
         "Mattanchery", "Mavelikara", "Nedumkandom", "Nenmara", "Paravoor", "Perumbavoor",
