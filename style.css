@@ -296,7 +296,7 @@ table {
     border: 1px solid #e0e6ef;
     border-radius: 10px;
     overflow: hidden;
-    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.15); /* More visible shadow */
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.15); /* More prominent shadow */
 }
 
 table th, table td {
@@ -631,37 +631,50 @@ footer {
 ul.customer-list {
     list-style: none;
     padding: 0;
-    max-height: 500px; /* Taller list */
-    overflow-y: auto;
+    display: flex; /* Make it a flex container */
+    flex-wrap: wrap; /* Allow items to wrap to the next line */
+    gap: 10px; /* Space between customer names */
     border: 1px solid #e0e6ef;
     border-radius: 8px;
     background-color: #fcfdfe;
+    padding: 15px; /* Add some padding to the container */
 }
 
 li.customer-list-item {
-    padding: 12px 18px;
-    border-bottom: 1px solid #f2f4f7;
+    flex: 0 0 auto; /* Allow items to size based on content */
+    padding: 8px 15px; /* Adjust padding for a more compact horizontal look */
+    border: 1px solid #dbe4ee; /* A subtle border for each item */
+    border-radius: 5px; /* Slightly rounded corners */
+    background-color: #f8faff; /* Light background color */
     cursor: pointer;
     transition: all 0.2s ease;
     color: #495057;
     font-size: 1.0em;
+    text-align: center; /* Center text within each item */
+    white-space: nowrap; /* Prevent names from wrapping within the item */
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 100%; /* Ensure it doesn't overflow its own container */
 }
 
 li.customer-list-item:last-child {
-    border-bottom: none;
+    border-bottom: none; /* Already handled by individual item borders */
 }
 
 li.customer-list-item:hover {
     background-color: #e0f2f7;
     color: #3498db;
-    transform: translateX(3px); /* Slight slide on hover */
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); /* Subtle lift effect on hover */
+    transform: translateY(-2px);
 }
 
 li.customer-list-item.active {
     background-color: #d8edf7; /* Slightly darker active background */
     font-weight: 600;
     color: #3498db;
-    border-left: 5px solid #3498db; /* Thicker active border */
+    border: 1px solid #3498db; /* Thicker active border */
+    box-shadow: 0 0 0 0.2rem rgba(52, 152, 219, 0.3); /* Stronger glow on active */
+    transform: translateY(0); /* Reset transform for active state */
 }
 
 .customer-details-card {
