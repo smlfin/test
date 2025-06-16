@@ -481,29 +481,33 @@ document.addEventListener('DOMContentLoaded', () => {
         reportDisplay.appendChild(table);
     }
 
-    // NEW: Render Non-Participating Branches Report
+   
+    // NEW: Render Non-Participating Branches Report (now Zero Visit Branches)
     function renderNonParticipatingBranches() {
-        reportDisplay.innerHTML = '<h2>Non-Participating Branches</h2>';
-        const nonParticipatingBranches = [];
+        reportDisplay.innerHTML = '<h2>Zero Visit Branches</h2>'; // Changed title
+        const zeroVisitBranches = [];
 
         PREDEFINED_BRANCHES.forEach(branch => {
-            const hasActivity = allCanvassingData.some(entry => entry[HEADER_BRANCH_NAME] === branch);
-            if (!hasActivity) {
-                nonParticipatingBranches.push(branch);
+            const branchActivityEntries = allCanvassingData.filter(entry => entry[HEADER_BRANCH_NAME] === branch);
+            const { totalActivity } = calculateTotalActivity(branchActivityEntries); // Get total activities
+
+            // Check if total visits for this branch is 0
+            if (totalActivity['Visit'] === 0) {
+                zeroVisitBranches.push(branch);
             }
         });
 
-        if (nonParticipatingBranches.length > 0) {
+        if (zeroVisitBranches.length > 0) {
             const ul = document.createElement('ul');
-            ul.className = 'non-participating-branch-list';
-            nonParticipatingBranches.forEach(branch => {
+            ul.className = 'non-participating-branch-list'; // Reusing existing class
+            zeroVisitBranches.forEach(branch => {
                 const li = document.createElement('li');
                 li.textContent = branch;
                 ul.appendChild(li);
             });
             reportDisplay.appendChild(ul);
         } else {
-            reportDisplay.innerHTML += '<p class="no-participation-message">All predefined branches have recorded activity!</p>';
+            reportDisplay.innerHTML += '<p class="no-participation-message">All predefined branches have recorded visits!</p>'; // Changed message
         }
     }
 
