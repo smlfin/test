@@ -1039,28 +1039,61 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         // Display all branches sorted by visits
-        reportDisplay.innerHTML += '<h3>All Branches by Visits:</h3>';
-        const table = document.createElement('table');
-        table.className = 'all-branch-snapshot-table';
+        // In renderBranchVisitLeaderboard function:
 
-        const thead = table.createTHead();
-        const headerRow = thead.insertRow();
+    // ... (previous code for Max and Min Visits) ...
+
+    // Display all branches sorted by visits in two horizontal tables
+    reportDisplay.innerHTML += '<h3>All Branches by Visits:</h3>';
+    const totalBranches = sortedByVisitsDesc.length;
+    const halfWayPoint = Math.ceil(totalBranches / 2);
+
+    const firstHalf = sortedByVisitsDesc.slice(0, halfWayPoint);
+    const secondHalf = sortedByVisitsDesc.slice(halfWayPoint);
+
+    const tablesContainer = document.createElement('div');
+    tablesContainer.className = 'two-tables-container';
+
+    // Create First Table
+    const table1 = document.createElement('table');
+    table1.className = 'all-branch-snapshot-table'; // Reuse existing table style
+    let thead1 = table1.createTHead();
+    let headerRow1 = thead1.insertRow();
+    ['Branch Name', 'Total Visits'].forEach(text => {
+        const th = document.createElement('th');
+        th.textContent = text;
+        headerRow1.appendChild(th);
+    });
+    let tbody1 = table1.createTBody();
+    firstHalf.forEach(data => {
+        const row = tbody1.insertRow();
+        row.insertCell().textContent = data.name;
+        row.insertCell().textContent = data.visits;
+    });
+    tablesContainer.appendChild(table1);
+
+    // Create Second Table
+    if (secondHalf.length > 0) { // Only create if there's data for the second half
+        const table2 = document.createElement('table');
+        table2.className = 'all-branch-snapshot-table'; // Reuse existing table style
+        let thead2 = table2.createTHead();
+        let headerRow2 = thead2.insertRow();
         ['Branch Name', 'Total Visits'].forEach(text => {
             const th = document.createElement('th');
             th.textContent = text;
-            headerRow.appendChild(th);
+            headerRow2.appendChild(th);
         });
-
-        const tbody = table.createTBody();
-        // Use the descending sorted list for the full table
-        sortedByVisitsDesc.forEach(data => {
-            const row = tbody.insertRow();
+        let tbody2 = table2.createTBody();
+        secondHalf.forEach(data => {
+            const row = tbody2.insertRow();
             row.insertCell().textContent = data.name;
             row.insertCell().textContent = data.visits;
         });
-
-        reportDisplay.appendChild(table);
+        tablesContainer.appendChild(table2);
     }
+    
+    reportDisplay.appendChild(tablesContainer);
+}
 
     // --- UPDATED: Branch Call Leaderboard Report ---
     function renderBranchCallLeaderboard() {
@@ -1128,29 +1161,61 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         // Display all branches sorted by calls
-        reportDisplay.innerHTML += '<h3>All Branches by Calls:</h3>';
-        const table = document.createElement('table');
-        table.className = 'all-branch-snapshot-table';
+        // In renderBranchCallLeaderboard function:
 
-        const thead = table.createTHead();
-        const headerRow = thead.insertRow();
+    // ... (previous code for Max and Min Calls) ...
+
+    // Display all branches sorted by calls in two horizontal tables
+    reportDisplay.innerHTML += '<h3>All Branches by Calls:</h3>';
+    const totalBranches = sortedByCallsDesc.length;
+    const halfWayPoint = Math.ceil(totalBranches / 2);
+
+    const firstHalf = sortedByCallsDesc.slice(0, halfWayPoint);
+    const secondHalf = sortedByCallsDesc.slice(halfWayPoint);
+
+    const tablesContainer = document.createElement('div');
+    tablesContainer.className = 'two-tables-container';
+
+    // Create First Table
+    const table1 = document.createElement('table');
+    table1.className = 'all-branch-snapshot-table'; // Reuse existing table style
+    let thead1 = table1.createTHead();
+    let headerRow1 = thead1.insertRow();
+    ['Branch Name', 'Total Calls'].forEach(text => {
+        const th = document.createElement('th');
+        th.textContent = text;
+        headerRow1.appendChild(th);
+    });
+    let tbody1 = table1.createTBody();
+    firstHalf.forEach(data => {
+        const row = tbody1.insertRow();
+        row.insertCell().textContent = data.name;
+        row.insertCell().textContent = data.calls;
+    });
+    tablesContainer.appendChild(table1);
+
+    // Create Second Table
+    if (secondHalf.length > 0) { // Only create if there's data for the second half
+        const table2 = document.createElement('table');
+        table2.className = 'all-branch-snapshot-table'; // Reuse existing table style
+        let thead2 = table2.createTHead();
+        let headerRow2 = thead2.insertRow();
         ['Branch Name', 'Total Calls'].forEach(text => {
             const th = document.createElement('th');
             th.textContent = text;
-            headerRow.appendChild(th);
+            headerRow2.appendChild(th);
         });
-
-        const tbody = table.createTBody();
-        // Use the descending sorted list for the full table
-        sortedByCallsDesc.forEach(data => {
-            const row = tbody.insertRow();
+        let tbody2 = table2.createTBody();
+        secondHalf.forEach(data => {
+            const row = tbody2.insertRow();
             row.insertCell().textContent = data.name;
             row.insertCell().textContent = data.calls;
         });
-
-        reportDisplay.appendChild(table);
+        tablesContainer.appendChild(table2);
     }
-
+    
+    reportDisplay.appendChild(tablesContainer);
+}
     // --- NEW: Staff Participation Report ---
     function renderStaffParticipation() {
         reportDisplay.innerHTML = '<h2>Staff Participation Report (This Month)</h2>';
