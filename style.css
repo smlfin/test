@@ -1035,3 +1035,97 @@ select:focus {
 .employee-performance-card tbody tr:last-child td {
     border-bottom: 1px solid #e0e0e0;
 }
+/* New styles for Branch Performance Reports */
+
+.branch-performance-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); /* Responsive grid */
+    gap: 20px;
+    margin-top: 25px;
+    margin-bottom: 30px;
+}
+
+.performance-card {
+    background-color: #ffffff;
+    border: 1px solid #e0e0e0;
+    border-left: 5px solid #4CAF50; /* Green accent on the left */
+    border-radius: 8px;
+    padding: 20px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+}
+
+.performance-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.12);
+}
+
+.performance-card h3 {
+    color: #333;
+    font-size: 1.1em;
+    margin-top: 0;
+    margin-bottom: 10px;
+    border-bottom: 1px dashed #eee;
+    padding-bottom: 8px;
+}
+
+.performance-card p {
+    font-size: 1.2em;
+    font-weight: bold;
+    color: #4CAF50; /* Green text for the main value */
+    margin: 0;
+}
+
+.performance-card p strong {
+    color: #333; /* Branch name in darker color */
+}
+
+/* Styles for the Branch-wise Activity Breakdown table */
+.branch-summary-table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0 8px; /* Space between rows */
+    margin-top: 20px;
+    background-color: #ffffff;
+    border-radius: 8px;
+    overflow: hidden; /* Ensures rounded corners */
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+}
+
+.branch-summary-table thead th {
+    background-color: #e8f5e9; /* Light green header */
+    color: #2e7d32;
+    padding: 12px 15px;
+    text-align: left;
+    font-size: 0.95em;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    border-bottom: 2px solid #c8e6c9;
+}
+
+.branch-summary-table tbody tr td {
+    padding: 10px 15px;
+    border: 1px solid #f0f0f0; /* Light border for cells */
+    border-radius: 4px; /* Rounded cell corners */
+    background-color: #ffffff;
+    color: #555;
+}
+
+.branch-summary-table tbody tr:nth-child(even) td {
+    background-color: #f9fdf9; /* Very light background for even rows */
+}
+
+.branch-summary-table tbody tr:hover td {
+    background-color: #e0f2f1; /* Soft hover effect */
+}
+
+/* General info message style for reports */
+.info-message {
+    background-color: #e3f2fd; /* Light blue background */
+    color: #2196f3; /* Blue text */
+    padding: 15px;
+    border-left: 5px solid #2196f3;
+    border-radius: 5px;
+    margin-top: 20px;
+    font-size: 1em;
+}
