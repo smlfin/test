@@ -852,3 +852,133 @@ li.customer-list-item.active {
         max-width: 100%; /* Stack cards vertically on small screens */
     }
 }
+/* All Branch Snapshot Table Enhancements */
+.all-branch-snapshot-table {
+    border: 1px solid #c8e6c9; /* Light green border for the whole table */
+    border-radius: 8px; /* Rounded corners for the table */
+    overflow: hidden; /* Ensures rounded corners are visible */
+}
+
+.all-branch-snapshot-table th {
+    background-color: #e8f5e9; /* Lighter green background for headers */
+    color: #2e7d32; /* Darker green text for headers */
+    font-weight: bold;
+    padding: 12px 8px; /* More padding for headers */
+    text-transform: uppercase; /* Uppercase text for better readability */
+    font-size: 0.95em;
+}
+
+.all-branch-snapshot-table td {
+    padding: 10px 8px; /* Consistent padding for cells */
+}
+
+.all-branch-snapshot-table tbody tr:nth-child(even) {
+    background-color: #f9fdf9; /* Very light green for even rows */
+}
+
+.all-branch-snapshot-table tbody tr:hover {
+    background-color: #e0f2f1; /* Light teal on hover for a pleasant effect */
+    cursor: pointer; /* Indicate interactivity */
+}
+/* Dropdown Group and Select Enhancements */
+.dropdown-group {
+    background-color: #ffffff; /* White background for the group */
+    padding: 15px;
+    border-radius: 8px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.08); /* Subtle shadow for depth */
+    transition: box-shadow 0.3s ease;
+}
+
+.dropdown-group:focus-within {
+    box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.3); /* Green glow on focus */
+}
+
+.dropdown-group label {
+    font-size: 0.95em;
+    color: #4CAF50; /* Green label color */
+    margin-bottom: 8px; /* More space below label */
+    font-weight: bold;
+    letter-spacing: 0.5px; /* Slightly spaced letters */
+}
+
+select {
+    width: 100%; /* Ensure select takes full width of its container */
+    padding: 12px; /* More padding for a larger touch target */
+    border: 1px solid #a5d6a7; /* Light green border */
+    border-radius: 6px; /* Slightly more rounded corners */
+    background-color: #ffffff;
+    font-size: 1em;
+    color: #333;
+    appearance: none; /* Remove default system arrow */
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    background-image: url('data:image/svg+xml;utf8,<svg fill="%234CAF50" height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg"><path d="M7 10l5 5 5-5z"/><path d="M0 0h24v24H0z" fill="none"/></svg>'); /* Custom dropdown arrow */
+    background-repeat: no-repeat;
+    background-position: right 10px center;
+    background-size: 20px;
+    cursor: pointer;
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+select:hover {
+    border-color: #81c784; /* Darker green on hover */
+}
+
+select:focus {
+    border-color: #4CAF50;
+    box-shadow: 0 0 0 2px rgba(76, 175, 80, 0.4); /* Green shadow on focus */
+    outline: none;
+}
+/* Employee Performance Card Enhancements (Employee Summary) */
+.employee-performance-card {
+    background-color: #fcfcfc; /* Very light off-white background */
+    border: 1px solid #dce775; /* Soft yellow-green border */
+    border-radius: 12px; /* More rounded corners for a softer look */
+    padding: 20px; /* Increased padding */
+    box-shadow: 0 4px 10px rgba(0,0,0,0.07); /* More pronounced shadow */
+    transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+}
+
+.employee-performance-card:hover {
+    transform: translateY(-3px); /* Slight lift effect on hover */
+    box-shadow: 0 6px 15px rgba(0,0,0,0.1); /* Enhanced shadow on hover */
+}
+
+.employee-performance-card h4 {
+    color: #33691e; /* Darker green for heading */
+    margin-bottom: 20px; /* More space below heading */
+    font-size: 1.2em; /* Slightly larger heading */
+    border-bottom: 2px solid #c5e1a5; /* Subtle border under heading */
+    padding-bottom: 10px;
+    text-align: center;
+}
+
+.employee-performance-card table {
+    margin-top: 15px; /* Space between heading and table */
+    border-collapse: separate; /* Allows border-spacing */
+    border-spacing: 0 8px; /* Space between table rows */
+}
+
+.employee-performance-card th,
+.employee-performance-card td {
+    padding: 10px; /* Increased padding within table cells */
+    font-size: 0.9em;
+    border: none; /* Remove individual cell borders for a cleaner look */
+}
+
+.employee-performance-card th {
+    background-color: #f0f4c3; /* Light yellow-green background for card table headers */
+    color: #555;
+    font-weight: normal; /* Less bold for a softer look */
+    text-align: left;
+    border-bottom: 1px solid #e6ee9c;
+}
+
+.employee-performance-card td {
+    background-color: #ffffff; /* White background for data cells */
+    border-bottom: 1px dashed #e0e0e0; /* Dashed line for subtle separation */
+}
+
+.employee-performance-card tbody tr:last-child td {
+    border-bottom: none; /* No border for the last row */
+}
