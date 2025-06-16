@@ -109,7 +109,12 @@ document.addEventListener('DOMContentLoaded', () => {
     const customerViewBranchSelect = document.getElementById('customerViewBranchSelect');
     const customerViewEmployeeSelect = document.getElementById('customerViewEmployeeSelect');
     const customerCanvassedList = document.getElementById('customerCanvassedList');
-    const customerDetailsContent = document.getElementById('customerDetailsContent');
+    const customerDetailsContent = document.getElementById('customerDetailsContent'); // Parent of the cards
+
+    // Get the specific card elements for direct population
+    const customerCard1 = document.getElementById('customerCard1');
+    const customerCard2 = document.getElementById('customerCard2');
+    const customerCard3 = document.getElementById('customerCard3');
 
 
     // Employee Management Form Elements
@@ -1014,7 +1019,8 @@ document.addEventListener('DOMContentLoaded', () => {
                  customerViewBranchSelect.value = '';
                  customerViewEmployeeSelect.value = '';
                  customerCanvassedList.innerHTML = '<p>Select a branch and employee to see customers.</p>';
-                 customerDetailsContent.innerHTML = '<p>Select a customer from the list to view their details.</p>';
+                 // This will now clear the cards by calling renderCustomerDetails with null
+                 renderCustomerDetails(null); 
             }
         }
     }
@@ -1084,7 +1090,10 @@ document.addEventListener('DOMContentLoaded', () => {
             document.querySelector('.controls-panel').style.display = 'none';
             renderDetailedCustomerViewControls(); // Initialize controls for this tab
             customerCanvassedList.innerHTML = '<p>Select a branch and employee to see customers.</p>'; // Clear list
-            customerDetailsContent.innerHTML = '<p>Select a customer from the list to view their details.</p>'; // Clear details
+            // Clear the content of the cards when the tab is switched
+            if (customerCard1) customerCard1.innerHTML = '<h3>Canvassing Activity</h3><p>Select a customer from the list to view their details.</p>';
+            if (customerCard2) customerCard2.innerHTML = '<h3>Customer Overview</h3><p>Select a customer from the list to view their details.</p>';
+            if (customerCard3) customerCard3.innerHTML = '<h3>More Details</h3><p>Select a customer from the list to view their details.</p>';
         } else if (tabButtonId === 'employeeManagementTabBtn') {
             employeeManagementSection.style.display = 'block';
             // Hide the general controls panel
@@ -1111,7 +1120,11 @@ document.addEventListener('DOMContentLoaded', () => {
         const selectedBranch = customerViewBranchSelect.value;
         customerViewEmployeeSelect.innerHTML = '<option value="">-- Select --</option>'; // Clear employee list on branch change
         customerCanvassedList.innerHTML = '<p>Select an employee to see customers.</p>';
-        customerDetailsContent.innerHTML = '<p>Select a customer from the list to view their details.</p>';
+        // Clear the content of the cards when branch changes
+        if (customerCard1) customerCard1.innerHTML = '<h3>Canvassing Activity</h3><p>Select a customer from the list to view their details.</p>';
+        if (customerCard2) customerCard2.innerHTML = '<h3>Customer Overview</h3><p>Select a customer from the list to view their details.</p>';
+        if (customerCard3) customerCard3.innerHTML = '<h3>More Details</h3><p>Select a customer from the list to view their details.</p>';
+
 
         if (selectedBranch) {
             const employeeCodesInBranchFromCanvassing = allCanvassingData
@@ -1132,7 +1145,11 @@ document.addEventListener('DOMContentLoaded', () => {
         const selectedEmployeeCode = customerViewEmployeeSelect.value;
         const selectedBranch = customerViewBranchSelect.value; // Get selected branch for filtering
         customerCanvassedList.innerHTML = ''; // Clear previous customer list
-        customerDetailsContent.innerHTML = '<p>Select a customer from the list to view their details.</p>'; // Clear details
+        // Clear the content of the cards when employee changes
+        if (customerCard1) customerCard1.innerHTML = '<h3>Canvassing Activity</h3><p>Select a customer from the list to view their details.</p>';
+        if (customerCard2) customerCard2.innerHTML = '<h3>Customer Overview</h3><p>Select a customer from the list to view their details.</p>';
+        if (customerCard3) customerCard3.innerHTML = '<h3>More Details</h3><p>Select a customer from the list to view their details.</p>';
+
 
         if (selectedEmployeeCode && selectedBranch) {
             // Filter unique customers canvassed by this employee in this branch
@@ -1204,15 +1221,16 @@ document.addEventListener('DOMContentLoaded', () => {
             if (customerEntry) {
                 renderCustomerDetails(customerEntry);
             } else {
-                customerDetailsContent.innerHTML = '<p>Details not found for this customer.</p>';
+                // If no entry found, clear details in cards
+                if (customerCard1) customerCard1.innerHTML = '<h3>Canvassing Activity</h3><p>Details not found for this customer.</p>';
+                if (customerCard2) customerCard2.innerHTML = '<h3>Customer Overview</h3><p>Details not found for this customer.</p>';
+                if (customerCard3) customerCard3.innerHTML = '<h3>More Details</h3><p>Details not found for this customer.</p>';
             }
         }
     });
 
-    // Modified function to render customer details in a more engaging way
+    // Modified function to render customer details into the three cards
     function renderCustomerDetails(customerEntry) {
-        customerDetailsContent.innerHTML = ''; // Clear previous details
-
         // Helper function to create a detail row
         const createDetailRow = (label, value) => {
             return `
@@ -1223,50 +1241,54 @@ document.addEventListener('DOMContentLoaded', () => {
             `;
         };
 
-        const detailsHtml = `
-            <div class="customer-info-section">
-                <h3>Customer Overview</h3>
-                ${createDetailRow('Prospect Name', customerEntry[HEADER_PROSPECT_NAME])}
-                ${createDetailRow('Phone Number', customerEntry[HEADER_PHONE_NUMBER_WHATSAPP])}
-                ${createDetailRow('Address', customerEntry[HEADER_ADDRESS])}
-                ${createDetailRow('Profession', customerEntry[HEADER_PROFESSION])}
-                ${createDetailRow('DOB/WD', customerEntry[HEADER_DOB_WD])}
-                ${createDetailRow('Product Interested', customerEntry[HEADER_PRODUCT_INTERESTED])}
-            </div>
+        // Clear previous content in all cards
+        customerCard1.innerHTML = '<h3>Canvassing Activity</h3>';
+        customerCard2.innerHTML = '<h3>Customer Overview</h3>';
+        customerCard3.innerHTML = '<h3>More Details</h3>';
 
-            <div class="customer-info-section">
-                <h3>Canvassing Activity</h3>
-                ${createDetailRow('Date', formatDate(customerEntry[HEADER_DATE]))}
-                ${createDetailRow('Branch Name', customerEntry[HEADER_BRANCH_NAME])}
-                ${createDetailRow('Employee Name', customerEntry[HEADER_EMPLOYEE_NAME])}
-                ${createDetailRow('Employee Code', customerEntry[HEADER_EMPLOYEE_CODE])}
-                ${createDetailRow('Designation', customerEntry[HEADER_DESIGNATION])}
-                ${createDetailRow('Activity Type', customerEntry[HEADER_ACTIVITY_TYPE])}
-                ${createDetailRow('Type of Customer', customerEntry[HEADER_TYPE_OF_CUSTOMER])}
-                ${createDetailRow('Lead Source', customerEntry[HEADER_R_LEAD_SOURCE])}
-                ${createDetailRow('Next Follow-up Date', formatDate(customerEntry[HEADER_NEXT_FOLLOW_UP_DATE]))}
-                ${createDetailRow('Relation With Staff', customerEntry[HEADER_RELATION_WITH_STAFF])}
-            </div>
+        if (!customerEntry) {
+            customerCard1.innerHTML += '<p>Select a customer from the list to view their details.</p>';
+            customerCard2.innerHTML += '<p>Select a customer from the list to view their details.</p>';
+            customerCard3.innerHTML += '<p>Select a customer from the list to view their details.</p>';
+            return;
+        }
 
-            <div class="customer-info-section full-width-section">
-                <h3>Remarks</h3>
-                <p class="remark-text">${customerEntry[HEADER_REMARKS] || 'N/A'}</p>
-            </div>
-
-            <div class="customer-info-section">
-                <h3>Family Details</h3>
-                ${createDetailRow('Spouse Name', customerEntry[HEADER_FAMILY_DETAILS_1])}
-                ${createDetailRow('Spouse Job', customerEntry[HEADER_FAMILY_DETAILS_2])}
-                ${createDetailRow('Children Names', customerEntry[HEADER_FAMILY_DETAILS_3])}
-                ${createDetailRow('Children Details', customerEntry[HEADER_FAMILY_DETAILS_4])}
-            </div>
-
-            <div class="customer-info-section full-width-section">
-                <h3>Customer Profile</h3>
-                <p class="profile-text">${customerEntry[HEADER_PROFILE_OF_CUSTOMER] || 'N/A'}</p>
-            </div>
+        // Populate Card 1: Canvassing Activity
+        customerCard1.innerHTML += `
+            ${createDetailRow('Date', formatDate(customerEntry[HEADER_DATE]))}
+            ${createDetailRow('Branch Name', customerEntry[HEADER_BRANCH_NAME])}
+            ${createDetailRow('Employee Name', customerEntry[HEADER_EMPLOYEE_NAME])}
+            ${createDetailRow('Employee Code', customerEntry[HEADER_EMPLOYEE_CODE])}
+            ${createDetailRow('Designation', customerEntry[HEADER_DESIGNATION])}
+            ${createDetailRow('Activity Type', customerEntry[HEADER_ACTIVITY_TYPE])}
+            ${createDetailRow('Type of Customer', customerEntry[HEADER_TYPE_OF_CUSTOMER])}
+            ${createDetailRow('Lead Source', customerEntry[HEADER_R_LEAD_SOURCE])}
+            ${createDetailRow('Product Interested', customerEntry[HEADER_PRODUCT_INTERESTED])}
+            ${createDetailRow('Next Follow-up Date', formatDate(customerEntry[HEADER_NEXT_FOLLOW_UP_DATE]))}
+            ${createDetailRow('Relation With Staff', customerEntry[HEADER_RELATION_WITH_STAFF])}
         `;
-        customerDetailsContent.innerHTML = detailsHtml;
+
+        // Populate Card 2: Customer Overview
+        customerCard2.innerHTML += `
+            ${createDetailRow('Prospect Name', customerEntry[HEADER_PROSPECT_NAME])}
+            ${createDetailRow('Phone Number', customerEntry[HEADER_PHONE_NUMBER_WHATSAPP])}
+            ${createDetailRow('Address', customerEntry[HEADER_ADDRESS])}
+            ${createDetailRow('Profession', customerEntry[HEADER_PROFESSION])}
+            ${createDetailRow('DOB/WD', customerEntry[HEADER_DOB_WD])}
+        `;
+
+        // Populate Card 3: Family Details, Customer Profile, Remarks
+        customerCard3.innerHTML += `
+            <h4>Family Details</h4>
+            ${createDetailRow('Spouse Name', customerEntry[HEADER_FAMILY_DETAILS_1])}
+            ${createDetailRow('Spouse Job', customerEntry[HEADER_FAMILY_DETAILS_2])}
+            ${createDetailRow('Children Names', customerEntry[HEADER_FAMILY_DETAILS_3])}
+            ${createDetailRow('Children Details', customerEntry[HEADER_FAMILY_DETAILS_4])}
+            <h4>Customer Profile</h4>
+            <p class="profile-text">${customerEntry[HEADER_PROFILE_OF_CUSTOMER] || 'N/A'}</p>
+            <h4>Remarks</h4>
+            <p class="remark-text">${customerEntry[HEADER_REMARKS] || 'N/A'}</p>
+        `;
     }
 
 
