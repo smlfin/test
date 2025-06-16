@@ -13,15 +13,14 @@
             <button class="tab-button active" id="allBranchSnapshotTabBtn">All Branch Snapshot</button>
             <button class="tab-button" id="allStaffOverallPerformanceTabBtn">All Staff Performance (Overall)</button>
             <button class="tab-button" id="nonParticipatingBranchesTabBtn">Non-Participating Branches</button>
-            <button class="tab-button" id="detailedCustomerViewTabBtn">Detailed Customer View</button>
-            <button class="tab-button" id="employeeManagementTabBtn">Employee Management</button>
+            <button class="tab-button" id="detailedCustomerViewTabBtn">Detailed Customer View</button> <button class="tab-button" id="employeeManagementTabBtn">Employee Management</button>
         </nav>
     </header>
 
     <main>
         <div id="statusMessage" class="message-container"></div> 
 
-        <section id="reportsSection" class="report-section active-tab">
+        <section id="reportsSection" class="report-section">
             <div class="controls-panel">
                 <div class="dropdown-group">
                     <label for="branchSelect">Select Branch:</label>
@@ -38,126 +37,73 @@
                 </div>
 
                 <div id="viewOptions" class="view-options" style="display: none;">
-                    <button class="btn" id="summaryViewBtn">Summary View</button>
-                    <button class="btn" id="detailedViewBtn">Detailed View</button>
+                    <button class="btn" id="viewBranchPerformanceReportBtn">Branch Performance Report</button>
+                    <button class="btn" id="viewEmployeeSummaryBtn">Employee Summary (Current Month)</button>
+                    <button class="btn" id="viewAllEntriesBtn">View All Entries (Employee)</button>
+                    <button class="btn" id="viewPerformanceReportBtn">Employee Performance Report</button>
                 </div>
             </div>
 
-            <div id="allBranchSnapshotReport" class="report-content active">
-                <h2>All Branch Snapshot</h2>
-                <div class="summary-breakdown-card">
-                    <div class="summary-section">
-                        <h3>Overall Performance</h3>
-                        <p>Total Visits: <span id="overallTotalVisits">0</span></p>
-                        <p>Total Calls: <span id="overallTotalCalls">0</span></p>
-                        <p>Total References: <span id="overallTotalReferences">0</span></p>
-                        <p>Total New Customer Leads: <span id="overallTotalNewLeads">0</span></p>
-                    </div>
-                    <div class="summary-section">
-                        <h3>Daily Performance (Today)</h3>
-                        <p>Today's Visits: <span id="dailyTotalVisits">0</span></p>
-                        <p>Today's Calls: <span id="dailyTotalCalls">0</span></p>
-                        <p>Today's References: <span id="dailyTotalReferences">0</span></p>
-                        <p>Today's New Customer Leads: <span id="dailyTotalNewLeads">0</span></p>
-                    </div>
-                </div>
-
-                <h3>Branch-wise Summary</h3>
-                <div class="table-responsive">
-                    <table class="data-table">
-                        <thead>
-                            <tr>
-                                <th>Branch Name</th>
-                                <th>Total Visits</th>
-                                <th>Total Calls</th>
-                                <th>Total References</th>
-                                <th>New Customer Leads</th>
-                            </tr>
-                        </thead>
-                        <tbody id="branchSummaryTableBody">
-                            </tbody>
-                    </table>
-                </div>
-            </div>
-
-            <div id="allStaffOverallPerformanceReport" class="report-content">
-                <h2>All Staff Performance (Overall)</h2>
-                <div id="staffPerformanceCards" class="employee-performance-grid">
-                    </div>
-            </div>
-
-            <div id="nonParticipatingBranchesReport" class="report-content">
-                <h2>Non-Participating Branches</h2>
-                <div class="table-responsive">
-                    <table class="data-table">
-                        <thead>
-                            <tr>
-                                <th>Branch Name</th>
-                                <th>Total Employees</th>
-                                <th>Active Employees</th>
-                                <th>Non-Participating Employees</th>
-                            </tr>
-                        </thead>
-                        <tbody id="nonParticipatingBranchesTableBody">
-                            </tbody>
-                    </table>
-                </div>
-            </div>
-
-            <div id="detailedCustomerViewSection" class="report-content">
-                <h2>Detailed Customer View</h2>
-                <div class="controls-panel">
-                    <div class="dropdown-group">
-                        <label for="customerFilterBranchSelect">Select Branch:</label>
-                        <select id="customerFilterBranchSelect">
-                            <option value="">-- All Branches --</option>
-                        </select>
-                    </div>
-                    <div class="dropdown-group">
-                        <label for="customerFilterEmployeeSelect">Select Employee:</label>
-                        <select id="customerFilterEmployeeSelect">
-                            <option value="">-- All Employees --</option>
-                        </select>
-                    </div>
-                    <button class="btn" id="customerFilterApplyButton">Apply Filters</button>
-                </div>
-                
-                <div class="table-responsive">
-                    <table class="data-table">
-                        <thead>
-                            <tr>
-                                <th>Prospect Name</th>
-                                </tr>
-                        </thead>
-                        <tbody id="customerDetailsTableBody">
-                            </tbody>
-                    </table>
-                </div>
+            <div id="reportDisplay" class="report-display">
+                <p>Select a branch and/or employee to view reports.</p>
             </div>
         </section>
 
-        <section id="employeeManagementSection" class="report-section">
+       <section id="detailedCustomerViewSection" class="report-section" style="display: none;">
+    <h2>Detailed Customer View</h2>
+    <div class="controls-panel">
+        <div class="dropdown-group">
+            <label for="customerViewBranchSelect">Select Branch:</label>
+            <select id="customerViewBranchSelect">
+                <option value="">-- Select a Branch --</option>
+            </select>
+        </div>
+        <div class="dropdown-group">
+            <label for="customerViewEmployeeSelect">Select Employee:</label>
+            <select id="customerViewEmployeeSelect">
+                <option value="">-- Select an Employee --</option>
+            </select>
+        </div>
+    </div>
+    <div id="customerCanvassedList">
+        </div>
+    <div id="customerDetailsContent">
+        <div class="customer-cards-container">
+            <div class="customer-detail-card card-color-1" id="customerCard1">
+                <h3>Family Details</h3>
+                </div>
+            <div class="customer-detail-card card-color-2" id="customerCard2">
+                <h3>Children Details</h3>
+                </div>
+            <div class="customer-detail-card card-color-3" id="customerCard3">
+                <h3>Customer Profile & Remarks</h3>
+                </div>
+        </div>
+    </div>
+</section>
+
+        <section id="employeeManagementSection" class="employee-management-section" style="display: none;">
             <h2>Employee Management</h2>
-            <div id="employeeManagementMessage" class="message-container"></div>
+            <div id="employeeManagementMessage" class="message"></div>
 
             <div class="form-section">
                 <h3>Add New Employee</h3>
                 <form id="addEmployeeForm" class="employee-form">
                     <div class="form-group">
-                        <label for="employeeBranchName">Branch Name:</label>
-                        <input type="text" id="employeeBranchName" required>
+                        <label for="newEmployeeName">Employee Name:</label>
+                        <input type="text" id="newEmployeeName" required>
                     </div>
                     <div class="form-group">
-                        <label for="employeeName">Employee Name:</label>
-                        <input type="text" id="employeeName" required>
+                        <label for="newEmployeeCode">Employee Code:</label>
+                        <input type="text" id="newEmployeeCode" required>
                     </div>
                     <div class="form-group">
-                        <label for="employeeCode">Employee Code:</label>
-                        <input type="text" id="employeeCode" required>
+                        <label for="newBranchName">Branch Name:</label>
+                        <input type="text" id="newBranchName" required>
                     </div>
                     <div class="form-group">
-                        <label for="employeeDesignation">Designation:</label>
-                        <input type="text" id="employeeDesignation">
+                        <label for="newDesignation">Designation:</label>
+                        <input type="text" id="newDesignation">
                     </div>
                     <button type="submit" class="btn">Add Employee</button>
                 </form>
@@ -189,14 +135,6 @@
                 </form>
             </div>
         </section>
-
-        <div id="customerDetailsModal" class="modal">
-            <div class="modal-content">
-                <span class="close-button">&times;</span>
-                <div id="modalBodyContent">
-                    </div>
-            </div>
-        </div>
     </main>
 
     <footer>
