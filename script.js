@@ -416,7 +416,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 console.warn(`  Unknown or unhandled Activity Type encountered (trimmed, lowercase): '${trimmedActivityType}'.`);
             }
             
-            // --- UPDATED LOGIC FOR 'New Customer Leads' ---
+             // --- UPDATED LOGIC FOR 'New Customer Leads' ---
             // Based on the user's previously working script, New Customer Leads are counted
             // if the 'Type of Customer' (now correctly spelled) is simply 'new', regardless of 'Activity Type'.
             if (trimmedTypeOfCustomer === 'new') {
