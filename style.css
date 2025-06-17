@@ -1508,3 +1508,19 @@ select:focus {
     background-color: #f8faff;
     color: #495057;
 }
+.report-section {
+    display: none; /* Hidden by default */
+    /* ... other styles ... */
+}
+
+.report-section.active {
+    display: block; /* Shown when active */
+}
+/* Example if you list specific IDs */
+#allBranchSnapshotSection.active,
+#allStaffOverallPerformanceSection.active,
+/* ... other sections ... */
+#employeeManagementSection.active,
+#totalStaffParticipationSection.active { /* ADD THIS LINE */
+    display: block;
+}
