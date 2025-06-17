@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Employee Effort Tracker</title>
+    <title>Employee Canvassing Dashboard</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -13,13 +13,15 @@
             <button class="tab-button active" id="allBranchSnapshotTabBtn">All Branch Snapshot</button>
             <button class="tab-button" id="allStaffOverallPerformanceTabBtn">All Staff Performance (Overall)</button>
             <button class="tab-button" id="nonParticipatingBranchesTabBtn">Non-Participating Branches</button>
-           <button class="tab-button" id="totalStaffParticipationTabBtn">Total Staff Participation</button>
-            <button class="tab-button" id="detailedCustomerViewTabBtn">Detailed Customer View</button> <button class="tab-button" id="employeeManagementTabBtn">Employee Management</button>
+            <button class="tab-button" id="branchPerformanceTabBtn">Branch Performance Reports</button>
+            <button class="tab-button" id="detailedCustomerViewTabBtn">Detailed Customer View</button>
+            <button class="tab-button" id="employeeManagementTabBtn">Employee Management</button>
+            <button class="tab-button" id="employeeTargetPerformanceTabBtn">Employee Target Performance</button>
         </nav>
     </header>
 
     <main>
-        <div id="statusMessage" class="message-container"></div> 
+        <div id="statusMessage" class="message-container"></div>
 
         <section id="reportsSection" class="report-section">
             <div class="controls-panel">
@@ -54,42 +56,63 @@
         </section>
 
        <section id="detailedCustomerViewSection" class="report-section" style="display: none;">
-    <h2>Detailed Customer View</h2>
-    <div class="controls-panel">
-        <div class="dropdown-group">
-            <label for="customerViewBranchSelect">Select Branch:</label>
-            <select id="customerViewBranchSelect">
-                <option value="">-- Select a Branch --</option>
-            </select>
+        <h2>Detailed Customer View</h2>
+        <div class="controls-panel">
+            <div class="dropdown-group">
+                <label for="customerViewBranchSelect">Select Branch:</label>
+                <select id="customerViewBranchSelect">
+                    <option value="">-- Select a Branch --</option>
+                </select>
+            </div>
+            <div class="dropdown-group">
+                <label for="customerViewEmployeeSelect">Select Employee:</label>
+                <select id="customerViewEmployeeSelect">
+                    <option value="">-- Select an Employee --</option>
+                </select>
+            </div>
         </div>
-        <div class="dropdown-group">
-            <label for="customerViewEmployeeSelect">Select Employee:</label>
-            <select id="customerViewEmployeeSelect">
-                <option value="">-- Select an Employee --</option>
-            </select>
-        </div>
-    </div>
-    <div id="customerCanvassedList">
-        </div>
-    <div id="customerDetailsContent">
-        <div class="customer-cards-container">
-            <div class="customer-detail-card card-color-1" id="customerCard1">
-                <h3>Family Details</h3>
+        <div class="customer-view-content">
+            <div id="customerCanvassedList" class="customer-list-panel">
+                <p>Select a branch and employee to view canvassed customers.</p>
+            </div>
+            <div id="customerDetailsContent" class="customer-details-panel">
+                <div class="customer-cards-container">
+                    <div id="customerCard1" class="customer-detail-card">
+                        <h4>Customer Name</h4>
+                        <p><strong>Phone:</strong> N/A</p>
+                        <p><strong>Address:</strong> N/A</p>
+                        <p><strong>Profession:</strong> N/A</p>
+                        <p><strong>DOB/WD:</strong> N/A</p>
+                        <p><strong>Product Interested:</strong> N/A</p>
+                        <p><strong>Remarks:</strong> N/A</p>
+                        <p><strong>Next Follow-up:</strong> N/A</p>
+                        <p><strong>Relation with Staff:</strong> N/A</p>
+                    </div>
+                    <div id="customerCard2" class="customer-detail-card">
+                        <h4>Family Details - 1 & 2</h4>
+                        <p><strong>Name of wife/Husband:</strong> N/A</p>
+                        <p><strong>Job of wife/Husband:</strong> N/A</p>
+                    </div>
+                    <div id="customerCard3" class="customer-detail-card">
+                        <h4>Family Details - 3 & 4</h4>
+                        <p><strong>Names of Children:</strong> N/A</p>
+                        <p><strong>Details of Children:</strong> N/A</p>
+                    </div>
+                    <div id="customerCard4" class="customer-detail-card">
+                        <h4>Profile of Customer</h4>
+                        <p>N/A</p>
+                    </div>
                 </div>
-            <div class="customer-detail-card card-color-2" id="customerCard2">
-                <h3>Children Details</h3>
-                </div>
-            <div class="customer-detail-card card-color-3" id="customerCard3">
-                <h3>Customer Profile & Remarks</h3>
-                </div>
+            </div>
         </div>
-    </div>
-</section>
+    </section>
 
-        <section id="employeeManagementSection" class="employee-management-section" style="display: none;">
-            <h2>Employee Management</h2>
-            <div id="employeeManagementMessage" class="message"></div>
+    <section id="employeeManagementSection" class="report-section" style="display: none;">
+        <h2>Employee Management</h2>
 
+        <div id="employeeManagementMessage" class="message-container" style="display: none;"></div>
+
+        <div class="form-grid">
             <div class="form-section">
                 <h3>Add New Employee</h3>
                 <form id="addEmployeeForm" class="employee-form">
@@ -101,13 +124,13 @@
                         <label for="newEmployeeCode">Employee Code:</label>
                         <input type="text" id="newEmployeeCode" required>
                     </div>
-                    <div class="form-group">
+                     <div class="form-group">
                         <label for="newBranchName">Branch Name:</label>
                         <input type="text" id="newBranchName" required>
                     </div>
                     <div class="form-group">
                         <label for="newDesignation">Designation:</label>
-                        <input type="text" id="newDesignation">
+                        <input type="text" id="newDesignation" required>
                     </div>
                     <button type="submit" class="btn">Add Employee</button>
                 </form>
@@ -128,26 +151,18 @@
                 </form>
             </div>
 
-           </div>
-
-        <div class="form-section">
-            <h3>Delete Employee</h3>
-            <form id="deleteEmployeeForm" class="employee-form">
-                <div class="form-group">
-                    <label for="deleteEmployeeCode">Employee Code to Delete:</label>
-                    <input type="text" id="deleteEmployeeCode" required>
-                </div>
-                <button type="submit" class="btn danger-btn">Delete Employee</button>
-            </form>
-        </div>
-    </section> <section id="totalStaffParticipationSection" class="report-section">
-        <h2>Total Staff Participation Dashboard</h2>
-        <div id="totalStaffParticipationReportDisplay" class="report-display">
-            <p>Click on the 'Refresh Data & View Report' button after selecting the branch/employee to view the report.</p>
-        </div>
-    </section>
-
-</main>
+            <div class="form-section">
+                <h3>Delete Employee</h3>
+                <form id="deleteEmployeeForm" class="employee-form">
+                    <div class="form-group">
+                        <label for="deleteEmployeeCode">Employee Code to Delete:</label>
+                        <input type="text" id="deleteEmployeeCode" required>
+                    </div>
+                    <button type="submit" class="btn danger-btn">Delete Employee</button>
+                </form>
+            </div>
+        </section>
+    </main>
 
     <footer>
         <p>&copy; 2025 Employee Canvassing Dashboard</p>
