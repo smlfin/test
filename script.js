@@ -383,6 +383,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // Helper to calculate total activity from a set of activity entries based on Activity Type
+    // Helper to calculate total activity from a set of activity entries based on Activity Type
     function calculateTotalActivity(entries) {
         const totalActivity = { 'Visit': 0, 'Call': 0, 'Reference': 0, 'New Customer Leads': 0 }; // Initialize counters
         const productInterests = new Set(); // To collect unique product interests
@@ -416,14 +417,15 @@ document.addEventListener('DOMContentLoaded', () => {
                 console.warn(`  Unknown or unhandled Activity Type encountered (trimmed, lowercase): '${trimmedActivityType}'.`);
             }
             
-             // --- UPDATED LOGIC FOR 'New Customer Leads' ---
+            // --- UPDATED LOGIC FOR 'New Customer Leads' ---
             // Based on the user's previously working script, New Customer Leads are counted
             // if the 'Type of Customer' (now correctly spelled) is simply 'new', regardless of 'Activity Type'.
-            if (trimmedTypeOfCustomer === 'new') {
+            // Also explicitly check for 'new lead' in Activity Type based on console logs.
+            if (trimmedTypeOfCustomer === 'new' || trimmedActivityType === 'new lead') { // <-- MODIFIED THIS LINE
                 totalActivity['New Customer Leads']++;
-                console.log(`  New Customer Lead INCREMENTED based on Type of Customer === 'new'.`);
+                console.log(`  New Customer Lead INCREMENTED based on Type of Customer === 'new' OR Activity Type === 'new lead'.`);
             } else {
-                console.log(`  New Customer Lead NOT INCREMENTED: Type of Customer is not 'new'.`);
+                console.log(`  New Customer Lead NOT INCREMENTED: Type of Customer is not 'new' AND Activity Type is not 'new lead'.`);
             }
             // --- END UPDATED LOGIC ---
 
