@@ -13,7 +13,7 @@
             <button class="tab-button active" id="allBranchSnapshotTabBtn">All Branch Snapshot</button>
             <button class="tab-button" id="allStaffOverallPerformanceTabBtn">All Staff Performance (Overall)</button>
             <button class="tab-button" id="nonParticipatingBranchesTabBtn">Non-Participating Branches</button>
-            <button class="tab-button" id="branchPerformanceTabBtn">Branch Performance Reports</button>
+           <button class="tab-button" id="totalStaffParticipationTabBtn">Total Staff Participation</button>
             <button class="tab-button" id="detailedCustomerViewTabBtn">Detailed Customer View</button> <button class="tab-button" id="employeeManagementTabBtn">Employee Management</button>
         </nav>
     </header>
@@ -128,18 +128,26 @@
                 </form>
             </div>
 
-            <div class="form-section">
-                <h3>Delete Employee</h3>
-                <form id="deleteEmployeeForm" class="employee-form">
-                    <div class="form-group">
-                        <label for="deleteEmployeeCode">Employee Code to Delete:</label>
-                        <input type="text" id="deleteEmployeeCode" required>
-                    </div>
-                    <button type="submit" class="btn danger-btn">Delete Employee</button>
-                </form>
-            </div>
-        </section>
-    </main>
+           </div>
+
+        <div class="form-section">
+            <h3>Delete Employee</h3>
+            <form id="deleteEmployeeForm" class="employee-form">
+                <div class="form-group">
+                    <label for="deleteEmployeeCode">Employee Code to Delete:</label>
+                    <input type="text" id="deleteEmployeeCode" required>
+                </div>
+                <button type="submit" class="btn danger-btn">Delete Employee</button>
+            </form>
+        </div>
+    </section> <section id="totalStaffParticipationSection" class="report-section">
+        <h2>Total Staff Participation Dashboard</h2>
+        <div id="totalStaffParticipationReportDisplay" class="report-display">
+            <p>Click on the 'Refresh Data & View Report' button after selecting the branch/employee to view the report.</p>
+        </div>
+    </section>
+
+</main>
 
     <footer>
         <p>&copy; 2025 Employee Canvassing Dashboard</p>
