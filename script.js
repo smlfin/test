@@ -122,6 +122,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const customerCard1 = document.getElementById('customerCard1');
     const customerCard2 = document.getElementById('customerCard2');
     const customerCard3 = document.getElementById('customerCard3');
+    const customerCard4 = document.getElementById('customerCard4');
 
 
     // Employee Management Form Elements
