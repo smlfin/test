@@ -1521,8 +1521,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
     // Display detailed customer information in cards
-    function displayCustomerDetails(customerEntry) {
-         console.log('displayCustomerDetails function called for customer:', customerEntry[HEADER_PROSPECT_NAME]);
+   function displayCustomerDetails(customerEntry) {
+    console.log('displayCustomerDetails function called for customer:', customerEntry[HEADER_PROSPECT_NAME]);
+
+    // Check if customerCard1 is found
+    console.log('customerCard1 element:', customerCard1);
+    if (customerCard1) {
         // Card 1
         customerCard1.innerHTML = `
             <h4>${customerEntry[HEADER_PROSPECT_NAME] || 'N/A'}</h4>
@@ -1535,27 +1539,50 @@ document.addEventListener('DOMContentLoaded', () => {
             <p><strong>Next Follow-up:</strong> ${formatDate(customerEntry[HEADER_NEXT_FOLLOW_UP_DATE]) || 'N/A'}</p>
             <p><strong>Relation with Staff:</strong> ${customerEntry[HEADER_RELATION_WITH_STAFF] || 'N/A'}</p>
         `;
+    } else {
+        console.error('Error: customerCard1 not found!');
+    }
 
+    // Check if customerCard2 is found
+    console.log('customerCard2 element:', customerCard2);
+    if (customerCard2) {
         // Card 2
         customerCard2.innerHTML = `
             <h4>Family Details - 1 & 2</h4>
             <p><strong>Name of wife/Husband:</strong> ${customerEntry[HEADER_FAMILY_DETAILS_1] || 'N/A'}</p>
             <p><strong>Job of wife/Husband:</strong> ${customerEntry[HEADER_FAMILY_DETAILS_2] || 'N/A'}</p>
         `;
+    } else {
+        console.error('Error: customerCard2 not found!');
+    }
 
+
+    // Check if customerCard3 is found
+    console.log('customerCard3 element:', customerCard3);
+    if (customerCard3) {
         // Card 3
         customerCard3.innerHTML = `
             <h4>Family Details - 3 & 4</h4>
             <p><strong>Names of Children:</strong> ${customerEntry[HEADER_FAMILY_DETAILS_3] || 'N/A'}</p>
             <p><strong>Details of Children:</strong> ${customerEntry[HEADER_FAMILY_DETAILS_4] || 'N/A'}</p>
         `;
+    } else {
+        console.error('Error: customerCard3 not found!');
+    }
 
+    // Check if customerCard4 is found
+    const customerCard4 = document.getElementById('customerCard4'); // Ensure this line is present if not global
+    console.log('customerCard4 element:', customerCard4);
+    if (customerCard4) {
         // Card 4 - Profile of Customer
-        document.getElementById('customerCard4').innerHTML = `
+        customerCard4.innerHTML = `
             <h4>Profile of Customer</h4>
             <p>${customerEntry[HEADER_PROFILE_OF_CUSTOMER] || 'N/A'}</p>
         `;
+    } else {
+        console.error('Error: customerCard4 not found!');
     }
+}
 
     // Function to render all entries for a selected employee
     function renderAllEmployeeEntries(employeeCodeEntries) {
