@@ -1522,6 +1522,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Display detailed customer information in cards
     function displayCustomerDetails(customerEntry) {
+         console.log('displayCustomerDetails function called for customer:', customerEntry[HEADER_PROSPECT_NAME]);
         // Card 1
         customerCard1.innerHTML = `
             <h4>${customerEntry[HEADER_PROSPECT_NAME] || 'N/A'}</h4>
