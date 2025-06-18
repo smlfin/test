@@ -150,7 +150,7 @@ const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzEYf0CKgwP0O4-z1lu
     };
 
     // Helper to clear and display messages in a specific div (now targets statusMessageDiv)
-    f// Helper to clear and display messages in a specific div
+    // Helper to clear and display messages in a specific div
 function displayMessage(message, type = 'info') {
     // Corrected: Use 'statusMessage' which is declared at the top of DOMContentLoaded
     if (statusMessage) { // Ensure the element exists
