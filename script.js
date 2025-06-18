@@ -87,10 +87,6 @@ const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzEYf0CKgwP0O4-z1lu
     const downloadOverallPerformanceReportBtn = document.getElementById('downloadOverallPerformanceReportBtn');
     // --- END NEW --
 
-    // Main Report Display Area
-    const reportDisplay = document.getElementById('reportDisplay');
-    // Dedicated message area element
-    const statusMessageDiv = document.getElementById('statusMessage');
 
 
      // --- UPDATED & CONSOLIDATED: Centralized Declaration of DOM Elements ---
