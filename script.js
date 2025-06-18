@@ -1906,7 +1906,7 @@ const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzEYf0CKgwP0O4-z1lu
     }
 
     // --- NEW: Event Listener for "All Staff Performance (Overall)" tab button ---
-    const allStaffOverallPerformanceTabBtn = document.getElementById('allStaffOverallPerformanceTabBtn');
+    //const allStaffOverallPerformanceTabBtn = document.getElementById('allStaffOverallPerformanceTabBtn');
     if (allStaffOverallPerformanceTabBtn) {
         allStaffOverallPerformanceTabBtn.addEventListener('click', () => {
             showTab('allStaffOverallPerformanceTabBtn');
