@@ -93,29 +93,38 @@ const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzEYf0CKgwP0O4-z1lu
     const statusMessageDiv = document.getElementById('statusMessage');
 
 
+     // --- UPDATED & CONSOLIDATED: Centralized Declaration of DOM Elements ---
+
+    // Core Display and Status Elements
+    const reportDisplay = document.getElementById('reportDisplay');
+    const statusMessage = document.getElementById('statusMessage');
+
+    // Main Content Sections to toggle
+    const reportsSection = document.getElementById('reportsSection');
+    const detailedCustomerViewSection = document.getElementById('detailedCustomerViewSection');
+    const employeeManagementSection = document.getElementById('employeeManagementSection');
+
     // Tab buttons for main navigation
     const allBranchSnapshotTabBtn = document.getElementById('allBranchSnapshotTabBtn');
     const allStaffOverallPerformanceTabBtn = document.getElementById('allStaffOverallPerformanceTabBtn');
     const nonParticipatingBranchesTabBtn = document.getElementById('nonParticipatingBranchesTabBtn');
-    const detailedCustomerViewTabBtn = document.getElementById('detailedCustomerViewTabBtn'); // NEW
+    const branchPerformanceTabBtn = document.getElementById('branchPerformanceTabBtn'); // From index.htm, assuming it exists
+    const detailedCustomerViewTabBtn = document.getElementById('detailedCustomerViewTabBtn');
     const employeeManagementTabBtn = document.getElementById('employeeManagementTabBtn');
 
-    // Main Content Sections to toggle
-    const reportsSection = document.getElementById('reportsSection');
-    const detailedCustomerViewSection = document.getElementById('detailedCustomerViewSection'); // NEW
-    const employeeManagementSection = document.getElementById('employeeManagementSection');
-
-    // NEW: Detailed Customer View Elements
+    // Dropdowns (Global and Detailed Customer View specific)
+    const branchSelect = document.getElementById('branchSelect');
+    const employeeSelect = document.getElementById('employeeSelect');
     const customerViewBranchSelect = document.getElementById('customerViewBranchSelect');
     const customerViewEmployeeSelect = document.getElementById('customerViewEmployeeSelect');
-    const customerCanvassedList = document.getElementById('customerCanvassedList');
-    const customerDetailsContent = document.getElementById('customerDetailsContent'); // Parent of the cards
 
-    // Get the specific card elements for direct population
+    // Detailed Customer View Specific Elements
+    const customerCanvassedList = document.getElementById('customerCanvassedList');
+    const customerDetailsContent = document.getElementById('customerDetailsContent');
     const customerCard1 = document.getElementById('customerCard1');
     const customerCard2 = document.getElementById('customerCard2');
     const customerCard3 = document.getElementById('customerCard3');
-
+    const detailedCustomerReportTableBody = document.getElementById('detailedCustomerReportTableBody'); // For the table within customer view
 
     // Employee Management Form Elements
     const addEmployeeForm = document.getElementById('addEmployeeForm');
@@ -123,7 +132,7 @@ const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzEYf0CKgwP0O4-z1lu
     const newEmployeeCodeInput = document.getElementById('newEmployeeCode');
     const newBranchNameInput = document.getElementById('newBranchName');
     const newDesignationInput = document.getElementById('newDesignation');
-    const employeeManagementMessage = document.getElementById('employeeManagementMessage');
+    const employeeManagementMessage = document.getElementById('employeeManagementMessage'); // For displaying messages in employee management section
 
     const bulkAddEmployeeForm = document.getElementById('bulkAddEmployeeForm');
     const bulkEmployeeBranchNameInput = document.getElementById('bulkEmployeeBranchName');
@@ -132,7 +141,13 @@ const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzEYf0CKgwP0O4-z1lu
     const deleteEmployeeForm = document.getElementById('deleteEmployeeForm');
     const deleteEmployeeCodeInput = document.getElementById('deleteEmployeeCode');
 
+    // Download Buttons
+    const downloadDetailedCustomerReportBtn = document.getElementById('downloadDetailedCustomerReportBtn');
+    const downloadOverallStaffPerformanceReportBtn = document.getElementById('downloadOverallStaffPerformanceReportBtn'); 
+    
+    // --- END UPDATED & CONSOLIDATED ---
 
+    
     // Global variables to store fetched data
     let allCanvassingData = []; // Raw activity data from Form Responses 2
     let allUniqueBranches = []; // Will be populated from PREDEFINED_BRANCHES
@@ -1917,12 +1932,12 @@ const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzEYf0CKgwP0O4-z1lu
     }
 
     // --- NEW: Event Listener for "Download Overall Staff Performance CSV" button ---
-    const downloadOverallStaffPerformanceReportBtn = document.getElementById('downloadOverallStaffPerformanceReportBtn');
-    if (downloadOverallStaffPerformanceReportBtn) {
-        downloadOverallStaffPerformanceReportBtn.addEventListener('click', () => {
-            downloadOverallStaffPerformanceReportCSV();
-        });
-    }
+   // Event Listener for "Download Overall Staff Performance CSV" button
+if (downloadOverallStaffPerformanceReportBtn) { // Check if the element exists
+    downloadOverallStaffOverallPerformanceReportBtn.addEventListener('click', () => {
+        downloadOverallStaffPerformanceReportCSV();
+    });
+}
     // --- END NEW ---
 
     // Initial data fetch and tab display when the page loads
