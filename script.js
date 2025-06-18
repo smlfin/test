@@ -150,16 +150,20 @@ const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzEYf0CKgwP0O4-z1lu
     };
 
     // Helper to clear and display messages in a specific div (now targets statusMessageDiv)
-    function displayMessage(message, type = 'info') { 
-        if (statusMessageDiv) {
-            statusMessageDiv.innerHTML = `<div class="message ${type}">${message}</div>`;
-            statusMessageDiv.style.display = 'block';
-            setTimeout(() => {
-                statusMessageDiv.innerHTML = ''; // Clear message
-                statusMessageDiv.style.display = 'none';
-            }, 5000); // Hide after 5 seconds
-        }
+    f// Helper to clear and display messages in a specific div
+function displayMessage(message, type = 'info') {
+    // Corrected: Use 'statusMessage' which is declared at the top of DOMContentLoaded
+    if (statusMessage) { // Ensure the element exists
+        statusMessage.innerHTML = `<div class="message ${type}">${message}</div>`;
+        statusMessage.style.display = 'block';
+        setTimeout(() => {
+            statusMessage.innerHTML = ''; // Clear message
+            statusMessage.style.display = 'none';
+        }, 5000); // Hide after 5 seconds
+    } else {
+        console.error("Error: 'statusMessage' element not found in the DOM.");
     }
+}
 
     // Specific message display for employee management forms
     function displayEmployeeManagementMessage(message, isError = false) {
