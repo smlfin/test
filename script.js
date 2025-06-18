@@ -70,27 +70,6 @@ const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzEYf0CKgwP0O4-z1lu
     const HEADER_PROFILE_OF_CUSTOMER = 'Profile of Customer';
 
 
-    // *** DOM Elements ***
-    const branchSelect = document.getElementById('branchSelect');
-    const employeeFilterPanel = document.getElementById('employeeFilterPanel');
-    const employeeSelect = document.getElementById('employeeSelect');
-    const viewOptions = document.getElementById('viewOptions');
-    const viewBranchPerformanceReportBtn = document.getElementById('viewBranchPerformanceReportBtn');
-    const viewEmployeeSummaryBtn = document.getElementById('viewEmployeeSummaryBtn');
-    const viewAllEntriesBtn = document.getElementById('viewAllEntriesBtn');
-    const viewPerformanceReportBtn = document.getElementById('viewPerformanceReportBtn');
-    // Add these lines along with other DOM Elements
-    const viewBranchVisitLeaderboardBtn = document.getElementById('viewBranchVisitLeaderboardBtn');
-    const viewBranchCallLeaderboardBtn = document.getElementById('viewBranchCallLeaderboardBtn');
-    const viewStaffParticipationBtn = document.getElementById('viewStaffParticipationBtn');
-    // --- NEW: Download button element ---
-    const downloadOverallPerformanceReportBtn = document.getElementById('downloadOverallPerformanceReportBtn');
-    // --- END NEW --
-
-
-
-     // --- UPDATED & CONSOLIDATED: Centralized Declaration of DOM Elements ---
-
     // Core Display and Status Elements
     const reportDisplay = document.getElementById('reportDisplay');
     const statusMessage = document.getElementById('statusMessage');
@@ -104,15 +83,26 @@ const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzEYf0CKgwP0O4-z1lu
     const allBranchSnapshotTabBtn = document.getElementById('allBranchSnapshotTabBtn');
     const allStaffOverallPerformanceTabBtn = document.getElementById('allStaffOverallPerformanceTabBtn');
     const nonParticipatingBranchesTabBtn = document.getElementById('nonParticipatingBranchesTabBtn');
-    const branchPerformanceTabBtn = document.getElementById('branchPerformanceTabBtn'); // From index.htm, assuming it exists
+    const branchPerformanceTabBtn = document.getElementById('branchPerformanceTabBtn');
     const detailedCustomerViewTabBtn = document.getElementById('detailedCustomerViewTabBtn');
     const employeeManagementTabBtn = document.getElementById('employeeManagementTabBtn');
 
-    // Dropdowns (Global and Detailed Customer View specific)
-    // const branchSelect = document.getElementById('branchSelect');
-   // const employeeSelect = document.getElementById('employeeSelect');
+    // Dropdowns & Filter Panels
+    const branchSelect = document.getElementById('branchSelect');
+    const employeeSelect = document.getElementById('employeeSelect');
+    const employeeFilterPanel = document.getElementById('employeeFilterPanel'); // New from your list
     const customerViewBranchSelect = document.getElementById('customerViewBranchSelect');
     const customerViewEmployeeSelect = document.getElementById('customerViewEmployeeSelect');
+
+    // View Option Buttons (from your provided list)
+    const viewOptions = document.getElementById('viewOptions');
+    const viewBranchPerformanceReportBtn = document.getElementById('viewBranchPerformanceReportBtn');
+    const viewEmployeeSummaryBtn = document.getElementById('viewEmployeeSummaryBtn');
+    const viewAllEntriesBtn = document.getElementById('viewAllEntriesBtn');
+    const viewPerformanceReportBtn = document.getElementById('viewPerformanceReportBtn');
+    const viewBranchVisitLeaderboardBtn = document.getElementById('viewBranchVisitLeaderboardBtn');
+    const viewBranchCallLeaderboardBtn = document.getElementById('viewBranchCallLeaderboardBtn');
+    const viewStaffParticipationBtn = document.getElementById('viewStaffParticipationBtn');
 
     // Detailed Customer View Specific Elements
     const customerCanvassedList = document.getElementById('customerCanvassedList');
@@ -120,7 +110,7 @@ const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzEYf0CKgwP0O4-z1lu
     const customerCard1 = document.getElementById('customerCard1');
     const customerCard2 = document.getElementById('customerCard2');
     const customerCard3 = document.getElementById('customerCard3');
-    const detailedCustomerReportTableBody = document.getElementById('detailedCustomerReportTableBody'); // For the table within customer view
+    const detailedCustomerReportTableBody = document.getElementById('detailedCustomerReportTableBody');
 
     // Employee Management Form Elements
     const addEmployeeForm = document.getElementById('addEmployeeForm');
@@ -128,7 +118,7 @@ const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzEYf0CKgwP0O4-z1lu
     const newEmployeeCodeInput = document.getElementById('newEmployeeCode');
     const newBranchNameInput = document.getElementById('newBranchName');
     const newDesignationInput = document.getElementById('newDesignation');
-    const employeeManagementMessage = document.getElementById('employeeManagementMessage'); // For displaying messages in employee management section
+    const employeeManagementMessage = document.getElementById('employeeManagementMessage');
 
     const bulkAddEmployeeForm = document.getElementById('bulkAddEmployeeForm');
     const bulkEmployeeBranchNameInput = document.getElementById('bulkEmployeeBranchName');
@@ -140,9 +130,6 @@ const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzEYf0CKgwP0O4-z1lu
     // Download Buttons
     const downloadDetailedCustomerReportBtn = document.getElementById('downloadDetailedCustomerReportBtn');
     const downloadOverallStaffPerformanceReportBtn = document.getElementById('downloadOverallStaffPerformanceReportBtn'); 
-    
-    // --- END UPDATED & CONSOLIDATED ---
-
     
     // Global variables to store fetched data
     let allCanvassingData = []; // Raw activity data from Form Responses 2
