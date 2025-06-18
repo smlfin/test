@@ -110,7 +110,7 @@ const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzEYf0CKgwP0O4-z1lu
 
     // Dropdowns (Global and Detailed Customer View specific)
     // const branchSelect = document.getElementById('branchSelect');
-    const employeeSelect = document.getElementById('employeeSelect');
+   // const employeeSelect = document.getElementById('employeeSelect');
     const customerViewBranchSelect = document.getElementById('customerViewBranchSelect');
     const customerViewEmployeeSelect = document.getElementById('customerViewEmployeeSelect');
 
