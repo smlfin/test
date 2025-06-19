@@ -2077,11 +2077,45 @@ if (downloadOverallStaffPerformanceReportBtn) { // This variable is correct
 
 }
     // NEW: Event Listener for "Performance Summary Dashboard" tab button
+    // NEW: Event Listener for "Performance Summary Dashboard" tab button
     if (performanceSummaryTabBtn) {
         performanceSummaryTabBtn.addEventListener('click', () => {
             showTab('performanceSummaryTabBtn'); // This will show the new section
             renderPerformanceSummaryDashboard(); // This is the new function we'll create right below
         });
+    }
+
+    // Function to render the Performance Summary Dashboard
+    function renderPerformanceSummaryDashboard() {
+        console.log("Rendering Performance Summary Dashboard...");
+
+        // Get the container where the dashboard will be displayed
+        const dashboardContainer = document.getElementById('performanceSummaryDashboard'); // Assuming you have a div with this ID in your HTML
+
+        // Clear any existing content
+        if (dashboardContainer) {
+            dashboardContainer.innerHTML = '';
+            
+            // Example: Add some basic content or a loading message
+            const dashboardTitle = document.createElement('h2');
+            dashboardTitle.textContent = 'Performance Summary Dashboard';
+            dashboardContainer.appendChild(dashboardTitle);
+
+            const dashboardContent = document.createElement('p');
+            dashboardContent.textContent = 'Dashboard content will go here. Implement your visualization and data display logic.';
+            dashboardContainer.appendChild(dashboardContent);
+
+            // *** IMPORTANT: Add your actual dashboard rendering logic here ***
+            // This is where you would fetch data, create charts (e.g., using Chart.js or D3.js),
+            // populate tables, and display key performance indicators (KPIs).
+            // Example:
+            // fetchDashboardData().then(data => {
+            //     displayCharts(data.charts);
+            //     displayKPIs(data.kpis);
+            // });
+        } else {
+            console.error("Dashboard container with ID 'performanceSummaryDashboard' not found.");
+        }
     }
 
     // Initial data fetch and tab display when the page loads
