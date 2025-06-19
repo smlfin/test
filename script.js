@@ -645,6 +645,132 @@ function displayMessage(message, type = 'info') {
         tableContainer.appendChild(table);
         reportDisplay.appendChild(tableContainer);
     }
+// Function to render Branch Performance Report (d3.PNG style)
+    function renderBranchPerformanceReport(selectedBranchName) {
+        reportDisplay.innerHTML = ''; // Clear previous content
+
+        if (!selectedBranchName) {
+            reportDisplay.innerHTML = '<h2>Branch Performance Report</h2><p>Please select a branch from the dropdown above to view its performance report.</p>';
+            return;
+        }
+
+        reportDisplay.innerHTML = `<h2>Branch Performance Report: ${selectedBranchName} (This Month)</h2>`;
+        const tableContainer = document.createElement('div');
+        tableContainer.className = 'data-table-container'; // For horizontal scrolling
+        
+        const table = document.createElement('table');
+        table.className = 'performance-table';
+        
+        const thead = table.createTHead();
+        let headerRow = thead.insertRow();
+        
+        // Main Headers
+        headerRow.insertCell().textContent = 'Employee Name';
+        headerRow.insertCell().textContent = 'Designation';
+        
+        // Define metrics for the performance table
+        const metrics = ['Visit', 'Call', 'Reference', 'New Customer Leads'];
+        
+        metrics.forEach(metric => {
+            const th = document.createElement('th');
+            th.colSpan = 3; // 'Actual', 'Target', '%'
+            th.textContent = metric;
+            headerRow.appendChild(th);
+        });
+
+        // Sub-headers
+        headerRow = thead.insertRow(); // New row for sub-headers
+        headerRow.insertCell(); // Empty cell for Employee Name
+        headerRow.insertCell(); // Empty cell for Designation
+        metrics.forEach(() => {
+            ['Act', 'Tgt', '%'].forEach(subHeader => {
+                const th = document.createElement('th');
+                th.textContent = subHeader;
+                headerRow.appendChild(th);
+            });
+        });
+
+        const tbody = table.createTBody();
+        const currentMonth = new Date().getMonth();
+        const currentYear = new Date().getFullYear();
+
+        // Get unique employees who have activity in the selected branch this month
+        const employeesInSelectedBranchWithActivityThisMonth = [...new Set(allCanvassingData
+            .filter(entry => {
+                const entryDate = new Date(entry[HEADER_TIMESTAMP]);
+                return entry[HEADER_BRANCH_NAME] === selectedBranchName &&
+                       entryDate.getMonth() === currentMonth &&
+                       entryDate.getFullYear() === currentYear;
+            })
+            .map(entry => entry[HEADER_EMPLOYEE_CODE]))].sort((codeA, codeB) => {
+                const nameA = employeeCodeToNameMap[codeA] || codeA;
+                const nameB = employeeCodeToNameMap[codeB] || codeB;
+                return nameA.localeCompare(nameB);
+            });
+
+        if (employeesInSelectedBranchWithActivityThisMonth.length === 0) {
+            reportDisplay.innerHTML += `<p>No employee activity found for ${selectedBranchName} for the current month.</p>`;
+            return;
+        }
+
+        employeesInSelectedBranchWithActivityThisMonth.forEach(employeeCode => {
+            const employeeName = employeeCodeToNameMap[employeeCode] || employeeCode;
+            const designation = employeeCodeToDesignationMap[employeeCode] || 'Default';
+
+            const employeeActivities = allCanvassingData.filter(entry =>
+                entry[HEADER_EMPLOYEE_CODE] === employeeCode &&
+                entry[HEADER_BRANCH_NAME] === selectedBranchName &&
+                new Date(entry[HEADER_TIMESTAMP]).getMonth() === currentMonth &&
+                new Date(entry[HEADER_TIMESTAMP]).getFullYear() === currentYear
+            );
+            const { totalActivity } = calculateTotalActivity(employeeActivities);
+            
+            const targets = TARGETS[designation] || TARGETS['Default'];
+            const performance = calculatePerformance(totalActivity, targets);
+
+            const row = tbody.insertRow();
+            row.insertCell().textContent = employeeName;
+            row.insertCell().textContent = designation;
+
+            metrics.forEach(metric => {
+                const actualValue = totalActivity[metric] || 0;
+                const targetValue = targets[metric] || 0;
+                let percentValue = performance[metric];
+                let displayPercent;
+                let progressBarClass;
+                let progressWidth;
+
+                if (isNaN(percentValue) || targetValue === 0) {
+                    displayPercent = 'N/A';
+                    progressWidth = 0;
+                    progressBarClass = 'no-activity';
+                } else {
+                    displayPercent = `${Math.round(percentValue)}%`;
+                    progressWidth = Math.min(100, Math.round(percentValue));
+                    progressBarClass = getProgressBarClass(percentValue);
+                }
+                // Special handling for 0 actuals with positive targets to show 0% and danger color
+                if (actualValue === 0 && targetValue > 0) {
+                    displayPercent = '0%';
+                    progressWidth = 0;
+                    progressBarClass = 'danger';
+                }
+
+                row.insertCell().textContent = actualValue;
+                row.insertCell().textContent = targetValue;
+                const percentCell = row.insertCell();
+                percentCell.innerHTML = `
+                    <div class="progress-bar-container-small">
+                        <div class="progress-bar ${progressBarClass}" style="width: ${progressWidth === 0 && displayPercent !== 'N/A' ? '30px' : progressWidth}%">
+                            ${displayPercent}
+                        </div>
+                    </div>
+                `;
+            });
+        });
+        tableContainer.appendChild(table);
+        reportDisplay.appendChild(tableContainer);
+    }
     // --- NEW: Function to generate and download the Overall Staff Performance Report as CSV ---
     function downloadOverallStaffPerformanceReportCSV() {
         const currentMonth = new Date().getMonth();
@@ -1932,6 +2058,15 @@ function displayMessage(message, type = 'info') {
             renderOverallStaffPerformanceReport();
         });
     }
+// NEW: Event Listener for "Branch Performance Reports" tab button
+    if (branchPerformanceTabBtn) {
+        branchPerformanceTabBtn.addEventListener('click', () => {
+            showTab('branchPerformanceTabBtn');
+            // When this tab is clicked, render the report based on the currently selected branch
+            // If no branch is selected, the function will display a prompt.
+            renderBranchPerformanceReport(branchSelect.value);
+        });
+    }
 
  // NEW: Event Listener for "Download Overall Staff Performance CSV" button
 if (downloadOverallStaffPerformanceReportBtn) { // This variable is correct
@@ -1939,6 +2074,7 @@ if (downloadOverallStaffPerformanceReportBtn) { // This variable is correct
     downloadOverallStaffPerformanceReportBtn.addEventListener('click', () => { 
         downloadOverallStaffPerformanceReportCSV();
     });
+
 }
     // NEW: Event Listener for "Performance Summary Dashboard" tab button
     if (performanceSummaryTabBtn) {
