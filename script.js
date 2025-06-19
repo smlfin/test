@@ -1918,9 +1918,7 @@ function displayMessage(message, type = 'info') {
         });
     }
 
-    // --- NEW: Event Listener for "Download Overall Staff Performance CSV" button ---
-   // Event Listener for "Download Overall Staff Performance CSV" button
-// NEW: Event Listener for "Download Overall Staff Performance CSV" button
+ // NEW: Event Listener for "Download Overall Staff Performance CSV" button
 if (downloadOverallStaffPerformanceReportBtn) { // This variable is correct
     // CORRECTED LINE: Ensure this matches the declaration at the top
     downloadOverallStaffPerformanceReportBtn.addEventListener('click', () => { 
