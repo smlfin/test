@@ -4,7 +4,7 @@ const DATA_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTO7LujC4VSa2w
 // IMPORTANT: Replace this with YOUR DEPLOYED GOOGLE APPS SCRIPT WEB APP URL
 const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzEYf0CKgwP0O4-z1lup1lDZImD1dQVEveLWsHwa_7T5ltndfIuRWXVZqFDj03_proD/exec"; // <-- PASTE YOUR NEWLY DEPLOYED WEB APP URL HERE
 // For front-end reporting, all employee and branch data will come from Canvassing Data and predefined list.
-    const EMPLOYEE_MASTER_DATA_URL = "UNUSED"; // Marked as UNUSED for clarity, won't be fetched for reports
+    const EMPLOYEE_MASTER_DATA_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTO7LujC4VSa2wGkJ2YEYSN7UeXR221ny3THaVegYfNfRm2JQGg7QR9Bxxh9SadXtK8Pi6-psl2tGsb/pub?gid=2120288173&single=true&output=csv"; // Marked as UNUSED for clarity, won't be fetched for reports
 
     const MONTHLY_WORKING_DAYS = 22; // Common approximation for a month's working days
 
@@ -69,76 +69,91 @@ const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzEYf0CKgwP0O4-z1lu
     const HEADER_FAMILY_DETAILS_4 = 'Family Deatils -4 Deatils of Children';
     const HEADER_PROFILE_OF_CUSTOMER = 'Profile of Customer';
 
+// ------------------------
+const MASTER_HEADER_EMPLOYEE_CODE = 'Employee Code'; // Must match your Master Employee Sheet column header
+const MASTER_HEADER_EMPLOYEE_NAME = 'Employee Name'; // Must match your Master Employee Sheet column header
+const MASTER_HEADER_DESIGNATION = 'Designation';     // Must match your Master Employee Sheet column header
+const MASTER_HEADER_BRANCH = 'Branch';               // Must match your Master Employee Sheet column header
+// Core Display and Status Elements (existing)
+const reportDisplay = document.getElementById('reportDisplay');
+const statusMessage = document.getElementById('statusMessage');
 
-    // Core Display and Status Elements
-    const reportDisplay = document.getElementById('reportDisplay');
-    const statusMessage = document.getElementById('statusMessage');
+// Main Content Sections to toggle (existing)
+const reportsSection = document.getElementById('reportsSection');
+const detailedCustomerViewSection = document.getElementById('detailedCustomerViewSection');
+const employeeManagementSection = document.getElementById('employeeManagementSection');
+// NEW: Performance Summary Dashboard Section
+const performanceSummarySection = document.getElementById('performanceSummarySection');
 
-    // Main Content Sections to toggle
-    const reportsSection = document.getElementById('reportsSection');
-    const detailedCustomerViewSection = document.getElementById('detailedCustomerViewSection');
-    const employeeManagementSection = document.getElementById('employeeManagementSection');
+// Tab buttons for main navigation (existing)
+const allBranchSnapshotTabBtn = document.getElementById('allBranchSnapshotTabBtn');
+const allStaffOverallPerformanceTabBtn = document.getElementById('allStaffOverallPerformanceTabBtn');
+const nonParticipatingBranchesTabBtn = document.getElementById('nonParticipatingBranchesTabBtn');
+const branchPerformanceTabBtn = document.getElementById('branchPerformanceTabBtn');
+const detailedCustomerViewTabBtn = document.getElementById('detailedCustomerViewTabBtn');
+const employeeManagementTabBtn = document.getElementById('employeeManagementTabBtn');
+// NEW: Performance Summary Tab Button
+const performanceSummaryTabBtn = document.getElementById('performanceSummaryTabBtn');
 
-    // Tab buttons for main navigation
-    const allBranchSnapshotTabBtn = document.getElementById('allBranchSnapshotTabBtn');
-    const allStaffOverallPerformanceTabBtn = document.getElementById('allStaffOverallPerformanceTabBtn');
-    const nonParticipatingBranchesTabBtn = document.getElementById('nonParticipatingBranchesTabBtn');
-    const branchPerformanceTabBtn = document.getElementById('branchPerformanceTabBtn');
-    const detailedCustomerViewTabBtn = document.getElementById('detailedCustomerViewTabBtn');
-    const employeeManagementTabBtn = document.getElementById('employeeManagementTabBtn');
 
-    // Dropdowns & Filter Panels
-    const branchSelect = document.getElementById('branchSelect');
-    const employeeSelect = document.getElementById('employeeSelect');
-    const employeeFilterPanel = document.getElementById('employeeFilterPanel'); // New from your list
-    const customerViewBranchSelect = document.getElementById('customerViewBranchSelect');
-    const customerViewEmployeeSelect = document.getElementById('customerViewEmployeeSelect');
+// Dropdowns & Filter Panels (existing)
+const branchSelect = document.getElementById('branchSelect');
+const employeeSelect = document.getElementById('employeeSelect');
+const employeeFilterPanel = document.getElementById('employeeFilterPanel');
+const customerViewBranchSelect = document.getElementById('customerViewBranchSelect');
+const customerViewEmployeeSelect = document.getElementById('customerViewEmployeeSelect');
+// NEW: Dashboard Branch Select
+const dashboardBranchSelect = document.getElementById('dashboardBranchSelect');
 
-    // View Option Buttons (from your provided list)
-    const viewOptions = document.getElementById('viewOptions');
-    const viewBranchPerformanceReportBtn = document.getElementById('viewBranchPerformanceReportBtn');
-    const viewEmployeeSummaryBtn = document.getElementById('viewEmployeeSummaryBtn');
-    const viewAllEntriesBtn = document.getElementById('viewAllEntriesBtn');
-    const viewPerformanceReportBtn = document.getElementById('viewPerformanceReportBtn');
-    const viewBranchVisitLeaderboardBtn = document.getElementById('viewBranchVisitLeaderboardBtn');
-    const viewBranchCallLeaderboardBtn = document.getElementById('viewBranchCallLeaderboardBtn');
-    const viewStaffParticipationBtn = document.getElementById('viewStaffParticipationBtn');
+// View Option Buttons (from your provided list - ensure these are present in your script)
+const viewBranchPerformanceReportBtn = document.getElementById('viewBranchPerformanceReportBtn');
+const viewEmployeeSummaryBtn = document.getElementById('viewEmployeeSummaryBtn');
+const viewAllEntriesBtn = document.getElementById('viewAllEntriesBtn');
+const viewPerformanceReportBtn = document.getElementById('viewPerformanceReportBtn');
+const viewBranchVisitLeaderboardBtn = document.getElementById('viewBranchVisitLeaderboardBtn');
+const viewBranchCallLeaderboardBtn = document.getElementById('viewBranchCallLeaderboardBtn');
+const viewStaffParticipationBtn = document.getElementById('viewStaffParticipationBtn');
 
-    // Detailed Customer View Specific Elements
-    const customerCanvassedList = document.getElementById('customerCanvassedList');
-    const customerDetailsContent = document.getElementById('customerDetailsContent');
-    const customerCard1 = document.getElementById('customerCard1');
-    const customerCard2 = document.getElementById('customerCard2');
-    const customerCard3 = document.getElementById('customerCard3');
-    const detailedCustomerReportTableBody = document.getElementById('detailedCustomerReportTableBody');
 
-    // Employee Management Form Elements
-    const addEmployeeForm = document.getElementById('addEmployeeForm');
-    const newEmployeeNameInput = document.getElementById('newEmployeeName');
-    const newEmployeeCodeInput = document.getElementById('newEmployeeCode');
-    const newBranchNameInput = document.getElementById('newBranchName');
-    const newDesignationInput = document.getElementById('newDesignation');
-    const employeeManagementMessage = document.getElementById('employeeManagementMessage');
+// Detailed Customer View Specific Elements (existing)
+const customerCanvassedList = document.getElementById('customerCanvassedList');
+const customerDetailsContent = document.getElementById('customerDetailsContent');
+const customerCard1 = document.getElementById('customerCard1');
+const customerCard2 = document.getElementById('customerCard2');
+const customerCard3 = document.getElementById('customerCard3');
 
-    const bulkAddEmployeeForm = document.getElementById('bulkAddEmployeeForm');
-    const bulkEmployeeBranchNameInput = document.getElementById('bulkEmployeeBranchName');
-    const bulkEmployeeDetailsTextarea = document.getElementById('bulkEmployeeDetails');
 
-    const deleteEmployeeForm = document.getElementById('deleteEmployeeForm');
-    const deleteEmployeeCodeInput = document.getElementById('deleteEmployeeCode');
+// Employee Management Form Elements (existing)
+const addEmployeeForm = document.getElementById('addEmployeeForm');
+const newEmployeeNameInput = document.getElementById('newEmployeeName');
+const newEmployeeCodeInput = document.getElementById('newEmployeeCode');
+const newBranchNameInput = document.getElementById('newBranchName');
+const newDesignationInput = document.getElementById('newDesignation');
+const bulkAddEmployeeForm = document.getElementById('bulkAddEmployeeForm');
+const bulkEmployeeBranchNameInput = document.getElementById('bulkEmployeeBranchName');
+const bulkEmployeeDetailsTextarea = document.getElementById('bulkEmployeeDetails');
+const deleteEmployeeForm = document.getElementById('deleteEmployeeForm');
+const deleteEmployeeCodeInput = document.getElementById('deleteEmployeeCode');
+const employeeManagementMessage = document.getElementById('employeeManagementMessage');
 
-    // Download Buttons
-    const downloadDetailedCustomerReportBtn = document.getElementById('downloadDetailedCustomerReportBtn');
-    const downloadOverallStaffPerformanceReportBtn = document.getElementById('downloadOverallStaffPerformanceReportBtn'); 
-    
-    // Global variables to store fetched data
-    let allCanvassingData = []; // Raw activity data from Form Responses 2
-    let allUniqueBranches = []; // Will be populated from PREDEFINED_BRANCHES
-    let allUniqueEmployees = []; // Employee codes from Canvassing Data
-    let employeeCodeToNameMap = {}; // {code: name} from Canvassing Data
-    let employeeCodeToDesignationMap = {}; // {code: designation} from Canvassing Data
-    let selectedBranchEntries = []; // Activity entries filtered by branch (for main reports section)
-    let selectedEmployeeCodeEntries = []; // Activity entries filtered by employee code (for main reports section)
+
+// Download Buttons (existing)
+const downloadDetailedCustomerReportBtn = document.getElementById('downloadDetailedCustomerReportBtn'); // If you have this button
+const downloadOverallStaffPerformanceReportBtn = document.getElementById('downloadOverallStaffPerformanceReportBtn');
+// NEW: Performance Summary Dashboard Download Button
+const downloadPerformanceSummaryReportBtn = document.getElementById('downloadPerformanceSummaryReportBtn');
+
+// Global variables to store fetched data
+let allCanvassingData = []; // Raw activity data from Form Responses 2
+// NEW: Master Employee List Data (will remain empty for now as per your request, until you decide to integrate it)
+let allMasterEmployees = []; // Data from the Master Employee List sheet
+let allUniqueBranches = []; // Will be populated from PREDEFINED_BRANCHES or canvassing data
+let allUniqueEmployees = []; // Employee codes from Canvassing Data
+let employeeCodeToNameMap = {}; // {code: name} from Canvassing Data
+let employeeCodeToDesignationMap = {}; // {code: designation} from Canvassing Data
+let selectedBranchEntries = []; // Activity entries filtered by branch (for main reports section)
+let selectedEmployeeCodeEntries = []; // Activity entries filtered by employee code (for main reports section)
+
 
 
     // Utility to format date to ISO-MM-DD
@@ -1925,9 +1940,15 @@ if (downloadOverallStaffPerformanceReportBtn) { // This variable is correct
         downloadOverallStaffPerformanceReportCSV();
     });
 }
-    // --- END NEW ---
+    // NEW: Event Listener for "Performance Summary Dashboard" tab button
+    if (performanceSummaryTabBtn) {
+        performanceSummaryTabBtn.addEventListener('click', () => {
+            showTab('performanceSummaryTabBtn'); // This will show the new section
+            renderPerformanceSummaryDashboard(); // This is the new function we'll create right below
+        });
+    }
 
     // Initial data fetch and tab display when the page loads
     processData();
-    showTab('allBranchSnapshotTabBtn');
+    showTab('allBranchSnapshotTabBtn'); // Your current default starting tab
 }); // This is the closing brace for DOMContentLoaded
