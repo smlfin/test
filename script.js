@@ -4,7 +4,7 @@ const DATA_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTO7LujC4VSa2w
 // IMPORTANT: Replace this with YOUR DEPLOYED GOOGLE APPS SCRIPT WEB APP URL
 const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzEYf0CKgwP0O4-z1lup1lDZImD1dQVEveLWsHwa_7T5ltndfIuRWXVZqFDj03_proD/exec"; // <-- PASTE YOUR NEWLY DEPLOYED WEB APP URL HERE
 // For front-end reporting, all employee and branch data will come from Canvassing Data and predefined list.
-    const EMPLOYEE_MASTER_DATA_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTO7LujC4VSa2wGkJ2YEYSN7UeXR221ny3THaVegYfNfRm2JQGg7QR9Bxxh9SadXtK8Pi6-psl2tGsb/pub?gid=2120288173&single=true&output=csv"; // Marked as UNUSED for clarity, won't be fetched for reports
+    const EMPLOYEE_MASTER_DATA_URL = "UNUSED"; // Marked as UNUSED for clarity, won't be fetched for reports
 
     const MONTHLY_WORKING_DAYS = 22; // Common approximation for a month's working days
 
@@ -69,91 +69,76 @@ const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzEYf0CKgwP0O4-z1lu
     const HEADER_FAMILY_DETAILS_4 = 'Family Deatils -4 Deatils of Children';
     const HEADER_PROFILE_OF_CUSTOMER = 'Profile of Customer';
 
-// ------------------------
-const MASTER_HEADER_EMPLOYEE_CODE = 'Employee Code'; // Must match your Master Employee Sheet column header
-const MASTER_HEADER_EMPLOYEE_NAME = 'Employee Name'; // Must match your Master Employee Sheet column header
-const MASTER_HEADER_DESIGNATION = 'Designation';     // Must match your Master Employee Sheet column header
-const MASTER_HEADER_BRANCH = 'Branch';               // Must match your Master Employee Sheet column header
-// Core Display and Status Elements (existing)
-const reportDisplay = document.getElementById('reportDisplay');
-const statusMessage = document.getElementById('statusMessage');
 
-// Main Content Sections to toggle (existing)
-const reportsSection = document.getElementById('reportsSection');
-const detailedCustomerViewSection = document.getElementById('detailedCustomerViewSection');
-const employeeManagementSection = document.getElementById('employeeManagementSection');
-// NEW: Performance Summary Dashboard Section
-const performanceSummarySection = document.getElementById('performanceSummarySection');
+    // Core Display and Status Elements
+    const reportDisplay = document.getElementById('reportDisplay');
+    const statusMessage = document.getElementById('statusMessage');
 
-// Tab buttons for main navigation (existing)
-const allBranchSnapshotTabBtn = document.getElementById('allBranchSnapshotTabBtn');
-const allStaffOverallPerformanceTabBtn = document.getElementById('allStaffOverallPerformanceTabBtn');
-const nonParticipatingBranchesTabBtn = document.getElementById('nonParticipatingBranchesTabBtn');
-const branchPerformanceTabBtn = document.getElementById('branchPerformanceTabBtn');
-const detailedCustomerViewTabBtn = document.getElementById('detailedCustomerViewTabBtn');
-const employeeManagementTabBtn = document.getElementById('employeeManagementTabBtn');
-// NEW: Performance Summary Tab Button
-const performanceSummaryTabBtn = document.getElementById('performanceSummaryTabBtn');
+    // Main Content Sections to toggle
+    const reportsSection = document.getElementById('reportsSection');
+    const detailedCustomerViewSection = document.getElementById('detailedCustomerViewSection');
+    const employeeManagementSection = document.getElementById('employeeManagementSection');
 
+    // Tab buttons for main navigation
+    const allBranchSnapshotTabBtn = document.getElementById('allBranchSnapshotTabBtn');
+    const allStaffOverallPerformanceTabBtn = document.getElementById('allStaffOverallPerformanceTabBtn');
+    const nonParticipatingBranchesTabBtn = document.getElementById('nonParticipatingBranchesTabBtn');
+    const branchPerformanceTabBtn = document.getElementById('branchPerformanceTabBtn');
+    const detailedCustomerViewTabBtn = document.getElementById('detailedCustomerViewTabBtn');
+    const employeeManagementTabBtn = document.getElementById('employeeManagementTabBtn');
 
-// Dropdowns & Filter Panels (existing)
-const branchSelect = document.getElementById('branchSelect');
-const employeeSelect = document.getElementById('employeeSelect');
-const employeeFilterPanel = document.getElementById('employeeFilterPanel');
-const customerViewBranchSelect = document.getElementById('customerViewBranchSelect');
-const customerViewEmployeeSelect = document.getElementById('customerViewEmployeeSelect');
-// NEW: Dashboard Branch Select
-const dashboardBranchSelect = document.getElementById('dashboardBranchSelect');
+    // Dropdowns & Filter Panels
+    const branchSelect = document.getElementById('branchSelect');
+    const employeeSelect = document.getElementById('employeeSelect');
+    const employeeFilterPanel = document.getElementById('employeeFilterPanel'); // New from your list
+    const customerViewBranchSelect = document.getElementById('customerViewBranchSelect');
+    const customerViewEmployeeSelect = document.getElementById('customerViewEmployeeSelect');
 
-// View Option Buttons (from your provided list - ensure these are present in your script)
-const viewBranchPerformanceReportBtn = document.getElementById('viewBranchPerformanceReportBtn');
-const viewEmployeeSummaryBtn = document.getElementById('viewEmployeeSummaryBtn');
-const viewAllEntriesBtn = document.getElementById('viewAllEntriesBtn');
-const viewPerformanceReportBtn = document.getElementById('viewPerformanceReportBtn');
-const viewBranchVisitLeaderboardBtn = document.getElementById('viewBranchVisitLeaderboardBtn');
-const viewBranchCallLeaderboardBtn = document.getElementById('viewBranchCallLeaderboardBtn');
-const viewStaffParticipationBtn = document.getElementById('viewStaffParticipationBtn');
+    // View Option Buttons (from your provided list)
+    const viewOptions = document.getElementById('viewOptions');
+    const viewBranchPerformanceReportBtn = document.getElementById('viewBranchPerformanceReportBtn');
+    const viewEmployeeSummaryBtn = document.getElementById('viewEmployeeSummaryBtn');
+    const viewAllEntriesBtn = document.getElementById('viewAllEntriesBtn');
+    const viewPerformanceReportBtn = document.getElementById('viewPerformanceReportBtn');
+    const viewBranchVisitLeaderboardBtn = document.getElementById('viewBranchVisitLeaderboardBtn');
+    const viewBranchCallLeaderboardBtn = document.getElementById('viewBranchCallLeaderboardBtn');
+    const viewStaffParticipationBtn = document.getElementById('viewStaffParticipationBtn');
 
+    // Detailed Customer View Specific Elements
+    const customerCanvassedList = document.getElementById('customerCanvassedList');
+    const customerDetailsContent = document.getElementById('customerDetailsContent');
+    const customerCard1 = document.getElementById('customerCard1');
+    const customerCard2 = document.getElementById('customerCard2');
+    const customerCard3 = document.getElementById('customerCard3');
+    const detailedCustomerReportTableBody = document.getElementById('detailedCustomerReportTableBody');
 
-// Detailed Customer View Specific Elements (existing)
-const customerCanvassedList = document.getElementById('customerCanvassedList');
-const customerDetailsContent = document.getElementById('customerDetailsContent');
-const customerCard1 = document.getElementById('customerCard1');
-const customerCard2 = document.getElementById('customerCard2');
-const customerCard3 = document.getElementById('customerCard3');
+    // Employee Management Form Elements
+    const addEmployeeForm = document.getElementById('addEmployeeForm');
+    const newEmployeeNameInput = document.getElementById('newEmployeeName');
+    const newEmployeeCodeInput = document.getElementById('newEmployeeCode');
+    const newBranchNameInput = document.getElementById('newBranchName');
+    const newDesignationInput = document.getElementById('newDesignation');
+    const employeeManagementMessage = document.getElementById('employeeManagementMessage');
 
+    const bulkAddEmployeeForm = document.getElementById('bulkAddEmployeeForm');
+    const bulkEmployeeBranchNameInput = document.getElementById('bulkEmployeeBranchName');
+    const bulkEmployeeDetailsTextarea = document.getElementById('bulkEmployeeDetails');
 
-// Employee Management Form Elements (existing)
-const addEmployeeForm = document.getElementById('addEmployeeForm');
-const newEmployeeNameInput = document.getElementById('newEmployeeName');
-const newEmployeeCodeInput = document.getElementById('newEmployeeCode');
-const newBranchNameInput = document.getElementById('newBranchName');
-const newDesignationInput = document.getElementById('newDesignation');
-const bulkAddEmployeeForm = document.getElementById('bulkAddEmployeeForm');
-const bulkEmployeeBranchNameInput = document.getElementById('bulkEmployeeBranchName');
-const bulkEmployeeDetailsTextarea = document.getElementById('bulkEmployeeDetails');
-const deleteEmployeeForm = document.getElementById('deleteEmployeeForm');
-const deleteEmployeeCodeInput = document.getElementById('deleteEmployeeCode');
-const employeeManagementMessage = document.getElementById('employeeManagementMessage');
+    const deleteEmployeeForm = document.getElementById('deleteEmployeeForm');
+    const deleteEmployeeCodeInput = document.getElementById('deleteEmployeeCode');
 
-
-// Download Buttons (existing)
-const downloadDetailedCustomerReportBtn = document.getElementById('downloadDetailedCustomerReportBtn'); // If you have this button
-const downloadOverallStaffPerformanceReportBtn = document.getElementById('downloadOverallStaffPerformanceReportBtn');
-// NEW: Performance Summary Dashboard Download Button
-const downloadPerformanceSummaryReportBtn = document.getElementById('downloadPerformanceSummaryReportBtn');
-
-// Global variables to store fetched data
-let allCanvassingData = []; // Raw activity data from Form Responses 2
-// NEW: Master Employee List Data (will remain empty for now as per your request, until you decide to integrate it)
-let allMasterEmployees = []; // Data from the Master Employee List sheet
-let allUniqueBranches = []; // Will be populated from PREDEFINED_BRANCHES or canvassing data
-let allUniqueEmployees = []; // Employee codes from Canvassing Data
-let employeeCodeToNameMap = {}; // {code: name} from Canvassing Data
-let employeeCodeToDesignationMap = {}; // {code: designation} from Canvassing Data
-let selectedBranchEntries = []; // Activity entries filtered by branch (for main reports section)
-let selectedEmployeeCodeEntries = []; // Activity entries filtered by employee code (for main reports section)
-
+    // Download Buttons
+    const downloadDetailedCustomerReportBtn = document.getElementById('downloadDetailedCustomerReportBtn');
+    const downloadOverallStaffPerformanceReportBtn = document.getElementById('downloadOverallStaffPerformanceReportBtn'); 
+    
+    // Global variables to store fetched data
+    let allCanvassingData = []; // Raw activity data from Form Responses 2
+    let allUniqueBranches = []; // Will be populated from PREDEFINED_BRANCHES
+    let allUniqueEmployees = []; // Employee codes from Canvassing Data
+    let employeeCodeToNameMap = {}; // {code: name} from Canvassing Data
+    let employeeCodeToDesignationMap = {}; // {code: designation} from Canvassing Data
+    let selectedBranchEntries = []; // Activity entries filtered by branch (for main reports section)
+    let selectedEmployeeCodeEntries = []; // Activity entries filtered by employee code (for main reports section)
 
 
     // Utility to format date to ISO-MM-DD
@@ -615,132 +600,6 @@ function displayMessage(message, type = 'info') {
                 let progressWidth;
 
                 if (isNaN(percentValue) || targetValue === 0) { // If target is 0, it's N/A
-                    displayPercent = 'N/A';
-                    progressWidth = 0;
-                    progressBarClass = 'no-activity';
-                } else {
-                    displayPercent = `${Math.round(percentValue)}%`;
-                    progressWidth = Math.min(100, Math.round(percentValue));
-                    progressBarClass = getProgressBarClass(percentValue);
-                }
-                // Special handling for 0 actuals with positive targets to show 0% and danger color
-                if (actualValue === 0 && targetValue > 0) {
-                    displayPercent = '0%';
-                    progressWidth = 0;
-                    progressBarClass = 'danger';
-                }
-
-                row.insertCell().textContent = actualValue;
-                row.insertCell().textContent = targetValue;
-                const percentCell = row.insertCell();
-                percentCell.innerHTML = `
-                    <div class="progress-bar-container-small">
-                        <div class="progress-bar ${progressBarClass}" style="width: ${progressWidth === 0 && displayPercent !== 'N/A' ? '30px' : progressWidth}%">
-                            ${displayPercent}
-                        </div>
-                    </div>
-                `;
-            });
-        });
-        tableContainer.appendChild(table);
-        reportDisplay.appendChild(tableContainer);
-    }
-// Function to render Branch Performance Report (d3.PNG style)
-    function renderBranchPerformanceReport(selectedBranchName) {
-        reportDisplay.innerHTML = ''; // Clear previous content
-
-        if (!selectedBranchName) {
-            reportDisplay.innerHTML = '<h2>Branch Performance Report</h2><p>Please select a branch from the dropdown above to view its performance report.</p>';
-            return;
-        }
-
-        reportDisplay.innerHTML = `<h2>Branch Performance Report: ${selectedBranchName} (This Month)</h2>`;
-        const tableContainer = document.createElement('div');
-        tableContainer.className = 'data-table-container'; // For horizontal scrolling
-        
-        const table = document.createElement('table');
-        table.className = 'performance-table';
-        
-        const thead = table.createTHead();
-        let headerRow = thead.insertRow();
-        
-        // Main Headers
-        headerRow.insertCell().textContent = 'Employee Name';
-        headerRow.insertCell().textContent = 'Designation';
-        
-        // Define metrics for the performance table
-        const metrics = ['Visit', 'Call', 'Reference', 'New Customer Leads'];
-        
-        metrics.forEach(metric => {
-            const th = document.createElement('th');
-            th.colSpan = 3; // 'Actual', 'Target', '%'
-            th.textContent = metric;
-            headerRow.appendChild(th);
-        });
-
-        // Sub-headers
-        headerRow = thead.insertRow(); // New row for sub-headers
-        headerRow.insertCell(); // Empty cell for Employee Name
-        headerRow.insertCell(); // Empty cell for Designation
-        metrics.forEach(() => {
-            ['Act', 'Tgt', '%'].forEach(subHeader => {
-                const th = document.createElement('th');
-                th.textContent = subHeader;
-                headerRow.appendChild(th);
-            });
-        });
-
-        const tbody = table.createTBody();
-        const currentMonth = new Date().getMonth();
-        const currentYear = new Date().getFullYear();
-
-        // Get unique employees who have activity in the selected branch this month
-        const employeesInSelectedBranchWithActivityThisMonth = [...new Set(allCanvassingData
-            .filter(entry => {
-                const entryDate = new Date(entry[HEADER_TIMESTAMP]);
-                return entry[HEADER_BRANCH_NAME] === selectedBranchName &&
-                       entryDate.getMonth() === currentMonth &&
-                       entryDate.getFullYear() === currentYear;
-            })
-            .map(entry => entry[HEADER_EMPLOYEE_CODE]))].sort((codeA, codeB) => {
-                const nameA = employeeCodeToNameMap[codeA] || codeA;
-                const nameB = employeeCodeToNameMap[codeB] || codeB;
-                return nameA.localeCompare(nameB);
-            });
-
-        if (employeesInSelectedBranchWithActivityThisMonth.length === 0) {
-            reportDisplay.innerHTML += `<p>No employee activity found for ${selectedBranchName} for the current month.</p>`;
-            return;
-        }
-
-        employeesInSelectedBranchWithActivityThisMonth.forEach(employeeCode => {
-            const employeeName = employeeCodeToNameMap[employeeCode] || employeeCode;
-            const designation = employeeCodeToDesignationMap[employeeCode] || 'Default';
-
-            const employeeActivities = allCanvassingData.filter(entry =>
-                entry[HEADER_EMPLOYEE_CODE] === employeeCode &&
-                entry[HEADER_BRANCH_NAME] === selectedBranchName &&
-                new Date(entry[HEADER_TIMESTAMP]).getMonth() === currentMonth &&
-                new Date(entry[HEADER_TIMESTAMP]).getFullYear() === currentYear
-            );
-            const { totalActivity } = calculateTotalActivity(employeeActivities);
-            
-            const targets = TARGETS[designation] || TARGETS['Default'];
-            const performance = calculatePerformance(totalActivity, targets);
-
-            const row = tbody.insertRow();
-            row.insertCell().textContent = employeeName;
-            row.insertCell().textContent = designation;
-
-            metrics.forEach(metric => {
-                const actualValue = totalActivity[metric] || 0;
-                const targetValue = targets[metric] || 0;
-                let percentValue = performance[metric];
-                let displayPercent;
-                let progressBarClass;
-                let progressWidth;
-
-                if (isNaN(percentValue) || targetValue === 0) {
                     displayPercent = 'N/A';
                     progressWidth = 0;
                     progressBarClass = 'no-activity';
@@ -2058,15 +1917,6 @@ function displayMessage(message, type = 'info') {
             renderOverallStaffPerformanceReport();
         });
     }
-// NEW: Event Listener for "Branch Performance Reports" tab button
-    if (branchPerformanceTabBtn) {
-        branchPerformanceTabBtn.addEventListener('click', () => {
-            showTab('branchPerformanceTabBtn');
-            // When this tab is clicked, render the report based on the currently selected branch
-            // If no branch is selected, the function will display a prompt.
-            renderBranchPerformanceReport(branchSelect.value);
-        });
-    }
 
  // NEW: Event Listener for "Download Overall Staff Performance CSV" button
 if (downloadOverallStaffPerformanceReportBtn) { // This variable is correct
@@ -2074,51 +1924,10 @@ if (downloadOverallStaffPerformanceReportBtn) { // This variable is correct
     downloadOverallStaffPerformanceReportBtn.addEventListener('click', () => { 
         downloadOverallStaffPerformanceReportCSV();
     });
-
 }
-    // NEW: Event Listener for "Performance Summary Dashboard" tab button
-    // NEW: Event Listener for "Performance Summary Dashboard" tab button
-    if (performanceSummaryTabBtn) {
-        performanceSummaryTabBtn.addEventListener('click', () => {
-            showTab('performanceSummaryTabBtn'); // This will show the new section
-            renderPerformanceSummaryDashboard(); // This is the new function we'll create right below
-        });
-    }
-
-    // Function to render the Performance Summary Dashboard
-    function renderPerformanceSummaryDashboard() {
-        console.log("Rendering Performance Summary Dashboard...");
-
-        // Get the container where the dashboard will be displayed
-        const dashboardContainer = document.getElementById('performanceSummaryDashboard'); // Assuming you have a div with this ID in your HTML
-
-        // Clear any existing content
-        if (dashboardContainer) {
-            dashboardContainer.innerHTML = '';
-            
-            // Example: Add some basic content or a loading message
-            const dashboardTitle = document.createElement('h2');
-            dashboardTitle.textContent = 'Performance Summary Dashboard';
-            dashboardContainer.appendChild(dashboardTitle);
-
-            const dashboardContent = document.createElement('p');
-            dashboardContent.textContent = 'Dashboard content will go here. Implement your visualization and data display logic.';
-            dashboardContainer.appendChild(dashboardContent);
-
-            // *** IMPORTANT: Add your actual dashboard rendering logic here ***
-            // This is where you would fetch data, create charts (e.g., using Chart.js or D3.js),
-            // populate tables, and display key performance indicators (KPIs).
-            // Example:
-            // fetchDashboardData().then(data => {
-            //     displayCharts(data.charts);
-            //     displayKPIs(data.kpis);
-            // });
-        } else {
-            console.error("Dashboard container with ID 'performanceSummaryDashboard' not found.");
-        }
-    }
+    // --- END NEW ---
 
     // Initial data fetch and tab display when the page loads
     processData();
-    showTab('allBranchSnapshotTabBtn'); // Your current default starting tab
+    showTab('allBranchSnapshotTabBtn');
 }); // This is the closing brace for DOMContentLoaded
