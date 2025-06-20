@@ -196,7 +196,7 @@ const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzEYf0CKgwP0O4-z1lu
     const allStaffOverallPerformanceTabBtn = document.getElementById('allStaffOverallPerformanceTabBtn');
     const nonParticipatingBranchesTabBtn = document.getElementById('nonParticipatingBranchesTabBtn');
     const branchPerformanceTabBtn = document.getElementById('branchPerformanceTabBtn');
-    const detailedCustomerViewTabBtn = document.getElementById('detailedCustomerViewTabBtn');
+   // const detailedCustomerViewTabBtn = document.getElementById('detailedCustomerViewTabBtn');
     const employeeManagementTabBtn = document.getElementById('employeeManagementTabBtn');
 
     // Dropdowns & Filter Panels
