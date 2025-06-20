@@ -1194,6 +1194,8 @@ select:focus {
 }
 #reportDisplay h3:contains("Maximum Visits") + .leaderboard-item span {
     background-color: #28a745;
+    color: #333;
+    
 }
 
 /* Colors for Lowest Visit */
@@ -1202,6 +1204,7 @@ select:focus {
 }
 #reportDisplay h3:contains("Lowest Visits") + .leaderboard-item span {
     background-color: #dc3545;
+    color: #333;
 }
 
 /* Colors for Max Calls */
@@ -1219,6 +1222,7 @@ select:focus {
 }
 #reportDisplay h3:contains("Lowest Calls") + .leaderboard-item span {
     background-color: #ffc107;
+     color: #333;
 }
 .all-branch-snapshot-table {
     width: 100%;
