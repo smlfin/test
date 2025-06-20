@@ -3,30 +3,23 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- START: TWO-TIERED FRONT-END PASSWORD PROTECTION ---
     const ACCESS_PASSWORD_FULL = "sml4576"; // Full access password
     const ACCESS_PASSWORD_LIMITED = "123";  // Limited access password
-
     let currentAccessLevel = null; // To store 'full' or 'limited'
-
     const accessDeniedOverlay = document.getElementById('accessDeniedOverlay');
     const dashboardContent = document.getElementById('dashboardContent');
-    
     const secretPasswordInputContainer = document.getElementById('secretPasswordInputContainer');
     const secretPasswordInput = document.getElementById('secretPasswordInput');
     const submitSecretPasswordBtn = document.getElementById('submitSecretPassword');
     const passwordErrorMessage = document.getElementById('passwordErrorMessage');
-
    // Get references to buttons/tabs that need conditional access
     const downloadOverallStaffPerformanceReportBtn = document.getElementById('downloadOverallStaffPerformanceReportBtn');
     const detailedCustomerViewTabBtn = document.getElementById('detailedCustomerViewTabBtn');
     const viewAllEntriesButton = document.getElementById('viewAllEntriesBtn'); // <--- ADD THIS LINE (OR UPDATE THE EXISTING PLACEHOLDER)
-      
- if (secretPasswordInput) {
+       if (secretPasswordInput) {
         secretPasswordInput.focus();
     }
-
     submitSecretPasswordBtn.addEventListener('click', () => {
         checkAndSetAccess();
     });
-
     secretPasswordInput.addEventListener('keypress', (event) => {
         if (event.key === 'Enter') {
             checkAndSetAccess();
@@ -53,16 +46,13 @@ document.addEventListener('DOMContentLoaded', () => {
     function grantAccess() {
         accessDeniedOverlay.style.display = 'none'; // Hide overlay
         dashboardContent.style.display = 'block';   // Show dashboard content
-
         // Apply access restrictions based on currentAccessLevel
         applyAccessRestrictions();
-
         // Now, call your main processing function that starts everything
         processData(); // This fetches your data
         // Set initial tab based on access level
         if (currentAccessLevel === 'limited') {
-           
-            showTab('allBranchSnapshotTabBtn');
+                showTab('allBranchSnapshotTabBtn');
         } else {
             // Full access users get the default initial tab
             showTab('allBranchSnapshotTabBtn');
@@ -83,11 +73,6 @@ document.addEventListener('DOMContentLoaded', () => {
             if (viewAllEntriesButton) { // <--- ADD THIS BLOCK
                 viewAllEntriesButton.style.display = 'none';
             }
-
-            // IMPORTANT: Also disable the functionality of these if they were somehow clicked
-            // For buttons, just hiding is often enough. For tabs, ensure they can't be navigated to.
-            // You might need to modify your showTab() function or event listeners
-            // to prevent selection of hidden tabs.
         } else if (currentAccessLevel === 'full') {
             // Ensure all are visible for full access
             if (downloadOverallStaffPerformanceReportBtn) {
