@@ -43,21 +43,31 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    function grantAccess() {
-        accessDeniedOverlay.style.display = 'none'; // Hide overlay
+   function grantAccess() {
+    console.log("grantAccess function called!"); // Add this line
+    accessDeniedOverlay.style.display = 'none'; // Hide overlay
+    console.log("Access overlay hidden."); // Add this line
+
+    console.log("Value of dashboardContent:", dashboardContent); // Add this line
+    if (dashboardContent) { // Add this if statement
         dashboardContent.style.display = 'block';   // Show dashboard content
-        // Apply access restrictions based on currentAccessLevel
-        applyAccessRestrictions();
-        // Now, call your main processing function that starts everything
-        processData(); // This fetches your data
-        // Set initial tab based on access level
-        if (currentAccessLevel === 'limited') {
-                showTab('allBranchSnapshotTabBtn');
-        } else {
-            // Full access users get the default initial tab
-            showTab('allBranchSnapshotTabBtn');
-        }
+        console.log("Dashboard content display set to block."); // Add this line
+    } else {
+        console.error("Error: dashboardContent element not found!"); // Add this line
     }
+
+    // Apply access restrictions based on currentAccessLevel
+    applyAccessRestrictions();
+    // Now, call your main processing function that starts everything
+    processData(); // This fetches your data
+    // Set initial tab based on access level
+    if (currentAccessLevel === 'limited') {
+        showTab('allBranchSnapshotTabBtn');
+    } else {
+        // Full access users get the default initial tab
+        showTab('allBranchSnapshotTabBtn');
+    }
+}
 
     function applyAccessRestrictions() {
         if (currentAccessLevel === 'limited') {
