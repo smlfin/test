@@ -8,7 +8,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const accessDeniedOverlay = document.getElementById('accessDeniedOverlay');
     const dashboardContent = document.getElementById('dashboardContent');
-    const secretClickTarget = document.getElementById('secretClickTarget');
+    
     const secretPasswordInputContainer = document.getElementById('secretPasswordInputContainer');
     const secretPasswordInput = document.getElementById('secretPasswordInput');
     const submitSecretPasswordBtn = document.getElementById('submitSecretPassword');
@@ -18,21 +18,10 @@ document.addEventListener('DOMContentLoaded', () => {
     const downloadOverallStaffPerformanceReportBtn = document.getElementById('downloadOverallStaffPerformanceReportBtn');
     const detailedCustomerViewTabBtn = document.getElementById('detailedCustomerViewTabBtn');
     const viewAllEntriesButton = document.getElementById('viewAllEntriesBtn'); // <--- ADD THIS LINE (OR UPDATE THE EXISTING PLACEHOLDER)
-    
-   
-
-    let clickCount = 0;
-    const requiredClicks = 1;
-
-    secretClickTarget.addEventListener('click', () => {
-        clickCount++;
-        if (clickCount >= requiredClicks) {
-            secretPasswordInputContainer.style.display = 'flex';
-            secretPasswordInput.focus();
-            passwordErrorMessage.style.display = 'none';
-            clickCount = 0;
-        }
-    });
+      
+ if (secretPasswordInput) {
+        secretPasswordInput.focus();
+    }
 
     submitSecretPasswordBtn.addEventListener('click', () => {
         checkAndSetAccess();
