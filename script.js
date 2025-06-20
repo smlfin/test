@@ -19,7 +19,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const detailedCustomerViewTabBtn = document.getElementById('detailedCustomerViewTabBtn');
     const viewAllEntriesButton = document.getElementById('viewAllEntriesBtn'); // <--- ADD THIS LINE (OR UPDATE THE EXISTING PLACEHOLDER)
     
-    const viewAllEntriesButton = document.getElementById('yourViewAllEntriesButtonId'); // <--- REPLACE WITH ACTUAL ID IF EXISTS
+   
 
     let clickCount = 0;
     const requiredClicks = 1;
