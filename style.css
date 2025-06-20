@@ -1185,7 +1185,7 @@ select:focus {
     font-size: 1em;
     padding: 8px 15px;
     border-radius: 4px;
-    color: white; /* Default white, will be overridden for max calls */
+    color: black; /* Default white, will be overridden for max calls */
 }
 
 /* Colors for Max Visit */
