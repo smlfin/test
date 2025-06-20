@@ -1,39 +1,58 @@
 document.addEventListener('DOMContentLoaded', () => {
-// --- START: FRONT-END PASSWORD PROTECTION ---
+// --- START: CREATIVE FRONT-END PASSWORD PROTECTION ---
     const ACCESS_PASSWORD = "sml4576"; // <--- CHANGE THIS TO YOUR DESIRED PASSWORD
 
-    function authenticateUser() {
-        const enteredPassword = prompt("Please enter the access password to proceed:");
+    const accessDeniedOverlay = document.getElementById('accessDeniedOverlay');
+    const dashboardContent = document.getElementById('dashboardContent');
+    const secretClickTarget = document.getElementById('secretClickTarget');
+    const secretPasswordInputContainer = document.getElementById('secretPasswordInputContainer');
+    const secretPasswordInput = document.getElementById('secretPasswordInput');
+    const submitSecretPasswordBtn = document.getElementById('submitSecretPassword');
+    const passwordErrorMessage = document.getElementById('passwordErrorMessage');
 
-        if (enteredPassword === ACCESS_PASSWORD) {
-            return true; // Password is correct
+    let clickCount = 0; // For multi-click activation if desired, currently 1 click
+    const requiredClicks = 1; // Number of clicks on secret target to reveal input
+
+    secretClickTarget.addEventListener('click', () => {
+        clickCount++;
+        if (clickCount >= requiredClicks) {
+            secretPasswordInputContainer.style.display = 'flex'; // Show password input
+            secretPasswordInput.focus(); // Focus the input field
+            passwordErrorMessage.style.display = 'none'; // Hide any previous error
+            clickCount = 0; // Reset click count
+        }
+    });
+
+    submitSecretPasswordBtn.addEventListener('click', () => {
+        checkPassword();
+    });
+
+    secretPasswordInput.addEventListener('keypress', (event) => {
+        if (event.key === 'Enter') {
+            checkPassword();
+        }
+    });
+
+    function checkPassword() {
+        if (secretPasswordInput.value === ACCESS_PASSWORD) {
+            accessDeniedOverlay.style.display = 'none'; // Hide overlay
+            dashboardContent.style.display = 'block';   // Show dashboard
+            // Now, call your main processing function that starts everything
+            processData(); // This should be your existing function that fetches and renders data
+            showTab('allBranchSnapshotTabBtn'); // Show initial tab
         } else {
-            // Password is incorrect or user clicked Cancel
-            alert("Access denied.");
-            document.body.innerHTML = '<h1>Access Denied</h1><p>You do not have permission to view this page.</p>';
-            // If you want a completely blank page, use:
-            // document.body.innerHTML = '';
-            return false; // Stop execution
+            passwordErrorMessage.textContent = "Incorrect password. Try again.";
+            passwordErrorMessage.style.display = 'block';
+            secretPasswordInput.value = ''; // Clear input
+            secretPasswordInput.focus(); // Re-focus
         }
     }
-
-    // Call the authentication function at the very beginning
-    if (!authenticateUser()) {
-        return; // Stop the script if authentication fails
-    }
-    // --- END: FRONT-END PASSWORD PROTECTION ---
-
-    // ======================================================================
-    //  BELOW THIS LINE IS WHERE ALL YOUR EXISTING script.js CODE SHOULD GO
-    // ======================================================================
-
-   
 // This URL is for your Canvassing Data sheet. Ensure it's correct and published as CSV.
 const DATA_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTO7LujC4VSa2wGkJ2YEYSN7UeXR221ny3THaVegYfNfRm2JQGg7QR9Bxxh9SadXtK8Pi6-psl2tGsb/pub?gid=696550092&single=true&output=csv"; 
 // IMPORTANT: Replace this with YOUR DEPLOYED GOOGLE APPS SCRIPT WEB APP URL
 const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzEYf0CKgwP0O4-z1lup1lDZImD1dQVEveLWsHwa_7T5ltndfIuRWXVZqFDj03_proD/exec"; // <-- PASTE YOUR NEWLY DEPLOYED WEB APP URL HERE
 // For front-end reporting, all employee and branch data will come from Canvassing Data and predefined list.
-    const EMPLOYEE_MASTER_DATA_URL = "UNUSED"; // Marked as UNUSED for clarity, won't be fetched for reports
+   // const EMPLOYEE_MASTER_DATA_URL = "UNUSED"; // Marked as UNUSED for clarity, won't be fetched for reports
 
     const MONTHLY_WORKING_DAYS = 22; // Common approximation for a month's working days
 
@@ -68,7 +87,7 @@ const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzEYf0CKgwP0O4-z1lu
         "Angamaly", "Corporate Office", "Edappally", "Harippad", "Koduvayur", "Kuzhalmannam",
         "Mattanchery", "Mavelikara", "Nedumkandom", "Nenmara", "Paravoor", "Perumbavoor",
         "Thiruwillamala", "Thodupuzha", "Chengannur", "Alathur", "Kottayam", "Kattapana",
-        "Muvattupuzha", "Thiruvalla", "Pathanamthitta", "Kunnamkulam", "HO KKM" // Corrected "Pathanamthitta" typo if it existed previously
+        "Muvattupuzha", "Thiruvalla", "Pathanamthitta", "HO KKM" // Corrected "Pathanamthitta" typo if it existed previously
     ].sort();
 
     // --- Column Headers Mapping (IMPORTANT: These must EXACTLY match the column names in your "Form Responses 2" Google Sheet) ---
