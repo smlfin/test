@@ -14,13 +14,11 @@ document.addEventListener('DOMContentLoaded', () => {
     const submitSecretPasswordBtn = document.getElementById('submitSecretPassword');
     const passwordErrorMessage = document.getElementById('passwordErrorMessage');
 
-    // Get references to buttons/tabs that need conditional access
+   // Get references to buttons/tabs that need conditional access
     const downloadOverallStaffPerformanceReportBtn = document.getElementById('downloadOverallStaffPerformanceReportBtn');
     const detailedCustomerViewTabBtn = document.getElementById('detailedCustomerViewTabBtn');
-    // IMPORTANT: If "View all entries" is a separate button, you need its ID here.
-    // For example: const viewAllEntriesButton = document.getElementById('viewAllEntriesButton');
-    // If it's part of Detailed Customer View, hiding the tab might be enough.
-    // Assuming it might be a button within some section for now, if it exists:
+    const viewAllEntriesButton = document.getElementById('viewAllEntriesBtn'); // <--- ADD THIS LINE (OR UPDATE THE EXISTING PLACEHOLDER)
+    
     const viewAllEntriesButton = document.getElementById('yourViewAllEntriesButtonId'); // <--- REPLACE WITH ACTUAL ID IF EXISTS
 
     let clickCount = 0;
@@ -92,11 +90,15 @@ document.addEventListener('DOMContentLoaded', () => {
             if (detailedCustomerViewTabBtn) {
                 detailedCustomerViewTabBtn.style.display = 'none';
             }
-            // Hide "View all entries" button (if it exists)
-            if (viewAllEntriesButton) {
+            // Hide "View all entries" button
+            if (viewAllEntriesButton) { // <--- ADD THIS BLOCK
                 viewAllEntriesButton.style.display = 'none';
             }
 
+            // IMPORTANT: Also disable the functionality of these if they were somehow clicked
+            // For buttons, just hiding is often enough. For tabs, ensure they can't be navigated to.
+            // You might need to modify your showTab() function or event listeners
+            // to prevent selection of hidden tabs.
         } else if (currentAccessLevel === 'full') {
             // Ensure all are visible for full access
             if (downloadOverallStaffPerformanceReportBtn) {
@@ -105,7 +107,7 @@ document.addEventListener('DOMContentLoaded', () => {
             if (detailedCustomerViewTabBtn) {
                 detailedCustomerViewTabBtn.style.display = 'inline-block'; // Or 'block'
             }
-            if (viewAllEntriesButton) {
+            if (viewAllEntriesButton) { // <--- ADD THIS BLOCK
                 viewAllEntriesButton.style.display = 'inline-block'; // Or 'block'
             }
         }
