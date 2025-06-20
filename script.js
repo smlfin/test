@@ -74,9 +74,7 @@ document.addEventListener('DOMContentLoaded', () => {
         processData(); // This fetches your data
         // Set initial tab based on access level
         if (currentAccessLevel === 'limited') {
-            // Limited users might default to a less sensitive tab if available,
-            // or we just show the first available one after hiding restricted ones.
-            // For now, let's assume 'allBranchSnapshotTabBtn' is always visible.
+           
             showTab('allBranchSnapshotTabBtn');
         } else {
             // Full access users get the default initial tab
@@ -99,10 +97,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 viewAllEntriesButton.style.display = 'none';
             }
 
-            // IMPORTANT: Also disable the functionality of these if they were somehow clicked
-            // For buttons, just hiding is often enough. For tabs, ensure they can't be navigated to.
-            // You might need to modify your showTab() function or event listeners
-            // to prevent selection of hidden tabs.
         } else if (currentAccessLevel === 'full') {
             // Ensure all are visible for full access
             if (downloadOverallStaffPerformanceReportBtn) {
@@ -117,7 +111,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
    
-
 // This URL is for your Canvassing Data sheet. Ensure it's correct and published as CSV.
 const DATA_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTO7LujC4VSa2wGkJ2YEYSN7UeXR221ny3THaVegYfNfRm2JQGg7QR9Bxxh9SadXtK8Pi6-psl2tGsb/pub?gid=696550092&single=true&output=csv"; 
 // IMPORTANT: Replace this with YOUR DEPLOYED GOOGLE APPS SCRIPT WEB APP URL
