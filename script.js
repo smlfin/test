@@ -1,6 +1,6 @@
 document.addEventListener('DOMContentLoaded', () => {
 // --- START: FRONT-END PASSWORD PROTECTION ---
-    const ACCESS_PASSWORD = "YourSecretPassword123"; // <--- CHANGE THIS TO YOUR DESIRED PASSWORD
+    const ACCESS_PASSWORD = "sml4576"; // <--- CHANGE THIS TO YOUR DESIRED PASSWORD
 
     function authenticateUser() {
         const enteredPassword = prompt("Please enter the access password to proceed:");
