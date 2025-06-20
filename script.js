@@ -985,7 +985,7 @@ function displayMessage(message, type = 'info') {
             const targets = TARGETS[designation] || TARGETS['Default']; // Use existing targets
             const performance = calculatePerformance(totalActivity, targets); // Use existing performance calculation
 
-            let rowData = [employeeName, branchName, designation];
+            let rowData = [employeeName, branchName, employeeCode];
             metrics.forEach(metric => {
                 const actualValue = totalActivity[metric] || 0;
                 const targetValue = targets[metric] || 0;
