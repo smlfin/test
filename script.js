@@ -1,4 +1,33 @@
 document.addEventListener('DOMContentLoaded', () => {
+/ --- START: FRONT-END PASSWORD PROTECTION ---
+    const ACCESS_PASSWORD = "YourSecretPassword123"; // <--- CHANGE THIS TO YOUR DESIRED PASSWORD
+
+    function authenticateUser() {
+        const enteredPassword = prompt("Please enter the access password to proceed:");
+
+        if (enteredPassword === ACCESS_PASSWORD) {
+            return true; // Password is correct
+        } else {
+            // Password is incorrect or user clicked Cancel
+            alert("Access denied.");
+            document.body.innerHTML = '<h1>Access Denied</h1><p>You do not have permission to view this page.</p>';
+            // If you want a completely blank page, use:
+            // document.body.innerHTML = '';
+            return false; // Stop execution
+        }
+    }
+
+    // Call the authentication function at the very beginning
+    if (!authenticateUser()) {
+        return; // Stop the script if authentication fails
+    }
+    // --- END: FRONT-END PASSWORD PROTECTION ---
+
+    // ======================================================================
+    //  BELOW THIS LINE IS WHERE ALL YOUR EXISTING script.js CODE SHOULD GO
+    // ======================================================================
+
+   
 // This URL is for your Canvassing Data sheet. Ensure it's correct and published as CSV.
 const DATA_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTO7LujC4VSa2wGkJ2YEYSN7UeXR221ny3THaVegYfNfRm2JQGg7QR9Bxxh9SadXtK8Pi6-psl2tGsb/pub?gid=696550092&single=true&output=csv"; 
 // IMPORTANT: Replace this with YOUR DEPLOYED GOOGLE APPS SCRIPT WEB APP URL
