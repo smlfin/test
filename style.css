@@ -1185,7 +1185,7 @@ select:focus {
     font-size: 1em;
     padding: 8px 15px;
     border-radius: 4px;
-    color: white;
+    color: white; /* Default white, will be overridden for max calls */
 }
 
 /* Colors for Max Visit */
@@ -1210,6 +1210,7 @@ select:focus {
 }
 #reportDisplay h3:contains("Maximum Calls") + .leaderboard-item span {
     background-color: #007bff;
+    color: #333; /* Make text black for Maximum Calls */
 }
 
 /* Colors for Lowest Calls */
