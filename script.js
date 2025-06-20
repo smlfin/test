@@ -1,6 +1,10 @@
 document.addEventListener('DOMContentLoaded', () => {
-// --- START: CREATIVE FRONT-END PASSWORD PROTECTION ---
-    const ACCESS_PASSWORD = "sml4576"; // <--- CHANGE THIS TO YOUR DESIRED PASSWORD
+
+    // --- START: TWO-TIERED FRONT-END PASSWORD PROTECTION ---
+    const ACCESS_PASSWORD_FULL = "sml4576"; // Full access password
+    const ACCESS_PASSWORD_LIMITED = "123";  // Limited access password
+
+    let currentAccessLevel = null; // To store 'full' or 'limited'
 
     const accessDeniedOverlay = document.getElementById('accessDeniedOverlay');
     const dashboardContent = document.getElementById('dashboardContent');
@@ -10,43 +14,110 @@ document.addEventListener('DOMContentLoaded', () => {
     const submitSecretPasswordBtn = document.getElementById('submitSecretPassword');
     const passwordErrorMessage = document.getElementById('passwordErrorMessage');
 
-    let clickCount = 0; // For multi-click activation if desired, currently 1 click
-    const requiredClicks = 1; // Number of clicks on secret target to reveal input
+    // Get references to buttons/tabs that need conditional access
+    const downloadOverallStaffPerformanceReportBtn = document.getElementById('downloadOverallStaffPerformanceReportBtn');
+    const detailedCustomerViewTabBtn = document.getElementById('detailedCustomerViewTabBtn');
+    // IMPORTANT: If "View all entries" is a separate button, you need its ID here.
+    // For example: const viewAllEntriesButton = document.getElementById('viewAllEntriesButton');
+    // If it's part of Detailed Customer View, hiding the tab might be enough.
+    // Assuming it might be a button within some section for now, if it exists:
+    const viewAllEntriesButton = document.getElementById('yourViewAllEntriesButtonId'); // <--- REPLACE WITH ACTUAL ID IF EXISTS
+
+    let clickCount = 0;
+    const requiredClicks = 1;
 
     secretClickTarget.addEventListener('click', () => {
         clickCount++;
         if (clickCount >= requiredClicks) {
-            secretPasswordInputContainer.style.display = 'flex'; // Show password input
-            secretPasswordInput.focus(); // Focus the input field
-            passwordErrorMessage.style.display = 'none'; // Hide any previous error
-            clickCount = 0; // Reset click count
+            secretPasswordInputContainer.style.display = 'flex';
+            secretPasswordInput.focus();
+            passwordErrorMessage.style.display = 'none';
+            clickCount = 0;
         }
     });
 
     submitSecretPasswordBtn.addEventListener('click', () => {
-        checkPassword();
+        checkAndSetAccess();
     });
 
     secretPasswordInput.addEventListener('keypress', (event) => {
         if (event.key === 'Enter') {
-            checkPassword();
+            checkAndSetAccess();
         }
     });
 
-    function checkPassword() {
-        if (secretPasswordInput.value === ACCESS_PASSWORD) {
-            accessDeniedOverlay.style.display = 'none'; // Hide overlay
-            dashboardContent.style.display = 'block';   // Show dashboard
-            // Now, call your main processing function that starts everything
-            processData(); // This should be your existing function that fetches and renders data
-            showTab('allBranchSnapshotTabBtn'); // Show initial tab
+    function checkAndSetAccess() {
+        const enteredPassword = secretPasswordInput.value;
+
+        if (enteredPassword === ACCESS_PASSWORD_FULL) {
+            currentAccessLevel = 'full';
+            grantAccess();
+        } else if (enteredPassword === ACCESS_PASSWORD_LIMITED) {
+            currentAccessLevel = 'limited';
+            grantAccess();
         } else {
             passwordErrorMessage.textContent = "Incorrect password. Try again.";
             passwordErrorMessage.style.display = 'block';
-            secretPasswordInput.value = ''; // Clear input
-            secretPasswordInput.focus(); // Re-focus
+            secretPasswordInput.value = '';
+            secretPasswordInput.focus();
         }
     }
+
+    function grantAccess() {
+        accessDeniedOverlay.style.display = 'none'; // Hide overlay
+        dashboardContent.style.display = 'block';   // Show dashboard content
+
+        // Apply access restrictions based on currentAccessLevel
+        applyAccessRestrictions();
+
+        // Now, call your main processing function that starts everything
+        processData(); // This fetches your data
+        // Set initial tab based on access level
+        if (currentAccessLevel === 'limited') {
+            // Limited users might default to a less sensitive tab if available,
+            // or we just show the first available one after hiding restricted ones.
+            // For now, let's assume 'allBranchSnapshotTabBtn' is always visible.
+            showTab('allBranchSnapshotTabBtn');
+        } else {
+            // Full access users get the default initial tab
+            showTab('allBranchSnapshotTabBtn');
+        }
+    }
+
+    function applyAccessRestrictions() {
+        if (currentAccessLevel === 'limited') {
+            // Hide "Download Overall Performance" button
+            if (downloadOverallStaffPerformanceReportBtn) {
+                downloadOverallStaffPerformanceReportBtn.style.display = 'none';
+            }
+            // Hide "Detailed Customer View" tab
+            if (detailedCustomerViewTabBtn) {
+                detailedCustomerViewTabBtn.style.display = 'none';
+            }
+            // Hide "View all entries" button (if it exists)
+            if (viewAllEntriesButton) {
+                viewAllEntriesButton.style.display = 'none';
+            }
+
+            // IMPORTANT: Also disable the functionality of these if they were somehow clicked
+            // For buttons, just hiding is often enough. For tabs, ensure they can't be navigated to.
+            // You might need to modify your showTab() function or event listeners
+            // to prevent selection of hidden tabs.
+        } else if (currentAccessLevel === 'full') {
+            // Ensure all are visible for full access
+            if (downloadOverallStaffPerformanceReportBtn) {
+                downloadOverallStaffPerformanceReportBtn.style.display = 'inline-block'; // Or 'block', depending on your CSS
+            }
+            if (detailedCustomerViewTabBtn) {
+                detailedCustomerViewTabBtn.style.display = 'inline-block'; // Or 'block'
+            }
+            if (viewAllEntriesButton) {
+                viewAllEntriesButton.style.display = 'inline-block'; // Or 'block'
+            }
+        }
+    }
+   
+
 // This URL is for your Canvassing Data sheet. Ensure it's correct and published as CSV.
 const DATA_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTO7LujC4VSa2wGkJ2YEYSN7UeXR221ny3THaVegYfNfRm2JQGg7QR9Bxxh9SadXtK8Pi6-psl2tGsb/pub?gid=696550092&single=true&output=csv"; 
 // IMPORTANT: Replace this with YOUR DEPLOYED GOOGLE APPS SCRIPT WEB APP URL
