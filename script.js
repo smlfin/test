@@ -196,7 +196,7 @@ const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzEYf0CKgwP0O4-z1lu
     const allStaffOverallPerformanceTabBtn = document.getElementById('allStaffOverallPerformanceTabBtn');
     const nonParticipatingBranchesTabBtn = document.getElementById('nonParticipatingBranchesTabBtn');
     const branchPerformanceTabBtn = document.getElementById('branchPerformanceTabBtn');
-   // const detailedCustomerViewTabBtn = document.getElementById('detailedCustomerViewTabBtn');
+   // const  = document.getElementById('detailedCustomerViewTabBtn');
     const employeeManagementTabBtn = document.getElementById('employeeManagementTabBtn');
 
     // Dropdowns & Filter Panels
@@ -241,7 +241,7 @@ const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzEYf0CKgwP0O4-z1lu
 
     // Download Buttons
     const downloadDetailedCustomerReportBtn = document.getElementById('downloadDetailedCustomerReportBtn');
-    const downloadOverallStaffPerformanceReportBtn = document.getElementById('downloadOverallStaffPerformanceReportBtn'); 
+    // const downloadOverallStaffPerformanceReportBtn = document.getElementById('downloadOverallStaffPerformanceReportBtn'); 
     
     // Global variables to store fetched data
     let allCanvassingData = []; // Raw activity data from Form Responses 2
