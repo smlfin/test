@@ -975,15 +975,29 @@ function displayMessage(message, type = 'info') {
         });
         csvRows.push(headers.map(h => `"${h.replace(/"/g, '""')}"`).join(',')); // Quote headers
 
-        employeesWithActivityThisMonth.forEach(employeeCode => {
-            const employeeName = employeeCodeToNameMap[employeeCode] || employeeCode;
-            const branchName = allCanvassingData.find(entry => entry[HEADER_EMPLOYEE_CODE] === employeeCode)?.[HEADER_BRANCH_NAME] || 'N/A';
-            const designation = employeeCodeToDesignationMap[employeeCode] || 'Default';
+       employeesWithActivityThisMonth.forEach(employeeCode => {
+    const employeeName = employeeCodeToNameMap[employeeCode] || employeeCode;
+    const branchName = allCanvassingData.find(entry => entry[HEADER_EMPLOYEE_CODE] === employeeCode)?.[HEADER_BRANCH_NAME] || 'N/A';
+    const designation = employeeCodeToDesignationMap[employeeCode] || 'Default';
 
-            const employeeActivities = allCanvassingData.filter(entry =>
-                entry[HEADER_EMPLOYEE_CODE] === employeeCode &&
-                const entryDate = parseDDMMYYYYTimestamp(entry[HEADER_TIMESTAMP]);
-            );
+    const employeeActivities = allCanvassingData.filter(entry => { // <--- IMPORTANT: Added opening curly brace here
+        const entryDate = parseDDMMYYYYTimestamp(entry[HEADER_TIMESTAMP]); // Correct placement inside the function body
+
+        // Add a check for valid date in case parsing fails for some entries
+        if (isNaN(entryDate.getTime())) {
+            // console.warn('Invalid date parsed for entry (employeeActivities filter):', entry[HEADER_TIMESTAMP]);
+            return false; // Skip this entry if the timestamp is unparsable
+        }
+
+        return entry[HEADER_EMPLOYEE_CODE] === employeeCode &&
+               entryDate.getMonth() === currentMonth &&
+               entryDate.getFullYear() === currentYear;
+    }); // <--- IMPORTANT: Added closing curly brace here for the filter callback function
+
+    const { totalActivity } = calculateTotalActivity(employeeActivities);
+
+    // ... rest of your code
+});
             const { totalActivity } = calculateTotalActivity(employeeActivities); // Use existing calculation
             
             const targets = TARGETS[designation] || TARGETS['Default']; // Use existing targets
