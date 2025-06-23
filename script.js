@@ -776,96 +776,100 @@ const employeeActivities = allCanvassingData.filter(entry => { // <--- IMPORTANT
         reportDisplay.appendChild(tableContainer);
     }
     // --- NEW: Function to generate and download the Overall Staff Performance Report as CSV ---
-    function downloadOverallStaffPerformanceReportCSV() {
-        const currentMonth = new Date().getMonth();
-        const currentYear = new Date().getFullYear();
+    // Function to download Overall Staff Performance Report as CSV
+function downloadOverallStaffPerformanceReportCSV() {
+    // Define metrics for the performance table (must be consistent with display)
+    const metrics = ['Visit', 'Call', 'Reference', 'New Customer Leads'];
 
-        // Get all employees who have had activity this month
-        const employeesWithActivityThisMonth = [...new Set(allCanvassingData
-            .filter(entry => {
-                const entryDate = new Date(entry[HEADER_TIMESTAMP]);
-                return entryDate.getMonth() === currentMonth && entryDate.getFullYear() === currentYear;
-            })
-            .map(entry => entry[HEADER_EMPLOYEE_CODE]))].sort((codeA, codeB) => {
-                const nameA = employeeCodeToNameMap[codeA] || codeA;
-                const nameB = employeeCodeToNameMap[codeB] || codeB;
-                return nameA.localeCompare(nameB);
-            });
+    // CSV Headers
+    const csvHeaders = ['Employee Name', 'Branch Name', 'Designation'];
+    metrics.forEach(metric => {
+        csvHeaders.push(`${metric} (Actual)`, `${metric} (Target)`, `${metric} (%)`);
+    });
+    const csvRows = [csvHeaders.join(',')]; // Start CSV with headers
 
-        if (employeesWithActivityThisMonth.length === 0) {
-            displayMessage("No employee activity found for the current month to download.", 'info');
-            return;
-        }
+    const currentMonth = new Date().getMonth();
+    const currentYear = new Date().getFullYear();
 
-        // Define metrics for the performance table
-        const metrics = ['Visit', 'Call', 'Reference', 'New Customer Leads'];
-        const csvRows = [];
+    // Get unique employees who have activity this month (re-using logic from render)
+    const employeesWithActivityThisMonth = [...new Set(allCanvassingData
+        .filter(entry => {
+            const entryDate = parseDDMMYYYYTimestamp(entry[HEADER_TIMESTAMP]);
+            if (isNaN(entryDate.getTime())) {
+                return false; // Skip if date is invalid
+            }
+            return entryDate.getMonth() === currentMonth && entryDate.getFullYear() === currentYear;
+        })
+        .map(entry => entry[HEADER_EMPLOYEE_CODE]))].sort((codeA, codeB) => {
+            const nameA = employeeCodeToNameMap[codeA] || codeA;
+            const nameB = employeeCodeToNameMap[codeB] || codeB;
+            return nameA.localeCompare(nameB);
+        });
 
-        // Add main headers
-        let headers = ['Employee Name', 'Branch Name', 'Employee Code'];
+    employeesWithActivityThisMonth.forEach(employeeCode => {
+        const employeeName = employeeCodeToNameMap[employeeCode] || employeeCode;
+        const branchName = allCanvassingData.find(entry => entry[HEADER_EMPLOYEE_CODE] === employeeCode)?.[HEADER_BRANCH_NAME] || 'N/A';
+        const designation = employeeCodeToDesignationMap[employeeCode] || 'Default';
+
+        // Recalculate employeeActivities for this specific employee within this function's scope
+        const employeeActivities = allCanvassingData.filter(entry => {
+            const entryDate = parseDDMMYYYYTimestamp(entry[HEADER_TIMESTAMP]);
+            if (isNaN(entryDate.getTime())) {
+                return false; // Skip this entry if the timestamp is unparsable
+            }
+            return entry[HEADER_EMPLOYEE_CODE] === employeeCode &&
+                   entryDate.getMonth() === currentMonth &&
+                   entryDate.getFullYear() === currentYear;
+        });
+
+        // Use existing calculation functions
+        const { totalActivity } = calculateTotalActivity(employeeActivities);
+        const targets = TARGETS[designation] || TARGETS['Default'];
+        const performance = calculatePerformance(totalActivity, targets);
+
+        let rowData = [employeeName, branchName, designation]; // Use 'designation' here, not 'employeeCode'
         metrics.forEach(metric => {
-            headers.push(`${metric} Actual`, `${metric} Target`, `${metric} %`);
+            const actualValue = totalActivity[metric] || 0;
+            const targetValue = targets[metric] || 0;
+            let percentValue = performance[metric];
+            let displayPercent;
+
+            if (isNaN(percentValue) || targetValue === 0) {
+                displayPercent = 'N/A';
+            } else {
+                displayPercent = `${Math.round(percentValue)}%`;
+            }
+            if (actualValue === 0 && targetValue > 0) {
+                displayPercent = '0%';
+            }
+            rowData.push(actualValue, targetValue, displayPercent);
         });
-        csvRows.push(headers.map(h => `"${h.replace(/"/g, '""')}"`).join(',')); // Quote headers
+        csvRows.push(rowData.map(cell => {
+            // Ensure values are properly quoted if they contain commas or quotes
+            const stringCell = String(cell);
+            return `"${stringCell.replace(/"/g, '""')}"`;
+        }).join(','));
+    }); // Closes employeesWithActivityThisMonth.forEach
 
-        employeesWithActivityThisMonth.forEach(employeeCode => {
-            const employeeName = employeeCodeToNameMap[employeeCode] || employeeCode;
-            const branchName = allCanvassingData.find(entry => entry[HEADER_EMPLOYEE_CODE] === employeeCode)?.[HEADER_BRANCH_NAME] || 'N/A';
-            const designation = employeeCodeToDesignationMap[employeeCode] || 'Default';
+    const csvString = csvRows.join('\n');
+    const blob = new Blob([csvString], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
 
-            const employeeActivities = allCanvassingData.filter(entry =>
-                entry[HEADER_EMPLOYEE_CODE] === employeeCode &&
-                new Date(entry[HEADER_TIMESTAMP]).getMonth() === currentMonth &&
-                new Date(entry[HEADER_TIMESTAMP]).getFullYear() === currentYear
-            );
-            const { totalActivity } = calculateTotalActivity(employeeActivities); // Use existing calculation
-            
-            const targets = TARGETS[designation] || TARGETS['Default']; // Use existing targets
-            const performance = calculatePerformance(totalActivity, targets); // Use existing performance calculation
-
-            let rowData = [employeeName, branchName, employeeCode];
-            metrics.forEach(metric => {
-                const actualValue = totalActivity[metric] || 0;
-                const targetValue = targets[metric] || 0;
-                let percentValue = performance[metric];
-                let displayPercent;
-
-                if (isNaN(percentValue) || targetValue === 0) {
-                    displayPercent = 'N/A';
-                } else {
-                    displayPercent = `${Math.round(percentValue)}%`;
-                }
-                if (actualValue === 0 && targetValue > 0) {
-                    displayPercent = '0%';
-                }
-                rowData.push(actualValue, targetValue, displayPercent);
-            });
-            csvRows.push(rowData.map(cell => {
-                // Ensure values are properly quoted if they contain commas or quotes
-                const stringCell = String(cell);
-                return `"${stringCell.replace(/"/g, '""')}"`;
-            }).join(','));
-        });
-
-        const csvString = csvRows.join('\n');
-        const blob = new Blob([csvString], { type: 'text/csv;charset=utf-8;' });
-        const link = document.createElement('a');
-        if (link.download !== undefined) { // Feature detection
-            const url = URL.createObjectURL(blob);
-            link.setAttribute('href', url);
-            link.setAttribute('download', 'Overall_Staff_Performance_Report.csv');
-            link.style.visibility = 'hidden';
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-            displayMessage("Overall Staff Performance Report downloaded successfully!", 'success');
-        } else {
-            // Fallback for browsers that don't support download attribute
-            displayMessage("Your browser does not support automatic downloads. Please copy the data manually.", 'error');
-            // Optionally display the CSV data for manual copying
-            console.log(csvString);
-        }
+    if (link.download !== undefined) { // Feature detection
+        const url = URL.createObjectURL(blob);
+        link.setAttribute('href', url);
+        link.setAttribute('download', 'Overall_Staff_Performance_Report.csv');
+        link.style.visibility = 'hidden';
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        displayMessage("Overall Staff Performance Report downloaded successfully!", 'success');
+    } else {
+        // Fallback for browsers that don't support download attribute
+        displayMessage("Your browser does not support automatic downloads. Please copy the data manually.", 'error');
+        console.log(csvString); // Optionally display the CSV data for manual copying
     }
+}
     // --- END NEW ---
     // Function to calculate performance percentage
     function calculatePerformance(actuals, targets) {
