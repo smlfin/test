@@ -943,12 +943,17 @@ function displayMessage(message, type = 'info') {
         const currentYear = new Date().getFullYear();
 
         // Get all employees who have had activity this month
-        const employeesWithActivityThisMonth = [...new Set(allCanvassingData
-            .filter(entry => {
-                const entryDate = new Date(entry[HEADER_TIMESTAMP]);
-                return entryDate.getMonth() === currentMonth && entryDate.getFullYear() === currentYear;
-            })
-            .map(entry => entry[HEADER_EMPLOYEE_CODE]))].sort((codeA, codeB) => {
+       const employeesWithActivityThisMonth = [...new Set(allCanvassingData
+    .filter(entry => {
+        const entryDate = parseDDMMYYYYTimestamp(entry[HEADER_TIMESTAMP]); // <--- CHANGED HERE
+        // Add a check for valid date in case parsing fails
+        if (isNaN(entryDate.getTime())) {
+            // console.warn('Invalid date parsed for entry (employeesWithActivityThisMonth filter):', entry[HEADER_TIMESTAMP]);
+            return false; // Skip this entry if date is invalid
+        }
+        return entryDate.getMonth() === currentMonth && entryDate.getFullYear() === currentYear;
+    })
+    .map(entry => entry[HEADER_EMPLOYEE_CODE]))].sort((codeA, codeB) => {
                 const nameA = employeeCodeToNameMap[codeA] || codeA;
                 const nameB = employeeCodeToNameMap[codeB] || codeB;
                 return nameA.localeCompare(nameB);
@@ -977,8 +982,7 @@ function displayMessage(message, type = 'info') {
 
             const employeeActivities = allCanvassingData.filter(entry =>
                 entry[HEADER_EMPLOYEE_CODE] === employeeCode &&
-                new Date(entry[HEADER_TIMESTAMP]).getMonth() === currentMonth &&
-                new Date(entry[HEADER_TIMESTAMP]).getFullYear() === currentYear
+                const entryDate = parseDDMMYYYYTimestamp(entry[HEADER_TIMESTAMP]);
             );
             const { totalActivity } = calculateTotalActivity(employeeActivities); // Use existing calculation
             
