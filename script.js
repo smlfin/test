@@ -1039,7 +1039,7 @@ const employeeActivities = allCanvassingData.filter(entry => { // <--- IMPORTANT
                 const stringCell = String(cell);
                 return `"${stringCell.replace(/"/g, '""')}"`;
             }).join(','));
-        });
+     
 
         const csvString = csvRows.join('\n');
         const blob = new Blob([csvString], { type: 'text/csv;charset=utf-8;' });
