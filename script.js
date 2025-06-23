@@ -13,7 +13,40 @@ document.addEventListener('DOMContentLoaded', () => {
    // Get references to buttons/tabs that need conditional access
     const downloadOverallStaffPerformanceReportBtn = document.getElementById('downloadOverallStaffPerformanceReportBtn');
     const detailedCustomerViewTabBtn = document.getElementById('detailedCustomerViewTabBtn');
-    const viewAllEntriesButton = document.getElementById('viewAllEntriesBtn'); // <--- ADD THIS LINE (OR UPDATE THE EXISTING PLACEHOLDER)
+    const viewAllEntriesButton = document.getElementById('viewAllEntriesBtn'); // <--- ADD THIS LINE (OR UPDATE THE EXISTING PLACEHOLDER) 
+    /**
+ * Parses a date string in DD/MM/YYYY or DD-MM-YYYY format and returns a Date object.
+ * Returns an invalid Date object if parsing fails.
+ * @param {string} dateString The date string to parse.
+ * @returns {Date} A Date object, or an invalid Date object if parsing fails.
+ */
+function parseDDMMYYYYTimestamp(dateString) {
+    if (!dateString) {
+        return new Date(''); // Return invalid date for null/empty strings
+    }
+
+    // Handle DD/MM/YYYY and DD-MM-YYYY formats
+    const parts = dateString.split(/[\/-]/);
+    if (parts.length === 3) {
+        const day = parseInt(parts[0], 10);
+        const month = parseInt(parts[1], 10) - 1; // Month is 0-indexed
+        const year = parseInt(parts[2], 10);
+
+        // Check for valid date components before creating Date object
+        if (!isNaN(day) && !isNaN(month) && !isNaN(year) &&
+            day >= 1 && day <= 31 && month >= 0 && month <= 11 && year >= 1000) { // Basic year check
+            const date = new Date(year, month, day);
+            // Validate if the parsed date components match the original (e.g., handles 31/02/2023 becoming March 2nd)
+            if (date.getDate() === day && date.getMonth() === month && date.getFullYear() === year) {
+                return date;
+            }
+        }
+    }
+
+    // If parsing fails for expected formats, try letting Date() constructor parse it as a fallback
+    // This might work for some standard formats but is less reliable for DD/MM/YYYY without explicit parsing
+    return new Date(dateString);
+}
        if (secretPasswordInput) {
         secretPasswordInput.focus();
     }
