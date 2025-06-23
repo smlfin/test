@@ -674,11 +674,25 @@ function displayMessage(message, type = 'info') {
             const branchName = allCanvassingData.find(entry => entry[HEADER_EMPLOYEE_CODE] === employeeCode)?.[HEADER_BRANCH_NAME] || 'N/A';
             const designation = employeeCodeToDesignationMap[employeeCode] || 'Default';
 
-            const employeeActivities = allCanvassingData.filter(entry =>
-                entry[HEADER_EMPLOYEE_CODE] === employeeCode &&
-                new Date(entry[HEADER_TIMESTAMP]).getMonth() === currentMonth &&
-                new Date(entry[HEADER_TIMESTAMP]).getFullYear() === currentYear
-            );
+          // ... (inside the employeesWithActivityThisMonth.forEach loop) ...
+
+const employeeActivities = allCanvassingData.filter(entry => { // <--- IMPORTANT: Added opening curly brace { here
+    const entryDate = parseDDMMYYYYTimestamp(entry[HEADER_TIMESTAMP]); // Use the helper function for correct date parsing
+
+    // IMPORTANT: Add a check for invalid dates. If parseDDMMYYYYTimestamp returns an invalid date, skip this entry.
+    if (isNaN(entryDate.getTime())) {
+        // You can uncomment the line below for debugging if needed
+        // console.warn('Invalid date parsed for entry (employeeActivities filter):', entry[HEADER_TIMESTAMP]);
+        return false; // This entry has an unparsable date, so exclude it
+    }
+
+    // Now, apply the employee code and date filters
+    return entry[HEADER_EMPLOYEE_CODE] === employeeCode &&
+           entryDate.getMonth() === currentMonth &&
+           entryDate.getFullYear() === currentYear;
+}); // <--- IMPORTANT: Added closing curly brace } here
+
+// ... (rest of your forEach loop code, e.g., calculateTotalActivity, etc.) ...
             const { totalActivity } = calculateTotalActivity(employeeActivities);
             
             const targets = TARGETS[designation] || TARGETS['Default'];
