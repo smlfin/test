@@ -164,7 +164,7 @@ const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzjbFHQxPPU9glAfYmU
     const HEADER_FAMILY_DETAILS_3 = 'Family Deatils -3 Names of Children';
     const HEADER_FAMILY_DETAILS_4 = 'Family Deatils -4 Deatils of Children';
     const HEADER_PROFILE_OF_CUSTOMER = 'Profile of Customer';
-	 = 'Status';
+    const HEADER_LEAD_STATUS = 'Status';
 
 
     // Core Display and Status Elements
