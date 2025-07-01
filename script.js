@@ -1638,43 +1638,41 @@ function displayMessage(message, type = 'info') {
             };
         });
 
-        // Aggregate activities for the current month
-       // Aggregate activities for the selected month
-    filteredData.forEach(entry => { // Use filteredData here
-        const employeeCode = entry[HEADER_EMPLOYEE_CODE];
-        if (employeeActivitySummary[employeeCode]) {
-            const activityType = entry[HEADER_ACTIVITY_TYPE] ? entry[HEADER_ACTIVITY_TYPE].trim().toLowerCase() : '';
-            const typeOfCustomer = entry[HEADER_TYPE_OF_CUSTOMER] ? entry[HEADER_TYPE_OF_CUSTOMER].trim().toLowerCase() : '';
+  // Aggregate activities for the selected month
+filteredData.forEach(entry => { // Use filteredData here
+    const employeeCode = entry[HEADER_EMPLOYEE_CODE];
+    if (employeeActivitySummary[employeeCode]) {
+        const activityType = entry[HEADER_ACTIVITY_TYPE] ? entry[HEADER_ACTIVITY_TYPE].trim().toLowerCase() : '';
+        const typeOfCustomer = entry[HEADER_TYPE_OF_CUSTOMER] ? entry[HEADER_TYPE_OF_CUSTOMER].trim().toLowerCase() : '';
 
-                    if (activityType === 'visit') {
-                        employeeActivitySummary[employeeCode].totalActivities['Visit']++;
-                    } else if (activityType === 'calls') {
-                        employeeActivitySummary[employeeCode].totalActivities['Call']++;
-                    } else if (activityType === 'referance') {
-                        employeeActivitySummary[employeeCode].totalActivities['Reference']++;
-                    }
-                    if (typeOfCustomer === 'new') {
-                        employeeActivitySummary[employeeCode].totalActivities['New Customer Leads']++;
-                    }
-                    employeeActivitySummary[employeeCode].hasActivityThisMonth = true;
-                }
-            }
-        });
+        if (activityType === 'visit') {
+            employeeActivitySummary[employeeCode].totalActivities['Visit']++;
+        } else if (activityType === 'calls') {
+            employeeActivitySummary[employeeCode].totalActivities['Call']++;
+        } else if (activityType === 'referance') {
+            employeeActivitySummary[employeeCode].totalActivities['Reference']++;
+        }
+        if (typeOfCustomer === 'new') {
+            employeeActivitySummary[employeeCode].totalActivities['New Customer Leads']++;
+        }
+        employeeActivitySummary[employeeCode].hasActivityThisMonth = true;
+    }
+}); // This '});' correctly closes both the forEach function call and its callback.
 
-        const tableContainer = document.createElement('div');
-        tableContainer.className = 'data-table-container'; // For horizontal scrolling
-        
-        const table = document.createElement('table');
-        table.className = 'performance-table'; // Reuse existing table style
-        
-        const thead = table.createTHead();
-        const headerRow = thead.insertRow();
-        const headers = ['Employee Name', 'Branch', 'Designation', 'Total Visits', 'Total Calls', 'Total References', 'Total New Customer Leads', 'Participation Status'];
-        headers.forEach(text => {
-            const th = document.createElement('th');
-            th.textContent = text;
-            headerRow.appendChild(th);
-        });
+const tableContainer = document.createElement('div');
+tableContainer.className = 'data-table-container'; // For horizontal scrolling
+
+const table = document.createElement('table');
+table.className = 'performance-table'; // Reuse existing table style
+
+const thead = table.createTHead();
+const headerRow = thead.insertRow();
+const headers = ['Employee Name', 'Branch', 'Designation', 'Total Visits', 'Total Calls', 'Total References', 'Total New Customer Leads', 'Participation Status'];
+headers.forEach(text => {
+    const th = document.createElement('th');
+    th.textContent = text;
+    headerRow.appendChild(th);
+});
 
         const tbody = table.createTBody();
 
