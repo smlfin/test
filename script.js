@@ -2042,11 +2042,18 @@ if (downloadOverallStaffPerformanceReportBtn) { // This variable is correct
     monthSelect.value = selectedMonth;
     yearSelect.value = selectedYear;
 
-    // Event listeners for month and year changes
-    monthSelect.addEventListener('change', (event) => {
-        selectedMonth = parseInt(event.target.value);
-        renderReportsBasedOnFilters(); // This new function will re-render all reports
-    });
+  // Event listeners for month and year changes
+} catch (error) {
+    console.error(`Error sending data to Google Apps Script for ${action}:`, error);
+    displayMessage(`Failed to send data: ${error.message}`, 'error');
+}
+} // <-- This properly closes sendDataToGoogleAppsScript function
+
+monthSelect.addEventListener('change', (event) => {
+    selectedMonth = parseInt(event.target.value);
+    renderReportsBasedOnFilters(); // This new function will re-render all reports
+});
+
 
     yearSelect.addEventListener('change', (event) => {
         selectedYear = parseInt(event.target.value);
