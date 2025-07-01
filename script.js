@@ -737,7 +737,9 @@ function displayMessage(message, type = 'info') {
 
     // Render All Staff Overall Performance Report (for d1.PNG)
     function renderOverallStaffPerformanceReport() {
-        reportDisplay.innerHTML = '<h2>Overall Staff Performance Report (This Month)</h2>';
+       reportDisplay.innerHTML = `<h2>Overall Staff Performance Report (${new Date(selectedYear, selectedMonth).toLocaleString('default', { month: 'long', year: 'numeric' })})</h2>`;
+
+        const filteredData = getFilteredCanvassingData(); // Get data for the selected month/year
         const tableContainer = document.createElement('div');
         tableContainer.className = 'data-table-container'; // For horizontal scrolling
         
@@ -780,11 +782,8 @@ function displayMessage(message, type = 'info') {
         const currentYear = new Date().getFullYear();
 
         // Get unique employees who have made at least one entry this month
-        const employeesWithActivityThisMonth = [...new Set(allCanvassingData
-            .filter(entry => {
-                const entryDate = new Date(entry[HEADER_TIMESTAMP]);
-                return entryDate.getMonth() === currentMonth && entryDate.getFullYear() === currentYear;
-            })
+        // Get unique employees who have made at least one entry this month
+        const employeesWithActivityThisMonth = [...new Set(filteredData // Use filteredData here
             .map(entry => entry[HEADER_EMPLOYEE_CODE]))].sort((codeA, codeB) => {
                 const nameA = employeeCodeToNameMap[codeA] || codeA;
                 const nameB = employeeCodeToNameMap[codeB] || codeB;
@@ -802,10 +801,8 @@ function displayMessage(message, type = 'info') {
             const branchName = allCanvassingData.find(entry => entry[HEADER_EMPLOYEE_CODE] === employeeCode)?.[HEADER_BRANCH_NAME] || 'N/A';
             const designation = employeeCodeToDesignationMap[employeeCode] || 'Default';
 
-            const employeeActivities = allCanvassingData.filter(entry =>
-                entry[HEADER_EMPLOYEE_CODE] === employeeCode &&
-                new Date(entry[HEADER_TIMESTAMP]).getMonth() === currentMonth &&
-                new Date(entry[HEADER_TIMESTAMP]).getFullYear() === currentYear
+         const employeeActivities = filteredData.filter(entry => // Use filteredData here
+                entry[HEADER_EMPLOYEE_CODE] === employeeCode
             );
             const { totalActivity } = calculateTotalActivity(employeeActivities);
             
@@ -1620,10 +1617,9 @@ function displayMessage(message, type = 'info') {
 }
     // --- NEW: Staff Participation Report ---
     function renderStaffParticipation() {
-        reportDisplay.innerHTML = '<h2>Staff Participation Report (This Month)</h2>';
+       reportDisplay.innerHTML = `<h2>Staff Participation Report (${new Date(selectedYear, selectedMonth).toLocaleString('default', { month: 'long', year: 'numeric' })})</h2>`;
 
-        const currentMonth = new Date().getMonth();
-        const currentYear = new Date().getFullYear();
+    const filteredData = getFilteredCanvassingData(); // Get data for the selected month/year
 
         const employeeActivitySummary = {}; // {employeeCode: {name, branch, designation, totalActivities: {Visit, Call, Reference, New Customer Leads}}}
 
@@ -1643,13 +1639,12 @@ function displayMessage(message, type = 'info') {
         });
 
         // Aggregate activities for the current month
-        allCanvassingData.forEach(entry => {
-            const entryDate = new Date(entry[HEADER_TIMESTAMP]);
-            if (entryDate.getMonth() === currentMonth && entryDate.getFullYear() === currentYear) {
-                const employeeCode = entry[HEADER_EMPLOYEE_CODE];
-                if (employeeActivitySummary[employeeCode]) {
-                    const activityType = entry[HEADER_ACTIVITY_TYPE] ? entry[HEADER_ACTIVITY_TYPE].trim().toLowerCase() : '';
-                    const typeOfCustomer = entry[HEADER_TYPE_OF_CUSTOMER] ? entry[HEADER_TYPE_OF_CUSTOMER].trim().toLowerCase() : '';
+       // Aggregate activities for the selected month
+    filteredData.forEach(entry => { // Use filteredData here
+        const employeeCode = entry[HEADER_EMPLOYEE_CODE];
+        if (employeeActivitySummary[employeeCode]) {
+            const activityType = entry[HEADER_ACTIVITY_TYPE] ? entry[HEADER_ACTIVITY_TYPE].trim().toLowerCase() : '';
+            const typeOfCustomer = entry[HEADER_TYPE_OF_CUSTOMER] ? entry[HEADER_TYPE_OF_CUSTOMER].trim().toLowerCase() : '';
 
                     if (activityType === 'visit') {
                         employeeActivitySummary[employeeCode].totalActivities['Visit']++;
@@ -1888,73 +1883,78 @@ function displayMessage(message, type = 'info') {
         if (customerCard3) customerCard3.innerHTML = '<h3>More Details</h3><p>Select a customer from the list to view their details.</p>';
 
 
-        if (selectedEmployeeCode && selectedBranch) {
-            // Filter unique customers canvassed by this employee in this branch
-            const customersCanvassed = allCanvassingData.filter(entry =>
-                entry[HEADER_EMPLOYEE_CODE] === selectedEmployeeCode &&
-                entry[HEADER_BRANCH_NAME] === selectedBranch &&
-                entry[HEADER_PROSPECT_NAME] // Ensure Prospect Name exists
-            ).map(entry => {
-                // Return the whole entry for detailed view later, but ensure uniqueness by name
-                // To handle multiple entries for the same customer, we'll pick the most recent one or the first one.
-                return {
-                    name: entry[HEADER_PROSPECT_NAME],
-                    entry: entry // Store the full entry for later display
-                };
-            }).reduce((acc, current) => {
-                // Ensure unique customers by name, keep the last entry if duplicates exist
-                if (!acc.find(item => item.name === current.name)) {
-                    acc.push(current);
-                }
-                return acc;
-            }, []);
-
-            if (customersCanvassed.length > 0) {
-                const ul = document.createElement('ul');
-                ul.className = 'customer-list';
-                customersCanvassed.sort((a, b) => a.name.localeCompare(b.name)).forEach(customer => {
-                    const li = document.createElement('li');
-                    li.textContent = customer.name;
-                    li.dataset.prospectName = customer.name; // Store prospect name for lookup
-                    li.classList.add('customer-list-item');
-                    ul.appendChild(li);
-                });
-                customerCanvassedList.appendChild(ul);
-            } else {
-                customerCanvassedList.innerHTML = '<p>No customers found for this employee in the selected branch.</p>';
+      if (selectedEmployeeCode && selectedBranch) {
+        // Filter unique customers canvassed by this employee in this branch
+        const filteredData = getFilteredCanvassingData(); // Get data for the selected month/year
+        const customersCanvassed = filteredData.filter(entry =>
+            entry[HEADER_EMPLOYEE_CODE] === selectedEmployeeCode &&
+            entry[HEADER_BRANCH_NAME] === selectedBranch &&
+            entry[HEADER_PROSPECT_NAME] // Ensure Prospect Name exists
+        ).map(entry => {
+            // Return the whole entry for detailed view later, but ensure uniqueness by name
+            // To handle multiple entries for the same customer, we'll pick the most recent one or the first one.
+            return {
+                name: entry[HEADER_PROSPECT_NAME],
+                entry: entry // Store the full entry for later display
+            };
+        }).reduce((acc, current) => {
+            // Ensure unique customers by name, keep the last entry if duplicates exist
+            if (!acc.find(item => item.name === current.name)) {
+                acc.push(current);
             }
+            return acc;
+        }, []);
+
+        if (customersCanvassed.length > 0) {
+            const ul = document.createElement('ul');
+            ul.className = 'customer-list';
+            customersCanvassed.sort((a, b) => a.name.localeCompare(b.name)).forEach(customer => {
+                const li = document.createElement('li');
+                li.textContent = customer.name;
+                li.dataset.prospectName = customer.name; // Store prospect name for lookup
+                li.classList.add('customer-list-item');
+                ul.appendChild(li);
+            });
+            customerCanvassedList.appendChild(ul);
         } else {
-            customerCanvassedList.innerHTML = '<p>Select a branch and employee to see customers.</p>';
+            customerCanvassedList.innerHTML = '<p>No customers found for this employee in the selected branch.</p>';
         }
-    });
-
+    } else {
+        customerCanvassedList.innerHTML = '<p>Select a branch and employee to see customers.</p>';
+    }
     // Event listener for clicking on a customer in the list
-    customerCanvassedList.addEventListener('click', (event) => {
-        if (event.target.classList.contains('customer-list-item')) {
-            // Remove active class from previously selected item
-            document.querySelectorAll('.customer-list-item').forEach(item => item.classList.remove('active'));
-            // Add active class to clicked item
-            event.target.classList.add('active');
+   customerCanvassedList.addEventListener('click', (event) => {
+    if (event.target.classList.contains('customer-list-item')) {
+        // Remove active class from previously selected item
+        document.querySelectorAll('.customer-list-item').forEach(item => item.classList.remove('active'));
+        // Add active class to clicked item
+        event.target.classList.add('active');
 
-            const prospectName = event.target.dataset.prospectName;
-            const selectedEmployeeCode = customerViewEmployeeSelect.value;
-            const selectedBranch = customerViewBranchSelect.value;
+        const prospectName = event.target.dataset.prospectName;
+        const selectedEmployeeCode = customerViewEmployeeSelect.value;
+        const selectedBranch = customerViewBranchSelect.value;
 
-            // Find the *latest* entry for this specific prospect, employee, and branch
-            // This ensures we get the most up-to-date details if a customer has multiple entries
-           const customerEntry = allCanvassingData
+        // Find the *latest* entry for this specific prospect, employee, and branch
+        // This ensures we get the most up-to-date details if a customer has multiple entries
+        const filteredData = getFilteredCanvassingData(); // Use filtered data here
+        const customerEntry = filteredData
+            .filter(entry => entry[HEADER_PROSPECT_NAME] === prospectName && entry[HEADER_EMPLOYEE_CODE] === selectedEmployeeCode && entry[HEADER_BRANCH_NAME] === selectedBranch )
+            .sort((a, b) => { // Sort by timestamp descending to get the most recent entry
+                const dateA = new Date(a[HEADER_TIMESTAMP]);
+                const dateB = new Date(b[HEADER_TIMESTAMP]);
+                return dateB.getTime() - dateA.getTime();
+            })[0]; // Take the first (most recent) entry
 
-            if (customerEntry) {
-                renderCustomerDetails(customerEntry);
-            } else {
-                // If no entry found, clear details in cards
-                if (customerCard1) customerCard1.innerHTML = '<h3>Canvassing Activity</h3><p>Details not found for this customer.</p>';
-                if (customerCard2) customerCard2.innerHTML = '<h3>Customer Overview</h3><p>Details not found for this customer.</p>';
-                if (customerCard3) customerCard3.innerHTML = '<h3>More Details</h3><p>Details not found for this customer.</p>';
-            }
+        if (customerEntry) {
+            renderCustomerDetails(customerEntry);
+        } else {
+            // If no entry found, clear details in cards
+            if (customerCard1) customerCard1.innerHTML = '<h3>Canvassing Activity</h3><p>Details not found for this customer.</p>';
+            if (customerCard2) customerCard2.innerHTML = '<h3>Customer Overview</h3><p>Details not found for this customer.</p>';
+            if (customerCard3) customerCard3.innerHTML = '<h3>More Details</h3><p>Details not found for this customer.</p>';
         }
-    });
-
+    }
+});
     // Modified function to render customer details into the three cards
     function renderCustomerDetails(customerEntry) {
         // Helper function to create a detail row
