@@ -1700,18 +1700,44 @@ headers.forEach(text => {
         tableContainer.appendChild(table);
         reportDisplay.appendChild(tableContainer);
     }
-    // Function to send data to Google Apps Script
-    async function sendDataToGoogleAppsScript(action, data) {
-        displayMessage(`Sending data for ${action}...`, 'info');
-        try {
-            const response = await fetch(WEB_APP_URL, {
-                method: 'POST',
-                mode: 'cors', // Crucial for cross-origin requests
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ action, data }),
-            });
+  // Function to send data to Google Apps Script
+async function sendDataToGoogleAppsScript(action, data) {
+    displayMessage(`Sending data for ${action}...`, 'info');
+    try {
+        const response = await fetch(WEB_APP_URL, {
+            method: 'POST',
+            mode: 'cors', // Crucial for cross-origin requests
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ action, data }),
+        });
+
+        if (!response.ok) {
+            // If the HTTP response status is not 2xx
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        const result = await response.json(); // Parse the JSON response from Apps Script
+
+        if (result.status === 'success') {
+            displayMessage(result.message || `${action} successful!`, false);
+            // Optionally refresh data if action was a modification
+            // if (action === 'add_entry' || action === 'update_entry' || action === 'delete_employee') {
+            //     await processData(); // Re-fetch and re-render all data
+            // }
+            return true; // Indicate success
+        } else {
+            displayMessage(result.message || `${action} failed.`, true);
+            return false; // Indicate failure
+        }
+
+    } catch (error) {
+        console.error('Error sending data to Apps Script:', error);
+        displayMessage(`Error: ${error.message || 'Failed to send data to server.'}`, true);
+        return false; // Indicate failure due to network or other error
+    }
+}
 
             if (!response.ok) {
                 const errorText = await response.text();
