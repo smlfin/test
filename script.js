@@ -536,9 +536,9 @@ function displayMessage(message, type = 'info') {
             employeeFilterPanel.style.display = 'block';
 
             // Get employee codes ONLY from Canvassing Data for the selected branch
-            const employeeCodesInBranchFromCanvassing = allCanvassingData
-                .filter(entry => entry[HEADER_BRANCH_NAME] === selectedBranch)
-                .map(entry => entry[HEADER_EMPLOYEE_CODE]);
+           const employeeCodesInBranchFromCanvassing = getFilteredCanvassingData() // Use filtered data here
+    .filter(entry => entry[HEADER_BRANCH_NAME] === selectedBranch)
+    .map(entry => entry[HEADER_EMPLOYEE_CODE]);
 
             // Combine and unique all employee codes for the selected branch
             const combinedEmployeeCodes = new Set([
