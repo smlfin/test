@@ -1627,6 +1627,11 @@ headers.forEach(text => {
                 },
                 body: JSON.stringify({ action, data }),
             });
+    } catch (error) {
+        console.error(`Error sending data to Google Apps Script for ${action}:`, error);
+        displayMessage(`Failed to send data: ${error.message}`, 'error');
+    }
+}
 
             if (!response.ok) {
                 const errorText = await response.text();
