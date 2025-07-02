@@ -922,6 +922,126 @@ function displayMessage(message, type = 'info') {
         }
     }
     // --- END NEW --- 
+    // Function to load and display the detailed customer report list
+function loadDetailedCustomerReport() {
+    const selectedBranch = customerViewBranchSelect.value;
+    const selectedEmployeeCode = customerViewEmployeeSelect.value;
+    const selectedMonthValue = customerViewMonthSelect.value;
+
+    if (!selectedBranch || !selectedEmployeeCode || !selectedMonthValue) {
+        detailedCustomerReportTableBody.innerHTML = '<tr><td colspan="5">Please select a Branch, Employee, and Month to view customer data.</td></tr>';
+        // Clear previous customer details if filters are incomplete
+        customerDetailsContent.style.display = 'none';
+        return;
+    }
+
+    // Filter all canvassing data by selected branch, employee, and month
+    let filteredCustomerEntries = filterDataByMonth(allCanvassingData, selectedMonthValue);
+    filteredCustomerEntries = filteredCustomerEntries.filter(entry =>
+        entry[HEADER_BRANCH_NAME] === selectedBranch &&
+        entry[HEADER_EMPLOYEE_CODE] === selectedEmployeeCode
+    );
+
+    detailedCustomerReportTableBody.innerHTML = ''; // Clear previous entries
+
+    if (filteredCustomerEntries.length === 0) {
+        detailedCustomerReportTableBody.innerHTML = '<tr><td colspan="5">No customer entries found for the selected criteria.</td></tr>';
+        customerDetailsContent.style.display = 'none'; // Hide details section if no data
+        return;
+    }
+
+    // Populate the customer canvassed list
+    filteredCustomerEntries.forEach(entry => {
+        const row = detailedCustomerReportTableBody.insertRow();
+        row.className = 'customer-list-item'; // Add class for styling/selection
+        row.setAttribute('data-customer-id', entry[HEADER_TIMESTAMP]); // Use timestamp as a unique ID
+        
+        // Use Employee Name & Branch Name from the entry for the list display if needed
+        const employeeNameForList = entry[HEADER_EMPLOYEE_NAME] || 'N/A';
+        const branchNameForList = entry[HEADER_BRANCH_NAME] || 'N/A';
+
+        row.insertCell().textContent = entry[HEADER_PROSPECT_NAME] || 'N/A';
+        row.insertCell().textContent = entry[HEADER_PHONE_NUMBER_WHATSAPP] || 'N/A';
+        row.insertCell().textContent = entry[HEADER_ACTIVITY_TYPE] || 'N/A';
+        row.insertCell().textContent = formatDate(entry[HEADER_DATE]); // Format the date
+
+        // Store the full entry data on the row for easy retrieval when clicked
+        // You might use a more robust way for larger datasets, like an ID lookup map
+        row.customerData = entry; // Attaching the whole data object to the row element
+
+        row.addEventListener('click', () => {
+            // Remove active class from previously selected row
+            const activeRow = document.querySelector('.customer-list-item.active');
+            if (activeRow) {
+                activeRow.classList.remove('active');
+            }
+            // Add active class to clicked row
+            row.classList.add('active');
+            displaySelectedCustomerDetails(row.customerData); // Call the new function to display details
+        });
+    });
+
+    // Automatically select the first customer if available
+    if (filteredCustomerEntries.length > 0) {
+        const firstRow = detailedCustomerReportTableBody.querySelector('.customer-list-item');
+        if (firstRow) {
+            firstRow.classList.add('active'); // Highlight first row
+            displaySelectedCustomerDetails(firstRow.customerData);
+        }
+    } else {
+        customerDetailsContent.style.display = 'none'; // Hide details if no customers
+    }
+}
+
+// Function to display details of a selected customer
+function displaySelectedCustomerDetails(customer) {
+    if (!customer) {
+        customerDetailsContent.style.display = 'none';
+        return;
+    }
+
+    // Update the customer name in the main heading of the detailed view
+    document.getElementById('currentCustomerName').textContent = customer[HEADER_PROSPECT_NAME] || 'N/A';
+
+    // Populate the new Employee Name and Branch Name fields
+    document.getElementById('employeeNameValue').textContent = customer[HEADER_EMPLOYEE_NAME] || 'N/A';
+    document.getElementById('branchNameValue').textContent = customer[HEADER_BRANCH_NAME] || 'N/A';
+
+    // Populate Contact & Basic Info card
+    document.getElementById('customerCard1').innerHTML = `
+        <h4>Contact & Basic Info</h4>
+        <div class="detail-row"><div class="detail-label">Prospect Name:</div><div class="detail-value">${customer[HEADER_PROSPECT_NAME] || 'N/A'}</div></div>
+        <div class="detail-row"><div class="detail-label">Phone:</div><div class="detail-value">${customer[HEADER_PHONE_NUMBER_WHATSAPP] || 'N/A'}</div></div>
+        <div class="detail-row"><div class="detail-label">Address:</div><div class="detail-value">${customer[HEADER_ADDRESS] || 'N/A'}</div></div>
+        <div class="detail-row"><div class="detail-label">Profession:</div><div class="detail-value">${customer[HEADER_PROFESSION] || 'N/A'}</div></div>
+        <div class="detail-row"><div class="detail-label">DOB/WD:</div><div class="detail-value">${formatDate(customer[HEADER_DOB_WD])}</div></div>
+    `;
+
+    // Populate Activity & Interests card
+    document.getElementById('customerCard2').innerHTML = `
+        <h4>Activity & Interests</h4>
+        <div class="detail-row"><div class="detail-label">Activity Type:</div><div class="detail-value">${customer[HEADER_ACTIVITY_TYPE] || 'N/A'}</div></div>
+        <div class="detail-row"><div class="detail-label">Type of Customer:</div><div class="detail-value">${customer[HEADER_TYPE_OF_CUSTOMER] || 'N/A'}</div></div>
+        <div class="detail-row"><div class="detail-label">Lead Source:</div><div class="detail-value">${customer[HEADER_R_LEAD_SOURCE] || 'N/A'}</div></div>
+        <div class="detail-row"><div class="detail-label">How Contacted:</div><div class="detail-value">${customer[HEADER_HOW_CONTACTED] || 'N/A'}</div></div>
+        <div class="detail-row"><div class="detail-label">Product Interested:</div><div class="detail-value">${customer[HEADER_PRODUCT_INTERESTED] || 'N/A'}</div></div>
+        <div class="detail-row"><div class="detail-label">Remarks:</div><div class="detail-value">${customer[HEADER_REMARKS] || 'N/A'}</div></div>
+        <div class="detail-row"><div class="detail-label">Next Follow-up:</div><div class="detail-value">${formatDate(customer[HEADER_NEXT_FOLLOW_UP_DATE])}</div></div>
+    `;
+
+    // Populate Family & Profile card
+    document.getElementById('customerCard3').innerHTML = `
+        <h4>Family & Profile</h4>
+        <div class="detail-row"><div class="detail-label">Relation with Staff:</div><div class="detail-value">${customer[HEADER_RELATION_WITH_STAFF] || 'N/A'}</div></div>
+        <div class="detail-row"><div class="detail-label">Wife/Husband Name:</div><div class="detail-value">${customer[HEADER_FAMILY_DETAILS_1] || 'N/A'}</div></div>
+        <div class="detail-row"><div class="detail-label">Wife/Husband Job:</div><div class="detail-value">${customer[HEADER_FAMILY_DETAILS_2] || 'N/A'}</div></div>
+        <div class="detail-row"><div class="detail-label">Children Names:</div><div class="detail-value">${customer[HEADER_FAMILY_DETAILS_3] || 'N/A'}</div></div>
+        <div class="detail-row"><div class="detail-label">Children Details:</div><div class="detail-value">${customer[HEADER_FAMILY_DETAILS_4] || 'N/A'}</div></div>
+        <div class="detail-row"><div class="detail-label">Customer Profile:</div><div class="detail-value">${customer[HEADER_PROFILE_OF_CUSTOMER] || 'N/A'}</div></div>
+    `;
+
+    customerDetailsContent.style.display = 'grid'; // Ensure the grid layout is visible for details
+}
     // Function to calculate performance percentage
     function calculatePerformance(actuals, targets) {
         const performance = {};
@@ -1890,6 +2010,18 @@ if (downloadOverallStaffPerformanceReportBtn) { // This variable is correct
     });
 }
     // --- END NEW ---
+    // --- NEW: Event Listener for "Detailed Customer View" tab button ---
+if (detailedCustomerViewTabBtn) {
+    detailedCustomerViewTabBtn.addEventListener('click', () => {
+        showTab('detailedCustomerViewTabBtn'); // This activates the tab content
+
+        // Optional: You might want to automatically load the initial list
+        // of customers when this tab is clicked, especially if no filters
+        // are yet applied. You can call loadDetailedCustomerReport() here.
+        // However, ensure it handles initial empty filters gracefully.
+        // For now, it will load when filters are applied using dropdowns.
+    });
+}
 
     // Initial data fetch and tab display when the page loads
     processData();
