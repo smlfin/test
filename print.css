@@ -1,0 +1,81 @@
+/* print.css */
+
+/* Hide elements not needed in print */
+header, footer, .report-tabs, .controls-panel, .message-container, .btn,
+.customer-list-display, #downloadOverallStaffPerformanceReportBtn {
+    display: none !important; /* Use !important to override existing display properties */
+}
+
+/* Ensure content is visible */
+body {
+    background-color: #fff !important;
+    color: #000 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+}
+
+main {
+    box-shadow: none !important;
+    margin: 0 !important;
+    padding: 20px !important;
+    max-width: none !important; /* Allow content to use full page width */
+}
+
+/* Adjust table styles for print */
+table {
+    width: 100% !important;
+    border-collapse: collapse !important;
+    font-size: 11pt !important;
+}
+
+table th, table td {
+    border: 1px solid #000 !important;
+    padding: 5px !important;
+    text-align: left !important;
+}
+
+/* Ensure progress bars print clearly (as solid blocks or text) */
+.progress-bar-container, .progress-bar-container-small {
+    background-color: #e0e0e0 !important; /* Light grey background */
+    border: 1px solid #bbb !important;
+    print-color-adjust: exact; /* For webkit browsers, ensure background color prints */
+    -webkit-print-color-adjust: exact;
+}
+
+.progress-bar {
+    background-color: #4CAF50 !important; /* Or a darker color for better contrast */
+    color: black !important; /* Ensure text is visible */
+}
+
+/* Handle specific table header visibility for print if needed */
+table thead {
+    display: table-header-group !important; /* Ensure headers repeat on new pages */
+}
+table tr, table td {
+    display: table-cell !important; /* Override mobile styles if present */
+}
+table td::before {
+    content: none !important; /* Hide data-label content from mobile view */
+}
+
+/* Make sure all report sections are displayed for printing */
+.report-section, .employee-management-section, .detailed-customer-view-section {
+    display: block !important; /* Ensure all relevant sections are visible */
+}
+
+/* Hide detailed customer view card sections if not needed */
+.customer-detail-card {
+    box-shadow: none !important;
+    border: 1px solid #ccc !important;
+    background-color: #fff !important;
+    color: #000 !important; /* Ensure text is black */
+}
+
+.customer-detail-card h3 {
+    color: #333 !important;
+}
+
+/* Page breaks */
+.report-section, .employee-management-section, .detailed-customer-view-section {
+    page-break-before: always; /* Start each major section on a new page */
+}
