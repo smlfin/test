@@ -633,9 +633,10 @@ li.customer-list-item.active {
         flex: 2; /* Take two parts of the space, making it wider */
     }
 
-     .customer-details-card {
-        /* On larger screens, use a 2-column grid for sections */
-        grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)); /* Adjusted min-width for larger screens */
+     @media (min-width: 768px) {
+    /* ... other styles ... */
+    .customer-details-card {
+        grid-template-columns: repeat(3, 1fr); /* Changed to force 3 columns */
         gap: 30px; /* Increased gap on larger screens */
     }
 }
