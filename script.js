@@ -1429,38 +1429,59 @@ function displaySelectedCustomerDetails(customer) {
     }
 
     function showCustomerDetails(entry) {
-        document.getElementById('currentCustomerName').textContent = entry[HEADER_PROSPECT_NAME];
-        customerCard1.innerHTML = `
-            <h4>Contact & Basic Info</h4>
-            <p><strong>Phone:</strong> ${entry[HEADER_PHONE_NUMBER_WHATSAPP]}</p>
-            <p><strong>Address:</strong> ${entry[HEADER_ADDRESS]}</p>
-            <p><strong>Profession:</strong> ${entry[HEADER_PROFESSION]}</p>
-            <p><strong>DOB/WD:</strong> ${entry[HEADER_DOB_WD]}</p>
-            <p><strong>Relation with Staff:</strong> ${entry[HEADER_RELATION_WITH_STAFF]}</p>
-        `;
-        customerCard2.innerHTML = `
-            <h4>Activity & Interests</h4>
-            <p><strong>Activity Type:</strong> ${entry[HEADER_ACTIVITY_TYPE]}</p>
-            <p><strong>Date:</strong> ${formatDate(entry[HEADER_TIMESTAMP])}</p>
-            <p><strong>Type of Customer:</strong> ${entry[HEADER_TYPE_OF_CUSTOMER]}</p>
-            <p><strong>Lead Source:</strong> ${entry[HEADER_R_LEAD_SOURCE]}</p>
-            <p><strong>How Contacted:</strong> ${entry[HEADER_HOW_CONTACTED]}</p>
-            <p><strong>Product Interested:</strong> ${entry[HEADER_PRODUCT_INTERESTED]}</p>
-            <p><strong>Remarks:</strong> ${entry[HEADER_REMARKS]}</p>
-            <p><strong>Next Follow-up:</strong> ${formatDate(entry[HEADER_NEXT_FOLLOW_UP_DATE])}</p>
-        `;
-        customerCard3.innerHTML = `
-            <h4>Family & Profile</h4>
-            <p><strong>Wife/Husband Name:</strong> ${entry[HEADER_FAMILY_DETAILS_1]}</p>
-            <p><strong>Wife/Husband Job:</strong> ${entry[HEADER_FAMILY_DETAILS_2]}</p>
-            <p><strong>Children Names:</strong> ${entry[HEADER_FAMILY_DETAILS_3]}</p>
-            <p><strong>Children Details:</strong> ${entry[HEADER_FAMILY_DETAILS_4]}</p>
-            <p><strong>Profile of Customer:</strong> ${entry[HEADER_PROFILE_OF_CUSTOMER]}</p>
-        `;
-        customerDetailsContent.style.display = 'flex'; // Show the cards
-        customerDetailsContent.scrollIntoView({ behavior: 'smooth' }); // Scroll to view
-    }
+    document.getElementById('currentCustomerName').textContent = entry[HEADER_PROSPECT_NAME] || 'N/A'; // Added || 'N/A' for safety
 
+    // --- NEW: Populate Employee & Branch Info section ---
+    // Ensure you have a div with id="employeeBranchInfo" in your HTML as instructed previously
+    const employeeBranchInfoDiv = document.getElementById('employeeBranchInfo');
+    if (employeeBranchInfoDiv) { // Check if the element exists
+        employeeBranchInfoDiv.innerHTML = `
+            <h3>Employee & Branch Info</h3>
+            <div class="detail-row">
+                <div class="detail-label">Employee Name:</div>
+                <div class="detail-value">${entry[HEADER_EMPLOYEE_NAME] || 'N/A'}</div>
+            </div>
+            <div class="detail-row">
+                <div class="detail-label">Branch Name:</div>
+                <div class="detail-value">${entry[HEADER_BRANCH_NAME] || 'N/A'}</div>
+            </div>
+        `;
+    }
+    // --- END NEW ---
+
+    // Update existing card content to use the detail-row structure for consistency and null checks
+    customerCard1.innerHTML = `
+        <h4>Contact & Basic Info</h4>
+        <div class="detail-row"><div class="detail-label">Phone:</div><div class="detail-value">${entry[HEADER_PHONE_NUMBER_WHATSAPP] || 'N/A'}</div></div>
+        <div class="detail-row"><div class="detail-label">Address:</div><div class="detail-value">${entry[HEADER_ADDRESS] || 'N/A'}</div></div>
+        <div class="detail-row"><div class="detail-label">Profession:</div><div class="detail-value">${entry[HEADER_PROFESSION] || 'N/A'}</div></div>
+        <div class="detail-row"><div class="detail-label">DOB/WD:</div><div class="detail-value">${formatDate(entry[HEADER_DOB_WD]) || 'N/A'}</div></div>
+        <div class="detail-row"><div class="detail-label">Relation with Staff:</div><div class="detail-value">${entry[HEADER_RELATION_WITH_STAFF] || 'N/A'}</div></div>
+    `;
+    customerCard2.innerHTML = `
+        <h4>Activity & Interests</h4>
+        <div class="detail-row"><div class="detail-label">Activity Type:</div><div class="detail-value">${entry[HEADER_ACTIVITY_TYPE] || 'N/A'}</div></div>
+        <div class="detail-row"><div class="detail-label">Date:</div><div class="detail-value">${formatDate(entry[HEADER_TIMESTAMP]) || 'N/A'}</div></div>
+        <div class="detail-row"><div class="detail-label">Type of Customer:</div><div class="detail-value">${entry[HEADER_TYPE_OF_CUSTOMER] || 'N/A'}</div></div>
+        <div class="detail-row"><div class="detail-label">Lead Source:</div><div class="detail-value">${entry[HEADER_R_LEAD_SOURCE] || 'N/A'}</div></div>
+        <div class="detail-row"><div class="detail-label">How Contacted:</div><div class="detail-value">${entry[HEADER_HOW_CONTACTED] || 'N/A'}</div></div>
+        <div class="detail-row"><div class="detail-label">Product Interested:</div><div class="detail-value">${entry[HEADER_PRODUCT_INTERESTED] || 'N/A'}</div></div>
+        <div class="detail-row"><div class="detail-label">Remarks:</div><div class="detail-value">${entry[HEADER_REMARKS] || 'N/A'}</div></div>
+        <div class="detail-row"><div class="detail-label">Next Follow-up:</div><div class="detail-value">${formatDate(entry[HEADER_NEXT_FOLLOW_UP_DATE]) || 'N/A'}</div></div>
+    `;
+    customerCard3.innerHTML = `
+        <h4>Family & Profile</h4>
+        <div class="detail-row"><div class="detail-label">Wife/Husband Name:</div><div class="detail-value">${entry[HEADER_FAMILY_DETAILS_1] || 'N/A'}</div></div>
+        <div class="detail-row"><div class="detail-label">Wife/Husband Job:</div><div class="detail-value">${entry[HEADER_FAMILY_DETAILS_2] || 'N/A'}</div></div>
+        <div class="detail-row"><div class="detail-label">Children Names:</div><div class="detail-value">${entry[HEADER_FAMILY_DETAILS_3] || 'N/A'}</div></div>
+        <div class="detail-row"><div class="detail-label">Children Details:</div><div class="detail-value">${entry[HEADER_FAMILY_DETAILS_4] || 'N/A'}</div></div>
+        <div class="detail-row"><div class="detail-label">Profile of Customer:</div><div class="detail-value">${entry[HEADER_PROFILE_OF_CUSTOMER] || 'N/A'}</div></div>
+    `;
+
+    // --- Recommended Change: Set display to 'grid' for consistency ---
+    customerDetailsContent.style.display = 'grid'; // Changed from 'flex' to 'grid'
+    customerDetailsContent.scrollIntoView({ behavior: 'smooth' }); // Scroll to view
+}
     document.getElementById('downloadDetailedCustomerReportBtn').addEventListener('click', downloadDetailedCustomerReport);
 
     function downloadDetailedCustomerReport() {
