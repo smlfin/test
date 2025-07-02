@@ -1352,3 +1352,229 @@ select:focus {
 #downloadOverallStaffPerformanceReportBtn:hover {
     background-color: #0056b3; /* Darker blue on hover */
 }
+/* --- NEW: Detailed Customer View Specific Styles --- */
+#detailedCustomerViewSection {
+    display: flex;
+    flex-direction: column;
+    gap: 25px; /* Increased space between list and details */
+    padding-top: 25px;
+}
+
+#detailedCustomerViewSection h2 {
+    color: #2e7d32; /* Darker green for main heading */
+    text-align: center;
+    margin-top: 0;
+    margin-bottom: 25px;
+    font-size: 2.2em;
+    font-weight: 600;
+}
+
+#detailedCustomerViewSection .controls-panel {
+    justify-content: center;
+    margin-bottom: 0;
+    background-color: #ffffff; /* Consistent white background for controls */
+    border: 1px solid #e0e0e0;
+    border-radius: 10px; /* Slightly more rounded */
+    padding: 20px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.05); /* Enhanced shadow */
+}
+
+.customer-list-display, .customer-details-display {
+    background-color: #ffffff; /* Pure white background */
+    border: 1px solid #d4edda; /* Light green border for a softer look */
+    border-radius: 12px; /* More rounded corners */
+    padding: 25px; /* Increased padding */
+    box-shadow: 0 6px 15px rgba(0,0,0,0.08); /* More prominent shadow */
+    flex: 1;
+    transition: box-shadow 0.3s ease; /* Smooth shadow transition */
+}
+
+.customer-list-display:hover, .customer-details-display:hover {
+    box-shadow: 0 8px 20px rgba(0,0,0,0.12); /* Slightly larger shadow on hover */
+}
+
+.customer-list-display h3, .customer-details-display h3 {
+    color: #4CAF50; /* Primary green for section headings */
+    margin-top: 0;
+    margin-bottom: 20px;
+    border-bottom: 2px solid #e8f5e9; /* Light green bottom border */
+    padding-bottom: 12px;
+    font-size: 1.6em; /* Larger heading */
+    text-align: center;
+    font-weight: 600;
+}
+
+ul.customer-list {
+    list-style: none;
+    padding: 0;
+    max-height: 450px; /* Slightly increased max height */
+    overflow-y: auto;
+    border: 1px solid #c8e6c9; /* Greenish border for the list container */
+    border-radius: 8px; /* Rounded corners for the list */
+    background-color: #fcfcfc; /* Very light background for the list */
+}
+
+li.customer-list-item {
+    padding: 12px 20px; /* More padding */
+    border-bottom: 1px solid #e0f2f1; /* Lighter, subtle border */
+    cursor: pointer;
+    transition: background-color 0.3s ease, font-weight 0.3s ease, color 0.3s ease;
+    font-size: 1.05em; /* Slightly larger font */
+    color: #444; /* Darker default text */
+}
+
+li.customer-list-item:last-child {
+    border-bottom: none;
+}
+
+li.customer-list-item:hover {
+    background-color: #e8f5e9; /* Soft green on hover */
+    color: #2e7d32; /* Darker green text on hover */
+}
+
+li.customer-list-item.active {
+    background-color: #d4edda; /* Muted green for active tab */
+    font-weight: bold;
+    color: #1b5e20; /* Very dark green for active text */
+    border-left: 5px solid #4CAF50; /* Stronger active indicator */
+    padding-left: 15px; /* Adjust padding due to border */
+}
+
+.customer-details-card {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); /* Adjusted min-width for better spacing */
+    gap: 25px; /* Increased space between sections */
+    padding: 15px;
+    background-color: #fefefe; /* Very light background for the card */
+    border: 1px solid #e0e0e0;
+    border-radius: 10px;
+    min-height: 180px; /* Slightly increased min-height */
+    overflow-y: auto;
+    box-shadow: inset 0 0 8px rgba(0,0,0,0.03); /* Inner shadow for depth */
+}
+
+.customer-info-section {
+    background-color: #ffffff;
+    border: 1px solid #f0f0f0; /* Lighter border */
+    border-radius: 8px;
+    padding: 20px; /* Increased padding */
+    box-shadow: 0 2px 6px rgba(0,0,0,0.05); /* Subtle shadow for each section */
+    transition: transform 0.2s ease;
+}
+
+.customer-info-section:hover {
+    transform: translateY(-2px); /* Slight lift on hover */
+}
+
+.customer-info-section h3 {
+    color: #33691e; /* Dark green for section headings */
+    margin-top: 0;
+    margin-bottom: 18px;
+    padding-bottom: 10px;
+    border-bottom: 2px solid #c5e1a5; /* Softer, green border */
+    font-size: 1.25em; /* Slightly larger heading */
+    font-weight: bold;
+    text-align: left;
+}
+
+.detail-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 8px 0; /* More vertical padding */
+    border-bottom: 1px dashed #e0e0e0; /* Slightly darker dashed line */
+    align-items: flex-start; /* Align items to the start for better multi-line handling */
+}
+
+.detail-row:last-child {
+    border-bottom: none;
+}
+
+.detail-label {
+    font-weight: 600; /* Slightly bolder */
+    color: #555;
+    flex-basis: 45%; /* Adjusted basis */
+    min-width: 140px; /* Increased min-width */
+    text-align: left;
+    line-height: 1.4; /* Better line height for labels */
+}
+
+.detail-value {
+    color: #333;
+    flex-basis: 55%; /* Adjusted basis */
+    text-align: right;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    line-height: 1.4; /* Consistent line height */
+}
+
+.remark-text, .profile-text {
+    line-height: 1.7; /* Increased line height for better readability */
+    color: #444;
+    text-align: left; /* Changed to left for better flow, avoid jagged edges */
+    padding: 10px 0; /* Increased padding */
+    font-size: 0.95em;
+}
+
+.full-width-section {
+    grid-column: 1 / -1;
+}
+
+
+/* --- Responsive Design --- */
+@media (min-width: 768px) {
+    #detailedCustomerViewSection {
+        flex-direction: row;
+    }
+
+    .customer-list-display {
+        flex: 1;
+        max-width: 380px; /* Slightly increased max-width for list */
+    }
+    .customer-details-display {
+        flex: 2.5; /* Made details section wider */
+    }
+
+    .customer-details-card {
+        grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)); /* Adjusted min-width for larger screens */
+        gap: 30px; /* Increased gap on larger screens */
+    }
+}
+
+@media (max-width: 767px) {
+    /* Existing responsive table styles should be considered */
+
+    /* Customer details responsiveness */
+    .detail-row {
+        flex-direction: column;
+        align-items: flex-start;
+        padding: 10px 0; /* More padding when stacked */
+    }
+
+    .detail-label {
+        width: 100%;
+        margin-bottom: 5px; /* More space between label and value */
+    }
+
+    .detail-value {
+        width: 100%;
+        text-align: left;
+    }
+
+    .customer-list-display, .customer-details-display {
+        padding: 20px; /* Slightly less padding on small screens */
+    }
+    .customer-list-display h3, .customer-details-display h3 {
+        font-size: 1.4em;
+        margin-bottom: 15px;
+    }
+    li.customer-list-item {
+        padding: 10px 15px;
+    }
+    .customer-details-card {
+        padding: 10px;
+        gap: 20px;
+    }
+    .customer-info-section {
+        padding: 15px;
+    }
+}
