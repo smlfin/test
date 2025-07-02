@@ -633,11 +633,11 @@ li.customer-list-item.active {
         flex: 2; /* Take two parts of the space, making it wider */
     }
 
-     @media (min-width: 768px) {
+    @media (min-width: 768px) {
     /* ... other styles ... */
     .customer-details-card {
-        grid-template-columns: repeat(3, 1fr); /* Changed to force 3 columns */
-        gap: 30px; /* Increased gap on larger screens */
+        grid-template-columns: repeat(3, 1fr); /* **CHANGE THIS LINE** to force 3 columns */
+        gap: 30px;
     }
 }
 
@@ -1536,8 +1536,9 @@ li.customer-list-item.active {
     }
 
     .customer-details-card {
-        grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)); /* Adjusted min-width for larger screens */
-        gap: 30px; /* Increased gap on larger screens */
+        display: grid;
+    grid-template-columns: 1fr; /* This default is good for mobile, stacks vertically */
+    gap: 20px;
     }
 }
 
