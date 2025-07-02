@@ -532,7 +532,7 @@ li.customer-list-item.active {
 .customer-details-card {
     /* Updated for a more engaging, multi-column layout for details */
     display: grid;
-    grid-template-columns: 1fr; /* Default to single column on small screens */
+    grid-template-columns: repeat(3, 1fr); /* Changed to force 3 columns by default */
     gap: 20px; /* Space between sections */
     padding: 10px;
     background-color: #fdfdfd;
@@ -633,9 +633,9 @@ li.customer-list-item.active {
         flex: 2; /* Take two parts of the space, making it wider */
     }
 
-    .customer-details-card {
-        /* Force 3 columns on larger screens */
-        grid-template-columns: repeat(3, 1fr); /* This is the change */
+     .customer-details-card {
+        /* On larger screens, use a 2-column grid for sections */
+        grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)); /* Adjusted min-width for larger screens */
         gap: 30px; /* Increased gap on larger screens */
     }
 }
