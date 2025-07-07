@@ -304,6 +304,34 @@ function displayMessage(message, type = 'info') {
     }
 
     // CSV parsing function (handles commas within quoted strings)
+   // Helper to standardize timestamp format to ensure seconds are present
+    function standardizeTimestampFormat(timestampStr) {
+        if (!timestampStr) return '';
+        // Check if the timestamp string already contains seconds (HH:MM:SS)
+        // This regex looks for two digits, then a colon, then two more digits, at the end of the string, optionally followed by space and AM/PM
+        const hasSecondsRegex = /:\d{2}(\s|$)/;
+        if (hasSecondsRegex.test(timestampStr)) {
+            return timestampStr; // Already has seconds
+        } else {
+            // If seconds are missing (e.g., "07-01-2025 10:31" or "7/1/2025 10:31 AM")
+            // Try to append :00. This might need to be more sophisticated if other date formats exist.
+            // For "MM-DD-YYYY HH:MM", we just append ":00"
+            // For "MM/DD/YYYY HH:MM AM/PM", we need to insert ":00" before AM/PM
+            const parts = timestampStr.split(' ');
+            if (parts.length >= 2) {
+                const timePart = parts[1];
+                if (timePart && timePart.split(':').length === 2) { // Check if time is HH:MM
+                    // Reconstruct with :00
+                    return `${parts[0]} ${timePart}:00${parts.length > 2 ? ' ' + parts.slice(2).join(' ') : ''}`;
+                }
+            }
+            // Fallback: If not recognized, return as is or handle error
+            console.warn('Timestamp format not recognized for standardization:', timestampStr);
+            return timestampStr;
+        }
+    }
+
+    // CSV parsing function (handles commas within quoted strings)
     function parseCSV(csv) {
         const lines = csv.split('\n').filter(line => line.trim() !== '');
         if (lines.length === 0) return [];
@@ -319,7 +347,11 @@ function displayMessage(message, type = 'info') {
             }
             const entry = {};
             headers.forEach((header, index) => {
-                entry[header] = values[index];
+                let value = values[index];
+                if (header === HEADER_TIMESTAMP) {
+                    value = standardizeTimestampFormat(value); // Apply standardization
+                }
+                entry[header] = value;
             });
             data.push(entry);
         }
