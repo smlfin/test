@@ -383,6 +383,7 @@ function displayMessage(message, type = 'info') {
         
         // NEW: Populate month dropdowns
         populateMonthDropdowns();
+        updateCustomerViewEmployeeDropdown(); // NEW: Call for initial setup of customer view employee dropdown
 
         console.log('Final All Unique Branches (Predefined):', allUniqueBranches);
         console.log('Final Employee Code To Name Map (from Canvassing Data):', employeeCodeToNameMap);
@@ -441,19 +442,33 @@ function displayMessage(message, type = 'info') {
     }
 
     // NEW: Function to filter data by selected month and year
-    function filterDataByMonth(data, selectedMonthValue) {
-        if (!selectedMonthValue) {
-            return data; // If no month is selected, return all data
-        }
-        const [monthIndexStr, yearStr] = selectedMonthValue.split('-');
-        const selectedMonth = parseInt(monthIndexStr) - 1; // Convert to 0-indexed month
-        const selectedYear = parseInt(yearStr);
-
-        return data.filter(entry => {
-            const entryDate = new Date(entry[HEADER_TIMESTAMP]);
-            return entryDate.getMonth() === selectedMonth && entryDate.getFullYear() === selectedYear;
-        });
+    // This function filters your data by selected month and year
+// It also now includes a warning to help you find problematic timestamps.
+function filterDataByMonth(data, selectedMonthValue) {
+    if (!selectedMonthValue) {
+        return data; // If no month is selected, return all data
     }
+    const [monthIndexStr, yearStr] = selectedMonthValue.split('-');
+    const selectedMonth = parseInt(monthIndexStr) - 1; // Convert to 0-indexed month
+    const selectedYear = parseInt(yearStr);
+
+    return data.filter(entry => {
+        const timestampValue = entry[HEADER_TIMESTAMP];
+        const entryDate = new Date(timestampValue);
+
+        // --- NEW CODE ADDED HERE FOR DEBUGGING TIMESTAMP ISSUES ---
+        // If JavaScript cannot understand the timestamp, it creates an "Invalid Date".
+        // This checks for that and prints a warning to your browser's console.
+        if (isNaN(entryDate.getTime())) {
+            console.warn(`Warning: Timestamp parsing failed for entry with value: '${timestampValue}'. This entry will be excluded from month filtering.`);
+            return false; // Exclude entries that have an invalid date
+        }
+        // --- END OF NEW CODE ---
+
+        // Only include entries where the month and year match the selected ones
+        return entryDate.getMonth() === selectedMonth && entryDate.getFullYear() === selectedYear;
+    });
+}
 
     // Filter employees based on selected branch
     branchSelect.addEventListener('change', () => {
@@ -572,15 +587,29 @@ function displayMessage(message, type = 'info') {
 
 
     // NEW: Event listener for customerViewMonthSelect dropdown
-    customerViewMonthSelect.addEventListener('change', () => {
-        const selectedBranch = customerViewBranchSelect.value;
-        const selectedEmployee = customerViewEmployeeSelect.value;
-        if (selectedBranch && selectedEmployee) {
-            loadDetailedCustomerReport(); // Reload the customer report with new month filter
-        } else {
-            detailedCustomerReportTableBody.innerHTML = '<tr><td colspan="5">Select a branch, employee, and month to load customer data.</td></tr>';
-        }
-    });
+   // This makes the "Employee" dropdown update when you change the MONTH
+customerViewMonthSelect.addEventListener('change', () => {
+    // If a branch is already chosen, update the employee list
+    const selectedBranch = customerViewBranchSelect.value;
+    if (selectedBranch) {
+        updateCustomerViewEmployeeDropdown();
+    }
+    loadDetailedCustomerReport(); // Reload the customer report
+});
+    // This is a NEW section: It makes the "Employee" dropdown update when you change the BRANCH
+customerViewBranchSelect.addEventListener('change', () => {
+    updateCustomerViewEmployeeDropdown(); // Update employee list when branch changes
+    // If both branch and employee are selected, load the report
+    const selectedBranch = customerViewBranchSelect.value;
+    const selectedEmployee = customerViewEmployeeSelect.value;
+    if (selectedBranch && selectedEmployee) {
+        loadDetailedCustomerReport();
+    } else {
+        // Show a message if no employee is selected yet
+        detailedCustomerReportTableBody.innerHTML = '<tr><td colspan="5">Select an employee to load customer data.</td></tr>';
+        customerDetailsContent.style.display = 'none';
+    }
+});
 
     // Helper to calculate total activity from a set of activity entries based on Activity Type
     function calculateTotalActivity(entries) {
@@ -2043,7 +2072,40 @@ if (detailedCustomerViewTabBtn) {
         // For now, it will load when filters are applied using dropdowns.
     });
 }
+// NEW FUNCTION: This updates the "Employee" dropdown for "Detailed Customer View"
+function updateCustomerViewEmployeeDropdown() {
+    const selectedBranch = customerViewBranchSelect.value;
+    const selectedMonthValue = customerViewMonthSelect.value;
 
+    if (selectedBranch) {
+        // First, filter all data by the selected month
+        let filteredByMonthData = filterDataByMonth(allCanvassingData, selectedMonthValue);
+
+        // Then, get only employees from that month's data for the selected branch
+        const employeeCodesInBranchFromCanvassing = filteredByMonthData
+            .filter(entry => entry[HEADER_BRANCH_NAME] === selectedBranch)
+            .map(entry => entry[HEADER_EMPLOYEE_CODE]);
+
+        // Get unique employee codes and sort them
+        const combinedEmployeeCodes = new Set([
+            ...employeeCodesInBranchFromCanvassing
+        ]);
+        const sortedEmployeeCodesInBranch = [...combinedEmployeeCodes].sort((codeA, codeB) => {
+            const nameA = employeeCodeToNameMap[codeA] || codeA;
+            const nameB = employeeCodeToNameMap[codeB] || codeB;
+            return nameA.localeCompare(nameB);
+        });
+
+        // Populate the specific employee dropdown for "Detailed Customer View"
+        populateDropdown(customerViewEmployeeSelect, sortedEmployeeCodesInBranch, true);
+        // Reset the employee selection after branch or month changes
+        customerViewEmployeeSelect.value = "";
+    } else {
+        // If no branch is selected, clear the employee dropdown
+        customerViewEmployeeSelect.innerHTML = '<option value="">-- Select --</option>';
+        customerViewEmployeeSelect.value = "";
+    }
+}
     // Initial data fetch and tab display when the page loads
     processData();
     showTab('allBranchSnapshotTabBtn');
